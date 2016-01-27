@@ -23,7 +23,7 @@ gps.on('data', function(raw, parsed) {
 gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,0000*5E");
 ```
 
-It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGS', ...)` for example.
+It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGA', ...)` for example.
 
 Protocols
 ===
