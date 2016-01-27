@@ -104,7 +104,6 @@ The parsed object will have the following attributes:
 - speed: Speed over ground in km/h
 - valid: Indicates if the checksum is okay
 
-Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
 GPS State
 ===
@@ -118,6 +117,8 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 - speed: Speed over ground in km/h
 - track: Track in degrees
 - sats_visible: Array of all visible satellites
+
+Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
 
 Installation
