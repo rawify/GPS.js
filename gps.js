@@ -1,5 +1,5 @@
 /**
- * GPS.js v0.0.2 26/01/2016
+ * GPS.js v0.0.3 26/01/2016
  *
  * Copyright (c) 2015, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -55,10 +55,11 @@
             ret.setUTCFullYear("20" + date.slice(4, 6), date.slice(2, 4) - 1, date.slice(0, 2));
         }
 
+
         ret.setUTCHours(time.slice(0, 2));
         ret.setUTCMinutes(time.slice(2, 4));
         ret.setUTCSeconds(time.slice(4, 6));
-        ret.setUTCMilliseconds(parseFloat(time.slice(7)));
+        ret.setUTCMilliseconds(parseFloat(time.slice(7)) || 0);
 
         return ret;
     }
@@ -415,14 +416,14 @@
     GPS.prototype["update"] = function(line) {
 
         if (typeof line !== "string")
-            return null;
+            return false;
 
         var nmea = line.split(",");
 
         var last = nmea.pop();
 
         if (nmea.length < 4 || line.charAt(0) !== "$" || last.indexOf("*") === -1) {
-            return null;
+            return false;
         }
 
         last = last.split("*");
@@ -446,6 +447,7 @@
                 this["events"][nmea[0]](tmp);
             }
         }
+        return true;
     };
 
     GPS.prototype["on"] = function(ev, cb) {
