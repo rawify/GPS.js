@@ -1,9 +1,9 @@
 {
     "name": "gps.js",
     "title": "gps.js",
-    "version": "0.0.1",
-    "homepage": "https://github.com/infusion/node-gps",
-    "bugs": "https://github.com/infusion/node-gps/issues",
+    "version": "0.0.2",
+    "homepage": "https://github.com/infusion/GPS.js",
+    "bugs": "https://github.com/infusion/GPS.js/issues",
     "description": "A GPS NMEA parser library",
     "keywords": ["nmea", "gps", "parser", "rmc", "gga", "gsa", "vtg", "gva"],
     "author": "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)",
@@ -15,7 +15,7 @@
     "license": "MIT OR GPL-2.0",
     "repository": {
         "type": "git",
-        "url": "git://github.com/infusion/node-gps.git"
+        "url": "git://github.com/infusion/GPS.js.git"
     },
     "engines": {
         "node": "*"
