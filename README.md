@@ -15,11 +15,14 @@ The interface of GPS.js is as simple as the following few lines. You need to add
 ```javascript
 var gps = new GPS;
 
+// Add an event listener on all protocols
 gps.on('data', function(raw, parsed) {
     
     console.log(parsed);
 });
 
+// Call the update routine directly with a NMEA sentence, which would
+// come from the serial port or stream-reader normally
 gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,0000*5E");
 ```
 
