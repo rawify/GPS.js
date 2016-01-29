@@ -1,4 +1,5 @@
-# GPS.js
+
+![GPS.js](logo.png?raw=true "Javascript GPS Parser")
 
 [![NPM Package](https://img.shields.io/npm/v/gps.js.svg?style=flat)](https://npmjs.org/package/gps.js "View this project on npm")
 [![Build Status](https://travis-ci.org/infusion/GPS.js.svg?branch=master)](https://travis-ci.org/infusion/GPS.js)
