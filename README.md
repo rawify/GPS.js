@@ -133,6 +133,18 @@ Installing GPS.js is as easy as cloning this repo or use the following command:
 npm install gps.js
 ```
 
+Using GPS.js with the browser
+===
+The use cases should be rare to parse NMEA directly inside the browser, but it works too.
+
+```
+<script src="gps.js"></script>
+<script>
+   var gps = new GPS;
+   gps.update('...');
+</script>
+```
+
 Testing
 ===
 If you plan to enhance the library, make sure you add test cases and all the previous tests are passing. You can test the library with
