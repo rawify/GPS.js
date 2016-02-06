@@ -22,7 +22,7 @@
             state['alt'] = data['alt'];
         }
 
-        if (data['type'] === 'RMC' || data['type'] === 'VTG') {
+        if (data['type'] === 'RMC'/* || data['type'] === 'VTG'*/) {
             // TODO: is rmc speed/track really interchangeable with vtg speed/track?
             state['speed'] = data['speed'];
             state['track'] = data['track'];
@@ -30,6 +30,10 @@
 
         if (data['type'] === 'GSA') {
             state['sats_active'] = data['satellites'];
+            state['fix'] = data['fix'];
+            state['hdop'] = data['hdop'];
+            state['pdop'] = data['pdop'];
+            state['vdop'] = data['vdop'];
         }
 
         if (data['type'] === 'GSV') {
@@ -438,7 +442,7 @@
             var tmp = this["mod"][nmea[0]](line, nmea);
 
             updateState(this.state, tmp);
-
+            
             if (this["events"]["data"] !== undefined) {
                 this["events"]["data"](line, tmp);
             }
@@ -449,7 +453,7 @@
         }
         return true;
     };
-
+    
     GPS.prototype["on"] = function(ev, cb) {
 
         if (this["events"][ev] === undefined) {

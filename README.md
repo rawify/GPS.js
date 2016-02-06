@@ -29,6 +29,33 @@ gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,
 
 It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGA', ...)` for example.
 
+
+Examples
+===
+
+GPS.js comes with some examples, like drawing the current latutude and longitude to Google Maps, displaying a persistent state and displaying the parsed raw data. In some cases you have to adjust the serial path to your own GPS receiver to make it work.
+
+Dashboard
+---
+Go into the folder `examples/dashboard` and start the server with
+
+```
+node server
+```
+
+After that you can open the browser and go to http://localhost:3000
+
+Google Maps
+---
+Go into the folder `examples/maps` and start the server with
+
+```
+node server
+```
+
+After that you can open the browser and go to http://localhost:3000
+
+
 Protocols
 ===
 
