@@ -46,7 +46,7 @@ var tests = {
         "quality": "fix",
         "satelites": 5,
         "stationID": 0,
-        "time": new Date("2016-02-01T23:49:20.000Z"),
+        "time": new Date("2016-02-06T23:49:20.000Z"),
         "type": "GGA",
         "valid": true
     },
@@ -60,7 +60,7 @@ var tests = {
         "quality": "fix",
         "satelites": 8,
         "stationID": NaN,
-        "time": new Date("2016-02-01T12:35:19.000Z"),
+        "time": new Date("2016-02-06T12:35:19.000Z"),
         "type": "GGA",
         "valid": true,
     },
