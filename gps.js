@@ -444,11 +444,11 @@
             updateState(this.state, tmp);
             
             if (this["events"]["data"] !== undefined) {
-                this["events"]["data"](line, tmp);
+                this["events"]["data"].call(this, line, tmp);
             }
 
             if (this["events"][nmea[0]] !== undefined) {
-                this["events"][nmea[0]](tmp);
+                this["events"][nmea[0]].call(this, tmp);
             }
         }
         return true;
