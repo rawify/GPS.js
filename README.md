@@ -29,6 +29,14 @@ gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,
 
 It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGA', ...)` for example.
 
+Installation
+===
+Installing GPS.js is as easy as cloning this repo or use the following command:
+
+```
+npm install gps.js
+```
+
 
 Examples
 ===
@@ -150,15 +158,6 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 - sats_visible: Array of all visible satellites
 
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
-
-
-Installation
-===
-Installing GPS.js is as easy as cloning this repo or use the following command:
-
-```
-npm install gps.js
-```
 
 Using GPS.js with the browser
 ===
