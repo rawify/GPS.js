@@ -29,6 +29,6 @@
         "serialport": "*",
         "mocha": "*",
         "chai": "*",
-        "stream-line": "*"
+        "byline": "*"
     }
 }
