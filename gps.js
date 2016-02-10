@@ -353,8 +353,7 @@
          */
 
         if (vtg[2] !== "T") {
-            // Track mode not okay
-            return null;
+            throw "Invalid VTG track mode: " + str;
         }
 
         if (vtg[8] !== "K" || vtg[6] !== "N") {
