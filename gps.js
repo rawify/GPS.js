@@ -17,6 +17,10 @@
       state['lat'] = data['lat'];
       state['lon'] = data['lon'];
     }
+    
+    if (data['type'] === 'ZDA') {
+      state['time'] = data['time'];
+    }
 
     if (data['type'] === 'GGA') {
       state['alt'] = data['alt'];
@@ -59,7 +63,16 @@
     if (date) {
       // If we need to parse older data, we should hack something like 
       // year < 80 ? 2000+year : 1900+year
-      ret.setUTCFullYear('20' + date.slice(4, 6), date.slice(2, 4) - 1, date.slice(0, 2));
+      
+      var year = date.slice(4);
+      var month = date.slice(2, 4) - 1;
+      var day = date.slice(0, 2);
+      
+      if (year.length === 4) {
+        ret.setUTCFullYear(year, month, day);
+      } else {
+        ret.setUTCFullYear('20' + year, month, day);
+      }
     }
 
     ret.setUTCHours(time.slice(0, 2));
@@ -445,6 +458,26 @@
       'msgsTotal': parseNumber(gsv[1]),
       //'satsInView'  : parseNumber(gsv[3]), // Can be obtained by satellites.length
       'satellites': sats
+    };
+  },
+
+  // UTC Date / Time and Local Time Zone Offset
+  'ZDA': function(str, zda) {
+    
+	/*
+	1    = hhmmss.ss = UTC
+	2    = xx = Day, 01 to 31
+	3    = xx = Month, 01 to 12
+	4    = xxxx = Year
+	5    = xx = Local zone description, 00 to +/- 13 hours
+	6    = xx = Local zone minutes description (same sign as hours)
+	*/
+
+    var time = parseTime(zda[1], zda[2] + zda[3] + zda[4]);
+
+    return {
+      'time': time === null ? null : time,
+      //'delta': time === null ? null : (Date.now() - time) / 1000
     };
   }
 

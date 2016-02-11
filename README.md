@@ -145,6 +145,13 @@ The parsed object will have the following attributes:
 - faa: The FAA mode, introduced with NMEA 2.3
 - valid: Indicates if the checksum is okay
 
+ZDA - UTC day, month, and year, and local time zone offset
+---
+
+The parsed object will have the following attributes:
+
+- type: "ZDA"
+- time: The time given as a JavaScript Date object
 
 GPS State
 ===
