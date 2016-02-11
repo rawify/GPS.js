@@ -250,7 +250,6 @@
         */
 
         return {
-            "type"        : gga[0],
             "time"        : parseTime(gga[1]),
             "lat"         : parseCoord(gga[2], gga[3]),
             "lon"         : parseCoord(gga[4], gga[5]),
@@ -260,8 +259,7 @@
             "hdop"        : parseNumber(gga[8]), // dilution
             "geoidal"     : parseDist(gga[11], gga[12]), // aboveGeoid
             "age"         : parseNumber(gga[13]), // dgpsUpdate???
-            "stationID"   : parseNumber(gga[14]), // dgpsReference??
-            "valid"       : isValid(str, gga[15])
+            "stationID"   : parseNumber(gga[14]) // dgpsReference??
         };
     },
 
@@ -300,14 +298,12 @@
         }
 
         return {
-            "type"        : gsa[0],
             "mode"        : parseGSAMode(gsa[1]),
             "fix"         : parseGSAFix(gsa[2]),
             "satellites"  : sats,
             "pdop"        : parseNumber(gsa[15]),
             "vdop"        : parseNumber(gsa[16]),
-            "hdop"        : parseNumber(gsa[17]),
-            "valid"       : isValid(str, gsa[18])
+            "hdop"        : parseNumber(gsa[17])
         };
     },
 
@@ -338,7 +334,6 @@
          */
 
         return {
-            "type"        : rmc[0],
             "time"        : parseTime(rmc[1], rmc[9]),
             "status"      : parseRMCStatus(rmc[2]),
             "lat"         : parseCoord(rmc[3], rmc[4]),
@@ -346,8 +341,7 @@
             "speed"       : parseKnots(rmc[7]),
             "track"       : parseNumber(rmc[8]),
             "variation"   : parseRMCVariation(rmc[10], rmc[11]),
-            "faa"         : rmc.length === 14 ? parseFAA(rmc[12]) : null,
-            "valid"       : isValid(str, rmc[rmc.length-1])
+            "faa"         : rmc.length === 14 ? parseFAA(rmc[12]) : null
         };
     },
 
@@ -386,11 +380,9 @@
         }
 
         return {
-            "type"        : vtg[0],
             "track"       : parseNumber(vtg[1]),
             "speed"       : parseKnots(vtg[5]),
-            "faa"         : vtg.length === 11 ? parseFAA(vtg[9]) : null,
-            "valid"       : isValid(str, vtg[vtg.length - 1])
+            "faa"         : vtg.length === 11 ? parseFAA(vtg[9]) : null
         };
     },
 
@@ -430,12 +422,10 @@
         }
 
         return {
-            "type"        : gsv[0],
             "msgNumber"   : parseNumber(gsv[2]),
             "msgsTotal"   : parseNumber(gsv[1]),
             //"satsInView"  : parseNumber(gsv[3]), // Can be obtained by satellites.length
-            "satellites"  : sats,
-            "valid"       : isValid(str, gsv[gsv.length - 1])
+            "satellites"  : sats
         };
     }
         
@@ -462,8 +452,13 @@
         nmea[0] = nmea[0].slice(3);
 
         if (GPS["mod"][nmea[0]] !== undefined) {
-          // TODO: set raw, valid, type
-          return this["mod"][nmea[0]](line, nmea);
+          // set raw data here as well?
+          var data = this["mod"][nmea[0]](line, nmea);
+          
+          data['valid'] = isValid(line, nmea[nmea.length - 1]);
+          data['type'] = nmea[0];
+
+          return data;
         }
         return false;
     };
@@ -471,19 +466,19 @@
 
     GPS.prototype["update"] = function(line) {
 
-      var tmp = GPS.parse(line);
+      var parsed = GPS.parse(line);
       
-      if (tmp === false)
+      if (parsed === false)
         return false;
 
-      updateState(this.state, tmp);
+      updateState(this.state, parsed);
 
       if (this["events"]["data"] !== undefined) {
-          this["events"]["data"].call(this, line, tmp);
+          this["events"]["data"].call(this, line, parsed);
       }
 
-      if (this["events"][tmp.type] !== undefined) {
-          this["events"][tmp.type].call(this, tmp);
+      if (this["events"][parsed.type] !== undefined) {
+          this["events"][parsed.type].call(this, parsed);
       }
       return true;
     };
