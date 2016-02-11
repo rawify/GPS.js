@@ -36,6 +36,7 @@
       state['vdop'] = data['vdop'];
     }
 
+    // TODO: better merge algorithm
     if (data['type'] === 'GSV') {
 
       var sats = data['satellites'];
@@ -56,9 +57,10 @@
     var ret = new Date;
 
     if (date) {
+      // If we need to parse older data, we should hack something like 
+      // year < 80 ? 2000+year : 1900+year
       ret.setUTCFullYear('20' + date.slice(4, 6), date.slice(2, 4) - 1, date.slice(0, 2));
     }
-
 
     ret.setUTCHours(time.slice(0, 2));
     ret.setUTCMinutes(time.slice(2, 4));
@@ -114,24 +116,39 @@
       case 'M':
         return 'manual';
       case 'A':
-        return 'auto';
+        return 'automatic';
       case '':
         return null;
     }
     throw 'INVALID GSA MODE: ' + mode;
+  }
+  
+  function parseGGAFix(fix) {
+
+    switch (fix) {
+      case '':
+      case '0':
+        return null;
+      case '1':
+        return 'fix';
+      case '2':
+        return 'diff';
+      case '6':
+        return 'estimated';
+    }
+    throw 'INVALID GGA FIX: ' + fix;    
   }
 
   function parseGSAFix(fix) {
 
     switch (fix) {
       case '1':
+      case '':
         return null;
       case '2':
         return '2D';
       case '3':
         return '3D';
-      case '':
-        return null;
     }
     throw 'INVALID GSA FIX: ' + fix;
   }
@@ -155,19 +172,19 @@
 
     switch (faa) {
       case 'A':
-        return 'Autonomous';
+        return 'autonomous';
       case 'D':
-        return 'Differential';
+        return 'differential';
       case 'E':
-        return 'Estimated';
+        return 'estimated';
       case 'M':
-        return 'Manual input';
+        return 'manual input';
       case 'S':
-        return 'Simulated';
+        return 'simulated';
       case 'N':
-        return 'Not Valid';
+        return 'not valid';
       case 'P':
-        return 'Precise';
+        return 'precise';
     }
     throw 'INVALID FAA MODE: ' + faa;
   }
@@ -219,8 +236,6 @@
       throw 'Invalid GGA length: ' + str;
     }
 
-    var FIX_TYPE = ['invalid', 'fix', 'diff'];
-
     /*
      11
      1         2       3 4        5 6 7  8   9  10 |  12 13  14  15
@@ -254,7 +269,7 @@
       'lat': parseCoord(gga[2], gga[3]),
       'lon': parseCoord(gga[4], gga[5]),
       'alt': parseDist(gga[9], gga[10]),
-      'quality': FIX_TYPE[+gga[6]],
+      'quality': parseGGAFix(gga[6]),
       'satelites': parseNumber(gga[7]),
       'hdop': parseNumber(gga[8]), // dilution
       'geoidal': parseDist(gga[11], gga[12]), // aboveGeoid
@@ -282,7 +297,7 @@
      1=Fix not available
      2=2D
      3=3D
-     3-14 = IDs of SVs used in position fix (null for unused fields)
+     3-14 = PRNs of Satellite Vehicles (SVs) used in position fix (null for unused fields)
      15   = PDOP
      16   = HDOP
      17   = VDOP
@@ -302,8 +317,8 @@
       'fix': parseGSAFix(gsa[2]),
       'satellites': sats,
       'pdop': parseNumber(gsa[15]),
-      'vdop': parseNumber(gsa[16]),
-      'hdop': parseNumber(gsa[17])
+      'hdop': parseNumber(gsa[16]),
+      'vdop': parseNumber(gsa[17])
     };
   },
 
@@ -329,7 +344,7 @@
      9    = UT date
      10   = Magnetic variation degrees (Easterly var. subtracts from true course)
      11   = E or W
-     (12) = NMEA 2.3 introduced FAA
+     (12) = NMEA 2.3 introduced FAA mode indicator (A=Autonomous, D=Differential, E=Estimated, N=Data not valid)
      12   = Checksum
      */
 
@@ -413,11 +428,15 @@
 
     for (var i = 4; i < gsv.length - 1; i += 4) {
 
+      var prn = parseNumber(gsv[i]);
+      var snr = parseNumber(gsv[i + 3]);
+
       sats.push({
-        'prn': parseNumber(gsv[i    ]),
+        'prn': prn,
         'elevation': parseNumber(gsv[i + 1]),
         'azimuth': parseNumber(gsv[i + 2]),
-        'snr': parseNumber(gsv[i + 3])
+        'snr': snr,
+        'status': prn !== null ? (snr !== null ? 'tracking' : 'in view') : null
       });
     }
 

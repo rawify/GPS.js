@@ -6,8 +6,8 @@ var tests = {
   'foo': 'invalid',
   '$GPGSA,A,3,29,26,31,21,,,,,,,,,2.0,1.7,1.0*39': {
     'fix': '3D',
-    'hdop': 1,
-    'mode': 'auto',
+    'hdop': 1.7,
+    'mode': 'automatic',
     'pdop': 2,
     'raw': '$GPGSA,A,3,29,26,31,21,,,,,,,,,2.0,1.7,1.0*39',
     'satellites': [
@@ -18,7 +18,7 @@ var tests = {
     ],
     'type': 'GSA',
     'valid': true,
-    'vdop': 1.7
+    'vdop': 1
   },
   '$GPRMC,234919.000,A,4832.3914,N,00903.5500,E,2.28,2.93,260116,,*0D': {
     'lat': 48.539856666666665,
@@ -95,21 +95,25 @@ var tests = {
         'elevation': 17,
         'prn': 16,
         'snr': 46,
+        'status': 'tracking'
       }, {
         'azimuth': 307,
         'elevation': 61,
         'prn': 20,
         'snr': 51,
+        'status': 'tracking'
       }, {
         'azimuth': 283,
         'elevation': 36,
         'prn': 23,
-        'snr': 47
+        'snr': 47,
+        'status': 'tracking'
       }, {
         'azimuth': 34,
         'elevation': 6,
         'prn': 25,
-        'snr': 0
+        'snr': 0,
+        'status': 'tracking'
       }
     ],
     'type': 'GSV',
@@ -132,8 +136,8 @@ var tests = {
   },
   '$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A': {
     'fix': '3D',
-    'hdop': 1.38,
-    'mode': 'auto',
+    'hdop': 1.03,
+    'mode': 'automatic',
     'pdop': 1.72,
     'raw': '$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A',
     'satellites': [
@@ -148,7 +152,7 @@ var tests = {
     ],
     'type': 'GSA',
     'valid': true,
-    'vdop': 1.03
+    'vdop': 1.38
   },
   '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70': {
     'msgNumber': 1,
@@ -159,22 +163,26 @@ var tests = {
         'azimuth': 137,
         'elevation': 63,
         'prn': 10,
-        'snr': 17
+        'snr': 17,
+        'status': 'tracking'
       }, {
         'azimuth': 98,
         'elevation': 61,
         'prn': 7,
-        'snr': 15
+        'snr': 15,
+        'status': 'tracking'
       }, {
         'azimuth': 290,
         'elevation': 59,
         'prn': 5,
-        'snr': 20
+        'snr': 20,
+        'status': 'tracking'
       }, {
         'azimuth': 157,
         'elevation': 54,
         'prn': 8,
-        'snr': 30
+        'snr': 30,
+        'status': 'tracking'
       }
     ],
     'type': 'GSV',
@@ -189,22 +197,26 @@ var tests = {
         'azimuth': 223,
         'elevation': 39,
         'prn': 2,
-        'snr': 16
+        'snr': 16,
+        'status': 'tracking'
       }, {
         'azimuth': 70,
         'elevation': 28,
         'prn': 13,
-        'snr': 17
+        'snr': 17,
+        'status': 'tracking'
       }, {
         'azimuth': 252,
         'elevation': 23,
         'prn': 26,
-        'snr': null
+        'snr': null,
+        'status': 'in view'
       }, {
         'azimuth': 186,
         'elevation': 14,
         'prn': 4,
-        'snr': 15
+        'snr': 15,
+        'status': 'tracking'
       }
     ],
     'type': 'GSV',
@@ -219,24 +231,27 @@ var tests = {
         'azimuth': 301,
         'elevation': 9,
         'prn': 29,
-        'snr': 24
+        'snr': 24,
+        'status': 'tracking'
       }, {
         'azimuth': 20,
         'elevation': 9,
         'prn': 16,
-        'snr': null
+        'snr': null,
+        'status': 'in view'
       }, {
         'azimuth': null,
         'elevation': null,
         'prn': 36,
-        'snr': null
+        'snr': null,
+        'status': 'in view'
       }
     ],
     'type': 'GSV',
     'valid': true
   },
   '$GPRMC,092750.000,A,5321.6802,N,00630.3372,W,0.02,31.66,280511,,,A*43': {
-    'faa': 'Autonomous',
+    'faa': 'autonomous',
     'lat': 53.361336666666666,
     'lon': -6.50562,
     'raw': '$GPRMC,092750.000,A,5321.6802,N,00630.3372,W,0.02,31.66,280511,,,A*43',
@@ -264,7 +279,7 @@ var tests = {
     'valid': true
   },
   '$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45': {
-    'faa': 'Autonomous',
+    'faa': 'autonomous',
     'lat': 53.361336666666666,
     'lon': -6.5056183333333335,
     'raw': '$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45',
