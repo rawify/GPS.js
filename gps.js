@@ -473,10 +473,8 @@
 	6    = xx = Local zone minutes description (same sign as hours)
 	*/
 
-    var time = parseTime(zda[1], zda[2] + zda[3] + zda[4]);
-
     return {
-      'time': time === null ? null : time,
+      'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
       //'delta': time === null ? null : (Date.now() - time) / 1000
     };
   }
