@@ -100,6 +100,7 @@ The parsed object will have the following attributes:
 - speed: Speed over the ground in km/h
 - track: Track angle in degrees
 - variation: Magnetic Variation
+- faa: The FAA mode, introduced with NMEA 2.3
 - valid: Indicates if the checksum is okay
 
 
@@ -141,6 +142,7 @@ The parsed object will have the following attributes:
 - type: "VTG"
 - track: Track in degrees
 - speed: Speed over ground in km/h
+- faa: The FAA mode, introduced with NMEA 2.3
 - valid: Indicates if the checksum is okay
 
 

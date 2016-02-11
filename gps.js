@@ -148,6 +148,29 @@
         }
         throw "INVALID RSA STATUS: " + status;
     }
+    
+    function parseFAA(faa) {
+      
+      // Only A and D will correspond to an Active and reliable Sentence
+      
+      switch (faa) {
+        case 'A': 
+          return "Autonomous";
+        case 'D': 
+          return "Differential";
+        case 'E': 
+          return "Estimated";
+        case 'M': 
+          return "Manual input";
+        case 'S': 
+          return "Simulated";
+        case 'N': 
+          return "Not Valid";
+        case 'P': 
+          return "Precise";
+      }
+      throw "INVALID FAA MODE: " + faa;
+    }
 
     function parseRMCVariation(vari, dir) {
 
@@ -188,7 +211,7 @@
     GPS.prototype["events"] = {};
     GPS.prototype["state"] = {};
     
-    GPS.prototype["mod"] = {
+    GPS["mod"] = {
         
     "GGA": function(str, gga) {
 
@@ -288,10 +311,10 @@
         };
     },
 
-    // Recommended Minimum sentence C
+    // Recommended Minimum data for gps
     "RMC": function(str, rmc) {
 
-        if (rmc.length !== 13) {
+        if (rmc.length !== 13 && rmc.length !== 14) {
             throw "Invalid RMC length: " + str;
         }
 
@@ -310,6 +333,7 @@
          9    = UT date
          10   = Magnetic variation degrees (Easterly var. subtracts from true course)
          11   = E or W
+         (12) = NMEA 2.3 introduced FAA
          12   = Checksum
          */
 
@@ -322,7 +346,8 @@
             "speed"       : parseKnots(rmc[7]),
             "track"       : parseNumber(rmc[8]),
             "variation"   : parseRMCVariation(rmc[10], rmc[11]),
-            "valid"       : isValid(str, rmc[12])
+            "faa"         : rmc.length === 14 ? parseFAA(rmc[12]) : null,
+            "valid"       : isValid(str, rmc[rmc.length-1])
         };
     },
 
@@ -364,6 +389,7 @@
             "type"        : vtg[0],
             "track"       : parseNumber(vtg[1]),
             "speed"       : parseKnots(vtg[5]),
+            "faa"         : vtg.length === 11 ? parseFAA(vtg[9]) : null,
             "valid"       : isValid(str, vtg[vtg.length - 1])
         };
     },
@@ -414,12 +440,11 @@
     }
         
     };
-
-
-    GPS.prototype["update"] = function(line) {
+    
+    GPS.parse = function(line) {
 
         if (typeof line !== "string")
-            return false;
+          return false;
 
         var nmea = line.split(",");
 
@@ -436,21 +461,31 @@
         // Remove $ character and first two chars from the beginning
         nmea[0] = nmea[0].slice(3);
 
-        if (this["mod"][nmea[0]] !== undefined) {
-
-            var tmp = this["mod"][nmea[0]](line, nmea);
-
-            updateState(this.state, tmp);
-            
-            if (this["events"]["data"] !== undefined) {
-                this["events"]["data"].call(this, line, tmp);
-            }
-
-            if (this["events"][nmea[0]] !== undefined) {
-                this["events"][nmea[0]].call(this, tmp);
-            }
+        if (GPS["mod"][nmea[0]] !== undefined) {
+          // TODO: set raw, valid, type
+          return this["mod"][nmea[0]](line, nmea);
         }
-        return true;
+        return false;
+    };
+
+
+    GPS.prototype["update"] = function(line) {
+
+      var tmp = GPS.parse(line);
+      
+      if (tmp === false)
+        return false;
+
+      updateState(this.state, tmp);
+
+      if (this["events"]["data"] !== undefined) {
+          this["events"]["data"].call(this, line, tmp);
+      }
+
+      if (this["events"][tmp.type] !== undefined) {
+          this["events"][tmp.type].call(this, tmp);
+      }
+      return true;
     };
     
     GPS.prototype["on"] = function(ev, cb) {

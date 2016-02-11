@@ -27,6 +27,7 @@ var tests = {
         "time": new Date("2016-01-26T23:49:19.000Z"),
         "track": 2.93,
         "type": "RMC",
+        "faa": null,
         "valid": true,
         "variation": null
     },
@@ -34,6 +35,7 @@ var tests = {
         "speed": 4.22256,
         "track": 2.93,
         "type": "VTG",
+        "faa": null,
         "valid": true
     },
     "$GPGGA,234920.000,4832.3918,N,00903.5488,E,1,05,1.7,437.9,M,48.0,M,,0000*51": {
@@ -46,7 +48,7 @@ var tests = {
         "quality": "fix",
         "satelites": 5,
         "stationID": 0,
-        "time": new Date("2016-02-10T23:49:20.000Z"),
+        "time": new Date("2016-02-11T23:49:20.000Z"),
         "type": "GGA",
         "valid": true
     },
@@ -60,7 +62,7 @@ var tests = {
         "quality": "fix",
         "satelites": 8,
         "stationID": NaN,
-        "time": new Date("2016-02-10T12:35:19.000Z"),
+        "time": new Date("2016-02-11T12:35:19.000Z"),
         "type": "GGA",
         "valid": true,
     },
@@ -73,6 +75,7 @@ var tests = {
         "time": new Date("2098-09-13T08:18:36.000Z"),
         "track": 360,
         "type": "RMC",
+        "faa": null,
         "valid": true,
         "variation": 11.3
     },
