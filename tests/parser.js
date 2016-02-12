@@ -52,7 +52,7 @@ var tests = {
     'raw': '$GPGGA,234920.000,4832.3918,N,00903.5488,E,1,05,1.7,437.9,M,48.0,M,,0000*51',
     'satelites': 5,
     'stationID': 0,
-    'time': new Date('2016-02-11T23:49:20.000Z'),
+    'time': new Date('2016-02-12T23:49:20.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -67,7 +67,7 @@ var tests = {
     'quality': 'fix',
     'satelites': 8,
     'stationID': NaN,
-    'time': new Date('2016-02-11T12:35:19.000Z'),
+    'time': new Date('2016-02-12T12:35:19.000Z'),
     'type': 'GGA',
     'valid': true,
   },
@@ -130,7 +130,7 @@ var tests = {
     'raw': '$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-02-11T09:27:50.000Z'),
+    'time': new Date('2016-02-12T09:27:50.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -193,6 +193,125 @@ var tests = {
     ],
     'type': 'GSV',
     'valid': true
+  },
+  '$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A': {
+    "faa": null,
+    "lat": 48.1173,
+    "lon": 11.516666666666667,
+    "raw": "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A",
+    "speed": 41.4848,
+    "status": "active",
+    "time": new Date('2094-03-23T12:35:19.000Z'),
+    "track": 84.4,
+    "type": "RMC",
+    "valid": true,
+    "variation": -3.1
+  },
+  //'$GPVTG,210.43,T,210.43,M,5.65,N,,,A*67': {},
+  '$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45': {
+    "age": null,
+    "alt": 545.9,
+    "geoidal": 46.9,
+    "hdop": 0.9,
+    "lat": 48.117333333333335,
+    "lon": 113.01666666666667,
+    "quality": "fix",
+    "raw": "$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45",
+    "satelites": 8,
+    "stationID": null,
+    "time": new Date('2016-02-12T12:35:19.000Z'),
+    "type": "GGA",
+    "valid": true
+  },
+  '$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37': {
+    "fix": "3D",
+    "hdop": 7.6,
+    "mode": "automatic",
+    "pdop": 9.4,
+    "raw": "$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37",
+    "satellites": [
+      12,
+      5,
+      25,
+      29
+    ],
+    "type": "GSA",
+    "valid": true,
+    "vdop": 5.6
+  },
+  '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74': {
+    "msgNumber": 1,
+    "msgsTotal": 3,
+    "raw": "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74",
+    "satellites": [
+      {
+        "azimuth": 111,
+        "elevation": 3,
+        "prn": 3,
+        "snr": 0,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 270,
+        "elevation": 15,
+        "prn": 4,
+        "snr": 0,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 10,
+        "elevation": 1,
+        "prn": 6,
+        "snr": 0,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 292,
+        "elevation": 6,
+        "prn": 13,
+        "snr": 0,
+        "status": "tracking"
+      }
+    ],
+    "type": "GSV",
+    "valid": true
+  },
+  '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D': {
+    "msgNumber": 2,
+    "msgsTotal": 3,
+    "raw": "$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D",
+    "satellites": [
+      {
+        "azimuth": 170,
+        "elevation": 25,
+        "prn": 14,
+        "snr": 0,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 208,
+        "elevation": 57,
+        "prn": 16,
+        "snr": 39,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 296,
+        "elevation": 67,
+        "prn": 18,
+        "snr": 40,
+        "status": "tracking"
+      },
+      {
+        "azimuth": 246,
+        "elevation": 40,
+        "prn": 19,
+        "snr": 0,
+        "status": "tracking"
+      }
+    ],
+    "type": "GSV",
+    "valid": false
   },
   '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77': {
     'msgNumber': 2,
@@ -280,7 +399,7 @@ var tests = {
     'raw': '$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-02-11T09:27:51.000Z'),
+    'time': new Date('2016-02-12T09:27:51.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -298,13 +417,11 @@ var tests = {
     'variation': null
   }
 };
-
 var collect = {};
 gps.on('data', function(raw, data) {
 
   collect[raw] = data;
 });
-
 for (var i in tests) {
 
   if (!gps.update(i)) {
@@ -324,21 +441,12 @@ describe('NMEA syntax', function() {
     })(i);
   }
 });
-
 /*
  $IIDBT,036.41,f,011.10,M,005.99,F*25
  $IIMWV,017,R,02.91,N,A*2F
  $XXMWV,017.00,R,2.91,N,A*31
  $IIVTG,210.43,T,210.43,M,5.65,N,,,A*67
  $XXVTG,210.43,T,209.43,M,2.91,N,,,A*63
- '$GPGSA,A,1,,,,,,,,,,,,,,,*1E',
- '$GPGSV,3,1,12,29,75,266,39,05,48,047,,26,43,108,,15,35,157,*78',
- '$GPGSV,3,2,12,21,30,292,,18,21,234,,02,18,093,,25,13,215,*7F',
- '$GPGSV,3,3,12,30,11,308,,16,,333,,12,,191,,07,-4,033,*62',
- '$GPRMC,085542.023,V,,,,,,,041211,,,N*45',
- '$GPGGA,085543.023,,,,,0,00,,,M,0.0,M,,0000*58',
- '$IIBWC,160947,6008.160,N,02454.290,E,162.4,T,154.3,M,001.050,N,DEST*1C',
- '$IIAPB,A,A,0.001,L,N,V,V,154.3,M,DEST,154.3,M,154.2,M*19'
  $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
  '$GPGSA,A,1,,,,,,,,,,,,,,,*1E',
  '$GPGSV,3,1,12,29,75,266,39,05,48,047,,26,43,108,,15,35,157,*78',
