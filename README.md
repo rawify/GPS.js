@@ -34,7 +34,7 @@ Installation
 Installing GPS.js is as easy as cloning this repo or use the following command:
 
 ```
-npm install gps.js
+npm install --save gps.js
 ```
 
 
