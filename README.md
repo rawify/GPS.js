@@ -29,6 +29,17 @@ gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,
 
 It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGA', ...)` for example.
 
+State
+===
+
+The real advantage over other NMEA implementations is, that the GPS information is also interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
+
+```javascript
+gps.on('data', function(raw, data) {
+  console.log(gps.state);
+});
+```
+
 Installation
 ===
 Installing GPS.js is as easy as cloning this repo or use the following command:
