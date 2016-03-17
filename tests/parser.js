@@ -52,7 +52,7 @@ var tests = {
     'raw': '$GPGGA,234920.000,4832.3918,N,00903.5488,E,1,05,1.7,437.9,M,48.0,M,,0000*51',
     'satelites': 5,
     'stationID': 0,
-    'time': new Date('2016-02-12T23:49:20.000Z'),
+    'time': new Date('2016-03-16T23:49:20.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -67,7 +67,7 @@ var tests = {
     'quality': 'fix',
     'satelites': 8,
     'stationID': NaN,
-    'time': new Date('2016-02-12T12:35:19.000Z'),
+    'time': new Date('2016-03-16T12:35:19.000Z'),
     'type': 'GGA',
     'valid': true,
   },
@@ -130,7 +130,7 @@ var tests = {
     'raw': '$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-02-12T09:27:50.000Z'),
+    'time': new Date('2016-03-16T09:27:50.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -219,7 +219,7 @@ var tests = {
     "raw": "$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45",
     "satelites": 8,
     "stationID": null,
-    "time": new Date('2016-02-12T12:35:19.000Z'),
+    "time": new Date('2016-03-16T12:35:19.000Z'),
     "type": "GGA",
     "valid": true
   },
@@ -399,7 +399,7 @@ var tests = {
     'raw': '$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-02-12T09:27:51.000Z'),
+    'time': new Date('2016-03-16T09:27:51.000Z'),
     'type': 'GGA',
     'valid': true
   },
