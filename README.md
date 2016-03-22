@@ -128,6 +128,17 @@ The parsed object will have the following attributes:
 - hdop: Horizontal [dilution of precision](https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS))
 - valid: Indicates if the checksum is okay
 
+GLL - Geographic Position - Latitude/Longitude
+---
+The parsed object will have the following attributes:
+
+- type: "GLL"
+- lat: The latitude
+- lon: The longitude
+- status: Status active or void
+- time: The time given as a JavaScript Date object
+- valid: Indicates if the checksum is okay
+
 GSV - List of Satellites in view
 ---
 GSV messages are paginated. `msgNumber` indicates the current page and `msgsTotal` is the total number of pages.
