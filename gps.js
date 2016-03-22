@@ -12,7 +12,7 @@
 
   function updateState(state, data) {
 
-    if (data['type'] === 'RMC' || data['type'] === 'GGA') {
+    if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL') {
       state['time'] = data['time'];
       state['lat'] = data['lat'];
       state['lon'] = data['lon'];
@@ -166,7 +166,7 @@
     throw 'INVALID GSA FIX: ' + fix;
   }
 
-  function parseRMCStatus(status) {
+  function parseRMC_GLLStatus(status) {
 
     switch (status) {
       case 'A':
@@ -176,7 +176,7 @@
       case '':
         return null;
     }
-    throw 'INVALID RSA STATUS: ' + status;
+    throw 'INVALID RMC/GLL STATUS: ' + status;
   }
 
   function parseFAA(faa) {
@@ -363,7 +363,7 @@
 
     return {
       'time': parseTime(rmc[1], rmc[9]),
-      'status': parseRMCStatus(rmc[2]),
+      'status': parseRMC_GLLStatus(rmc[2]),
       'lat': parseCoord(rmc[3], rmc[4]),
       'lon': parseCoord(rmc[5], rmc[6]),
       'speed': parseKnots(rmc[7]),
@@ -458,6 +458,38 @@
       'msgsTotal': parseNumber(gsv[1]),
       //'satsInView'  : parseNumber(gsv[3]), // Can be obtained by satellites.length
       'satellites': sats
+    };
+  },
+  
+  // Geographic Position - Latitude/Longitude
+  'GLL': function(str, gll) {
+    
+    if (gll.length !== 9) {
+      throw 'Invalid GLL length: ' + str;
+    }
+
+    /*
+      ------------------------------------------------------------------------------
+              1       2 3        4 5         6 7   8
+              |       | |        | |         | |   |
+       $--GLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,a,m,*hh<CR><LF>
+      ------------------------------------------------------------------------------
+
+      1. Latitude
+      2. N or S (North or South)
+      3. Longitude
+      4. E or W (East or West)
+      5. Universal Time Coordinated (UTC)
+      6. Status A - Data Valid, V - Data Invalid
+      7. FAA mode indicator (NMEA 2.3 and later)
+      8. Checksum
+     */
+
+    return {
+      'time': parseTime(gll[5]),
+      'status': parseRMC_GLLStatus(gll[6]),
+      'lat': parseCoord(gll[1], gll[2]),
+      'lon': parseCoord(gll[3], gll[4])
     };
   },
 
