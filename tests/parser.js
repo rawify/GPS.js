@@ -52,7 +52,7 @@ var tests = {
     'raw': '$GPGGA,234920.000,4832.3918,N,00903.5488,E,1,05,1.7,437.9,M,48.0,M,,0000*51',
     'satelites': 5,
     'stationID': 0,
-    'time': new Date('2016-03-22T23:49:20.000Z'),
+    'time': new Date('2016-03-28T23:49:20.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -67,7 +67,7 @@ var tests = {
     'quality': 'fix',
     'satelites': 8,
     'stationID': NaN,
-    'time': new Date('2016-03-22T12:35:19.000Z'),
+    'time': new Date('2016-03-28T12:35:19.000Z'),
     'type': 'GGA',
     'valid': true,
   },
@@ -130,7 +130,7 @@ var tests = {
     'raw': '$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-03-22T09:27:50.000Z'),
+    'time': new Date('2016-03-28T09:27:50.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -219,7 +219,7 @@ var tests = {
     "raw": "$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45",
     "satelites": 8,
     "stationID": null,
-    "time": new Date('2016-03-22T12:35:19.000Z'),
+    "time": new Date('2016-03-28T12:35:19.000Z'),
     "type": "GGA",
     "valid": true
   },
@@ -399,7 +399,7 @@ var tests = {
     'raw': '$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-03-22T09:27:51.000Z'),
+    'time': new Date('2016-03-28T09:27:51.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -421,7 +421,7 @@ var tests = {
     "lon": 23.539016666666665,
     "raw": "$GPGLL,6005.068,N,02332.341,E,095601,A,D*42",
     "status": "active",
-    "time": new Date("2016-03-22T09:56:01.000Z"),
+    "time": new Date("2016-03-28T09:56:01.000Z"),
     "type": "GLL",
     "valid": true
   },
@@ -430,7 +430,7 @@ var tests = {
     "lon": -123.18533333333333,
     "raw": "$GPGLL,4916.45,N,12311.12,W,225444,A,*1D",
     "status": "active",
-    "time": new Date('2016-03-22T22:54:44.000Z'),
+    "time": new Date('2016-03-28T22:54:44.000Z'),
     "type": "GLL",
     "valid": true
   }
