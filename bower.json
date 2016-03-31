@@ -5,7 +5,7 @@
     "homepage": "https://github.com/infusion/GPS.js",
     "description": "A GPS NMEA parser library",
     "keywords": [
-        "nmea", "gps", "serial", "parser", "geo", "location", "rmc", "gga", "gll", "gsa", "vtg", "gva"
+        "nmea", "nmea", "gps", "serial", "parser", "distance", "geo", "location", "rmc", "gga", "gll", "gsa", "vtg", "gva"
     ],
     "authors": [
         "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)"

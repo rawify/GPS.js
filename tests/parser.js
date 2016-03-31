@@ -1,4 +1,11 @@
 
+function _(x) {
+  return x < 10 ? "0" + x : x;
+}
+
+var today = new Date();
+today = today.getFullYear() + '-' + _(today.getMonth() + 1) + '-' + _(today.getDate());
+
 var expect = require('chai').expect;
 var GPS = require('../gps.js');
 var gps = new GPS;
@@ -52,7 +59,7 @@ var tests = {
     'raw': '$GPGGA,234920.000,4832.3918,N,00903.5488,E,1,05,1.7,437.9,M,48.0,M,,0000*51',
     'satelites': 5,
     'stationID': 0,
-    'time': new Date('2016-03-28T23:49:20.000Z'),
+    'time': new Date(today + 'T23:49:20.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -67,7 +74,7 @@ var tests = {
     'quality': 'fix',
     'satelites': 8,
     'stationID': NaN,
-    'time': new Date('2016-03-28T12:35:19.000Z'),
+    'time': new Date(today + 'T12:35:19.000Z'),
     'type': 'GGA',
     'valid': true,
   },
@@ -130,7 +137,7 @@ var tests = {
     'raw': '$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-03-28T09:27:50.000Z'),
+    'time': new Date(today + 'T09:27:50.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -195,123 +202,117 @@ var tests = {
     'valid': true
   },
   '$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A': {
-    "faa": null,
-    "lat": 48.1173,
-    "lon": 11.516666666666667,
-    "raw": "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A",
-    "speed": 41.4848,
-    "status": "active",
-    "time": new Date('2094-03-23T12:35:19.000Z'),
-    "track": 84.4,
-    "type": "RMC",
-    "valid": true,
-    "variation": -3.1
+    'faa': null,
+    'lat': 48.1173,
+    'lon': 11.516666666666667,
+    'raw': '$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A',
+    'speed': 41.4848,
+    'status': 'active',
+    'time': new Date('2094-03-23T12:35:19.000Z'),
+    'track': 84.4,
+    'type': 'RMC',
+    'valid': true,
+    'variation': -3.1
   },
   //'$GPVTG,210.43,T,210.43,M,5.65,N,,,A*67': {},
   '$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45': {
-    "age": null,
-    "alt": 545.9,
-    "geoidal": 46.9,
-    "hdop": 0.9,
-    "lat": 48.117333333333335,
-    "lon": 113.01666666666667,
-    "quality": "fix",
-    "raw": "$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45",
-    "satelites": 8,
-    "stationID": null,
-    "time": new Date('2016-03-28T12:35:19.000Z'),
-    "type": "GGA",
-    "valid": true
+    'age': null,
+    'alt': 545.9,
+    'geoidal': 46.9,
+    'hdop': 0.9,
+    'lat': 48.117333333333335,
+    'lon': 113.01666666666667,
+    'quality': 'fix',
+    'raw': '$GPGGA,123519,4807.04,N,1131.00,E,1,8,0.9,545.9,M,46.9,M,,*45',
+    'satelites': 8,
+    'stationID': null,
+    'time': new Date(today + 'T12:35:19.000Z'),
+    'type': 'GGA',
+    'valid': true
   },
   '$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37': {
-    "fix": "3D",
-    "hdop": 7.6,
-    "mode": "automatic",
-    "pdop": 9.4,
-    "raw": "$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37",
-    "satellites": [
+    'fix': '3D',
+    'hdop': 7.6,
+    'mode': 'automatic',
+    'pdop': 9.4,
+    'raw': '$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37',
+    'satellites': [
       12,
       5,
       25,
       29
     ],
-    "type": "GSA",
-    "valid": true,
-    "vdop": 5.6
+    'type': 'GSA',
+    'valid': true,
+    'vdop': 5.6
   },
   '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74': {
-    "msgNumber": 1,
-    "msgsTotal": 3,
-    "raw": "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74",
-    "satellites": [
+    'msgNumber': 1,
+    'msgsTotal': 3,
+    'raw': '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74',
+    'satellites': [
       {
-        "azimuth": 111,
-        "elevation": 3,
-        "prn": 3,
-        "snr": 0,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 270,
-        "elevation": 15,
-        "prn": 4,
-        "snr": 0,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 10,
-        "elevation": 1,
-        "prn": 6,
-        "snr": 0,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 292,
-        "elevation": 6,
-        "prn": 13,
-        "snr": 0,
-        "status": "tracking"
+        'azimuth': 111,
+        'elevation': 3,
+        'prn': 3,
+        'snr': 0,
+        'status': 'tracking'
+      }, {
+        'azimuth': 270,
+        'elevation': 15,
+        'prn': 4,
+        'snr': 0,
+        'status': 'tracking'
+      }, {
+        'azimuth': 10,
+        'elevation': 1,
+        'prn': 6,
+        'snr': 0,
+        'status': 'tracking'
+      }, {
+        'azimuth': 292,
+        'elevation': 6,
+        'prn': 13,
+        'snr': 0,
+        'status': 'tracking'
       }
     ],
-    "type": "GSV",
-    "valid": true
+    'type': 'GSV',
+    'valid': true
   },
   '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D': {
-    "msgNumber": 2,
-    "msgsTotal": 3,
-    "raw": "$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D",
-    "satellites": [
+    'msgNumber': 2,
+    'msgsTotal': 3,
+    'raw': '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D',
+    'satellites': [
       {
-        "azimuth": 170,
-        "elevation": 25,
-        "prn": 14,
-        "snr": 0,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 208,
-        "elevation": 57,
-        "prn": 16,
-        "snr": 39,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 296,
-        "elevation": 67,
-        "prn": 18,
-        "snr": 40,
-        "status": "tracking"
-      },
-      {
-        "azimuth": 246,
-        "elevation": 40,
-        "prn": 19,
-        "snr": 0,
-        "status": "tracking"
+        'azimuth': 170,
+        'elevation': 25,
+        'prn': 14,
+        'snr': 0,
+        'status': 'tracking'
+      }, {
+        'azimuth': 208,
+        'elevation': 57,
+        'prn': 16,
+        'snr': 39,
+        'status': 'tracking'
+      }, {
+        'azimuth': 296,
+        'elevation': 67,
+        'prn': 18,
+        'snr': 40,
+        'status': 'tracking'
+      }, {
+        'azimuth': 246,
+        'elevation': 40,
+        'prn': 19,
+        'snr': 0,
+        'status': 'tracking'
       }
     ],
-    "type": "GSV",
-    "valid": false
+    'type': 'GSV',
+    'valid': false
   },
   '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77': {
     'msgNumber': 2,
@@ -399,7 +400,7 @@ var tests = {
     'raw': '$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75',
     'satelites': 8,
     'stationID': null,
-    'time': new Date('2016-03-28T09:27:51.000Z'),
+    'time': new Date(today + 'T09:27:51.000Z'),
     'type': 'GGA',
     'valid': true
   },
@@ -417,22 +418,22 @@ var tests = {
     'variation': null
   },
   '$GPGLL,6005.068,N,02332.341,E,095601,A,D*42': {
-    "lat": 60.084466666666664,
-    "lon": 23.539016666666665,
-    "raw": "$GPGLL,6005.068,N,02332.341,E,095601,A,D*42",
-    "status": "active",
-    "time": new Date("2016-03-28T09:56:01.000Z"),
-    "type": "GLL",
-    "valid": true
+    'lat': 60.084466666666664,
+    'lon': 23.539016666666665,
+    'raw': '$GPGLL,6005.068,N,02332.341,E,095601,A,D*42',
+    'status': 'active',
+    'time': new Date(today + 'T09:56:01.000Z'),
+    'type': 'GLL',
+    'valid': true
   },
   '$GPGLL,4916.45,N,12311.12,W,225444,A,*1D': {
-    "lat": 49.274166666666666,
-    "lon": -123.18533333333333,
-    "raw": "$GPGLL,4916.45,N,12311.12,W,225444,A,*1D",
-    "status": "active",
-    "time": new Date('2016-03-28T22:54:44.000Z'),
-    "type": "GLL",
-    "valid": true
+    'lat': 49.274166666666666,
+    'lon': -123.18533333333333,
+    'raw': '$GPGLL,4916.45,N,12311.12,W,225444,A,*1D',
+    'status': 'active',
+    'time': new Date(today + 'T22:54:44.000Z'),
+    'type': 'GLL',
+    'valid': true
   }
 };
 var collect = {};
