@@ -143,11 +143,17 @@
       case '0':
         return null;
       case '1':
-        return 'fix';
+        return 'fix'; // valid SPS fix
       case '2':
-        return 'diff';
+        return 'dgps-fix'; // valid DGPS fix
+      case '3':
+        return 'pps-fix'; // valid PPS fix
       case '6':
         return 'estimated';
+      case '7':
+        return 'manual';
+      case '8':
+        return 'simulated';
     }
     throw 'INVALID GGA FIX: ' + fix;
   }
@@ -261,11 +267,9 @@
        4) Longitude
        5) E or W (East or West)
        6) GPS Quality Indicator,
-       0 - fix not available,
-       1 - GPS fix,
-       2 - Differential GPS fix
+        0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
        7) Number of satellites in view, 00 - 12
-       8) Horizontal Dilution of precision
+       8) Horizontal Dilution of precision, lower is better
        9) Antenna Altitude above/below mean-sea-level (geoid)
        10) Units of antenna altitude, meters
        11) Geoidal separation, the difference between the WGS-84 earth
