@@ -57,6 +57,10 @@
   }
 
   function parseTime(time, date) {
+    
+    if (time === '') {
+      return null;
+    }
 
     var ret = new Date;
 
@@ -249,6 +253,7 @@
 
   GPS['mod'] = {
     
+    // Global Positioning System Fix Data
     'GGA': function(str, gga) {
 
       if (gga.length !== 16) {
@@ -295,7 +300,7 @@
       };
     },
     
-    // Active satellites
+    // GPS DOP and active satellites
     'GSA': function(str, gsa) {
 
       if (gsa.length !== 19) {
