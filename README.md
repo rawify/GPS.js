@@ -190,6 +190,21 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
+
+Functions
+===
+
+GPS.js comes with a few static functions, which help by working with geo-coordinates.
+
+GPS.Distance(latFrom, lonFrom, latTo, lonTo)
+---
+Calculates the distance between two geo-coordinates using Haversine formula
+
+GPS.Bearing(latFrom, lonFrom, latTo, lonTo)
+---
+Calculates the angle from one coordinate to another
+
+
 Using GPS.js with the browser
 ===
 The use cases should be rare to parse NMEA directly inside the browser, but it works too.

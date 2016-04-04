@@ -57,7 +57,7 @@
   }
 
   function parseTime(time, date) {
-    
+
     if (time === '') {
       return null;
     }
@@ -252,7 +252,6 @@
   GPS.prototype['state'] = {};
 
   GPS['mod'] = {
-    
     // Global Positioning System Fix Data
     'GGA': function(str, gga) {
 
@@ -272,7 +271,7 @@
        4) Longitude
        5) E or W (East or West)
        6) GPS Quality Indicator,
-        0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
+       0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
        7) Number of satellites in view, 00 - 12
        8) Horizontal Dilution of precision, lower is better
        9) Antenna Altitude above/below mean-sea-level (geoid)
@@ -299,7 +298,6 @@
         'stationID': parseNumber(gga[14]) // dgpsReference??
       };
     },
-    
     // GPS DOP and active satellites
     'GSA': function(str, gsa) {
 
@@ -343,7 +341,6 @@
         'vdop': parseNumber(gsa[17])
       };
     },
-    
     // Recommended Minimum data for gps
     'RMC': function(str, rmc) {
 
@@ -381,7 +378,6 @@
         'faa': rmc.length === 14 ? parseFAA(rmc[12]) : null
       };
     },
-    
     // Track info
     'VTG': function(str, vtg) {
 
@@ -422,7 +418,6 @@
         'faa': vtg.length === 11 ? parseFAA(vtg[9]) : null
       };
     },
-    
     // satelites in view
     'GSV': function(str, gsv) {
 
@@ -469,7 +464,6 @@
         'satellites': sats
       };
     },
-    
     // Geographic Position - Latitude/Longitude
     'GLL': function(str, gll) {
 
@@ -501,7 +495,6 @@
         'lon': parseCoord(gll[3], gll[4])
       };
     },
-    
     // UTC Date / Time and Local Time Zone Offset
     'ZDA': function(str, zda) {
 
@@ -589,6 +582,37 @@
       this['events'][ev] = undefined;
     }
     return this;
+  };
+
+  GPS['Bearing'] = function(lat1, lon1, lat2, lon2) {
+
+    var BearingRad = Math.atan2((Math.sin(lon2 - lon1) * Math.cos(lat2)),
+            Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) *
+            Math.cos(lat2) * Math.cos(lon2 - lon1));
+
+    var CalBearing = 180.0 * BearingRad / Math.PI;
+
+    return (CalBearing + 360) % 360;
+  };
+
+  GPS['Distance'] = function(lat1, lon1, lat2, lon2) {
+
+    // Haversine Formula
+
+    // var RADIUS = 6371; // Earth radius average
+    // var RADIUS = 6378.137; // Earth radius at equator
+    var RADIUS = 6372.8; // Earth radius in km
+
+    var d2r = Math.PI / 180;
+
+    var hLat = (lat2 - lat1) * d2r * 0.5; // Half of lat difference
+    var hLon = (lon2 - lon1) * d2r * 0.5; // Half of lon difference
+
+    var tmp = Math.sin(hLat) * Math.sin(hLat) +
+            Math.cos(lat1 * d2r) * Math.cos(lat2 * d2r) * Math.sin(hLon) * Math.sin(hLon);
+
+    //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
+    return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
   };
 
   if (typeof exports === 'object') {
