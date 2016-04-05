@@ -87,7 +87,9 @@ Go into the folder `examples/dashboard` and start the server with
 node server
 ```
 
-After that you can open the browser and go to http://localhost:3000
+After that you can open the browser and go to http://localhost:3000 The result should look like
+
+![Image of Yaktocat](https://github.com/infusion/GPS.js/blob/master/res/dashboard.png?raw=true)
 
 Google Maps
 ---
@@ -97,7 +99,9 @@ Go into the folder `examples/maps` and start the server with
 node server
 ```
 
-After that you can open the browser and go to http://localhost:3000
+After that you can open the browser and go to http://localhost:3000 The result should look like
+
+![Image of Yaktocat](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
 
 
 Protocols
