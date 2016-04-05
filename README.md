@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/infusion/GPS.js.svg?branch=master)](https://travis-ci.org/infusion/GPS.js)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-GPS.js is a stream parser for [NMEA](http://www.gpsinformation.org/dale/nmea.htm) sentences, given by any common GPS receiver. The output is tried to be as high-level as possible. 
+GPS.js is an extensible parser for [NMEA](http://www.gpsinformation.org/dale/nmea.htm) sentences, given by any common GPS receiver. The output is tried to be as high-level as possible to make it more useful than simply splitting the information. The aim is, that you don't have to understand NMEA, just plug in your receiver and you're ready to go. 
 
 
 Usage
@@ -32,7 +32,7 @@ It's also possible to add event-listeners only on one of the following protocols
 State
 ===
 
-The real advantage over other NMEA implementations is, that the GPS information is also interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
+The real advantage over other NMEA implementations is, that the GPS information is interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
 
 ```javascript
 gps.on('data', function(raw, data) {
@@ -229,5 +229,4 @@ Copyright and licensing
 ===
 Copyright (c) 2016, Robert Eisele (robert@xarg.org)
 Dual licensed under the MIT or GPL Version 2 licenses.
-
 

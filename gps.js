@@ -88,6 +88,8 @@
   }
 
   function parseCoord(coord, dir) {
+    
+    // Latitude can go from 0 to 90; longitude can go from 0 to 180.
 
     if (coord === '')
       return null;
@@ -108,6 +110,15 @@
         n = 3;
         break;
     }
+    /*
+     * Mathematically, but more expensive and not numerical stable:
+     * 
+     * raw = 4807.038
+     * deg = Math.floor(raw / 100)
+     * 
+     * dec = (raw - (100 * deg)) / 60
+     * res = deg + dec // 48.1173
+     */
     return sgn * (parseFloat(coord.slice(0, n)) + parseFloat(coord.slice(n)) / 60);
   }
 
@@ -506,6 +517,8 @@
        5    = xx = Local zone description, 00 to +/- 13 hours
        6    = xx = Local zone minutes description (same sign as hours)
        */
+      
+      // TODO: incorporate local zone information
 
       return {
         'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
