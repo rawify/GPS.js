@@ -1,7 +1,8 @@
 
 // var file = '/dev/cu.usbserial';
 // var file = '/dev/ttyUSB0';
-var file = '/dev/tty.usbserial';
+//var file = '/dev/tty.usbserial';
+var file = '/dev/tty.usbmodem1411';
 
 var SerialPort = require('serialport');
 var port = new SerialPort.SerialPort(file, {

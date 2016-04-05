@@ -3,8 +3,13 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+// var file = '/dev/cu.usbserial';
+// var file = '/dev/ttyUSB0';
+//var file = '/dev/tty.usbserial';
+var file = '/dev/tty.usbmodem1411';
+
 var SerialPort = require('serialport');
-var serialPort = new SerialPort.SerialPort('/dev/tty.usbserial', {
+var serialPort = new SerialPort.SerialPort(file, {
   baudrate: 4800,
   parser: SerialPort.parsers.readline('\r\n')
 });
