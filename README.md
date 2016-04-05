@@ -54,6 +54,31 @@ Examples
 
 GPS.js comes with some examples, like drawing the current latutude and longitude to Google Maps, displaying a persistent state and displaying the parsed raw data. In some cases you have to adjust the serial path to your own GPS receiver to make it work.
 
+Simple serial example
+---
+
+```javascript
+var SerialPort = require('serialport');
+var port = new SerialPort.SerialPort('/dev/tty.usbserial', { // change path
+  baudrate: 4800,
+  parser: SerialPort.parsers.readline('\r\n')
+});
+
+var GPS = require('gps');
+var gps = new GPS;
+
+port.on('open', function() {
+
+  gps.on('data', function(data) {
+    console.log(data, gps.state);
+  });
+
+  port.on('data', function(data) {
+    gps.update(data);
+  });
+});
+```
+
 Dashboard
 ---
 Go into the folder `examples/dashboard` and start the server with
