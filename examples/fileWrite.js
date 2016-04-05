@@ -20,8 +20,8 @@ port.on('open', function() {
 
   console.log('serial port open');
 
-  gps.on('data', function(raw, data) {
-    ws.write(raw + '\n');
+  gps.on('data', function(data) {
+    ws.write(data.raw + '\n');
   });
 
   port.on('data', function(data) {

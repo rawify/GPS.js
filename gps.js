@@ -571,7 +571,7 @@
     updateState(this.state, parsed);
 
     if (this['events']['data'] !== undefined) {
-      this['events']['data'].call(this, line, parsed);
+      this['events']['data'].call(this, parsed);
     }
 
     if (this['events'][parsed.type] !== undefined) {

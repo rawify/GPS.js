@@ -437,9 +437,9 @@ var tests = {
   }
 };
 var collect = {};
-gps.on('data', function(raw, data) {
+gps.on('data', function(data) {
 
-  collect[raw] = data;
+  collect[data.raw] = data;
 });
 for (var i in tests) {
 

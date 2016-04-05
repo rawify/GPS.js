@@ -17,7 +17,7 @@ port.on('open', function() {
 
   console.log('serial port open');
 
-  gps.on('data', function(raw, data) {
+  gps.on('data', function(data) {
     console.log(gps.state);
   });
 
