@@ -67,15 +67,12 @@ var port = new SerialPort.SerialPort('/dev/tty.usbserial', { // change path
 var GPS = require('gps');
 var gps = new GPS;
 
-port.on('open', function() {
+gps.on('data', function(data) {
+  console.log(data, gps.state);
+});
 
-  gps.on('data', function(data) {
-    console.log(data, gps.state);
-  });
-
-  port.on('data', function(data) {
-    gps.update(data);
-  });
+port.on('data', function(data) {
+  gps.update(data);
 });
 ```
 

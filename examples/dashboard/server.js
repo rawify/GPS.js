@@ -25,15 +25,11 @@ http.listen(3000, function() {
 
   console.log('listening on *:3000');
 
-  port.on('open', function() {
-    console.log('GPS listening');
+  gps.on('data', function(raw, data) {
+    io.emit('state', gps.state);
+  });
 
-    gps.on('data', function(raw, data) {
-      io.emit('state', gps.state);
-    });
-
-    port.on('data', function(data) {
-      gps.update(data);
-    });
+  port.on('data', function(data) {
+    gps.update(data);
   });
 });

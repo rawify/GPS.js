@@ -13,15 +13,10 @@ var port = new SerialPort.SerialPort(file, {
 var GPS = require('../gps.js');
 var gps = new GPS;
 
-port.on('open', function() {
+gps.on('data', function(data) {
+  console.log(data);
+});
 
-  console.log('serial port open');
-
-  gps.on('data', function(data) {
-    console.log(data);
-  });
-
-  port.on('data', function(data) {
-    gps.update(data);
-  });
+port.on('data', function(data) {
+  gps.update(data);
 });

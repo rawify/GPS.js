@@ -15,7 +15,7 @@ gps.on('GGA', function(gga) {
   console.log('Lon: ' + gga.lon);
 });
 
-stream.on('data', function(line) {
+stream.on('data', function(data) {
 
-  gps.update(line.toString());
+  gps.update(data.toString());
 });

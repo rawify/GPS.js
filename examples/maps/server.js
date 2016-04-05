@@ -9,7 +9,7 @@ var io = require('socket.io')(http);
 var file = '/dev/tty.usbmodem1411';
 
 var SerialPort = require('serialport');
-var serialPort = new SerialPort.SerialPort(file, {
+var port = new SerialPort.SerialPort(file, {
   baudrate: 4800,
   parser: SerialPort.parsers.readline('\r\n')
 });
@@ -28,11 +28,8 @@ app.get('/', function(req, res) {
 http.listen(3000, function() {
 
   console.log('listening on *:3000');
+});
 
-  serialPort.on('open', function() {
-    console.log('GPS listening');
-    serialPort.on('data', function(data) {
-      gps.update(data);
-    });
-  });
+port.on('data', function(data) {
+  gps.update(data);
 });

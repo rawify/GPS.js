@@ -16,16 +16,10 @@ var ws = fs.createWriteStream('gps.dump');
 var GPS = require('../gps.js');
 var gps = new GPS;
 
+gps.on('data', function(data) {
+  ws.write(data.raw + '\n');
+});
 
-port.on('open', function() {
-
-  console.log('serial port open');
-
-  gps.on('data', function(data) {
-    ws.write(data.raw + '\n');
-  });
-
-  port.on('data', function(data) {
-    gps.update(data);
-  });
+port.on('data', function(data) {
+  gps.update(data);
 });
