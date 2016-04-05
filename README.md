@@ -104,7 +104,7 @@ After that you can open the browser and go to http://localhost:3000 The result s
 ![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
 
 
-Protocols
+Implemented Protocols
 ===
 
 GGA - Fix information
