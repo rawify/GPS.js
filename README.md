@@ -89,7 +89,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000 The result should look like
 
-![Image of Yaktocat](https://github.com/infusion/GPS.js/blob/master/res/dashboard.png?raw=true)
+![GPS TU Dresden](https://github.com/infusion/GPS.js/blob/master/res/dashboard.png?raw=true)
 
 Google Maps
 ---
@@ -101,7 +101,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000 The result should look like
 
-![Image of Yaktocat](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
+![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
 
 
 Protocols
