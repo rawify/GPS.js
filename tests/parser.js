@@ -4,7 +4,7 @@ function _(x) {
 }
 
 var today = new Date();
-today = today.getFullYear() + '-' + _(today.getMonth() + 1) + '-' + _(today.getDate());
+today = today.getUTCFullYear() + '-' + _(today.getUTCMonth() + 1) + '-' + _(today.getUTCDate());
 
 var expect = require('chai').expect;
 var GPS = require('../gps.js');
@@ -76,7 +76,7 @@ var tests = {
     'stationID': NaN,
     'time': new Date(today + 'T12:35:19.000Z'),
     'type': 'GGA',
-    'valid': true,
+    'valid': true
   },
   '$GPGGA,123519,4807.038,N,01131.324,E,1,08,0.9,545.4,M,46.9,M,,': 'invalid',
   '$GPRMC,081836,A,3751.65,S,14507.36,E,000.0,360.0,130998,011.3,E*62': {
