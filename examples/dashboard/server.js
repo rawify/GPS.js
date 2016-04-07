@@ -25,7 +25,7 @@ http.listen(3000, function() {
 
   console.log('listening on *:3000');
 
-  gps.on('data', function(raw, data) {
+  gps.on('data', function() {
     io.emit('state', gps.state);
   });
 
