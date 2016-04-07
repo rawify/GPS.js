@@ -1,5 +1,5 @@
 /**
- * GPS.js v0.0.7 26/01/2016
+ * GPS.js v0.0.8 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
