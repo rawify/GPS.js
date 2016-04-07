@@ -88,7 +88,7 @@
   }
 
   function parseCoord(coord, dir) {
-    
+
     // Latitude can go from 0 to 90; longitude can go from 0 to 180.
 
     if (coord === '')
@@ -257,10 +257,12 @@
 
 
   function GPS() {
+    this['events'] = {};
+    this['state'] = {};
   }
 
-  GPS.prototype['events'] = {};
-  GPS.prototype['state'] = {};
+  GPS.prototype['events'] = null;
+  GPS.prototype['state'] = null;
 
   GPS['mod'] = {
     // Global Positioning System Fix Data
@@ -517,7 +519,7 @@
        5    = xx = Local zone description, 00 to +/- 13 hours
        6    = xx = Local zone minutes description (same sign as hours)
        */
-      
+
       // TODO: incorporate local zone information
 
       return {
@@ -528,7 +530,7 @@
 
   };
 
-  GPS.parse = function(line) {
+  GPS['Parse'] = function(line) {
 
     if (typeof line !== 'string')
       return false;
@@ -560,43 +562,6 @@
     return false;
   };
 
-
-  GPS.prototype['update'] = function(line) {
-
-    var parsed = GPS.parse(line);
-
-    if (parsed === false)
-      return false;
-
-    updateState(this.state, parsed);
-
-    if (this['events']['data'] !== undefined) {
-      this['events']['data'].call(this, parsed);
-    }
-
-    if (this['events'][parsed.type] !== undefined) {
-      this['events'][parsed.type].call(this, parsed);
-    }
-    return true;
-  };
-
-  GPS.prototype['on'] = function(ev, cb) {
-
-    if (this['events'][ev] === undefined) {
-      this['events'][ev] = cb;
-      return this;
-    }
-    return null;
-  };
-
-  GPS.prototype['off'] = function(ev) {
-
-    if (this['events'][ev] !== undefined) {
-      this['events'][ev] = undefined;
-    }
-    return this;
-  };
-
   GPS['Bearing'] = function(lat1, lon1, lat2, lon2) {
 
     var BearingRad = Math.atan2((Math.sin(lon2 - lon1) * Math.cos(lat2)),
@@ -626,6 +591,64 @@
 
     //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
     return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
+  };
+
+  GPS.prototype['update'] = function(line) {
+
+    var parsed = GPS['Parse'](line);
+
+    if (parsed === false)
+      return false;
+
+    updateState(this.state, parsed);
+
+    if (this['events']['data'] !== undefined) {
+      this['events']['data'].call(this, parsed);
+    }
+
+    if (this['events'][parsed.type] !== undefined) {
+      this['events'][parsed.type].call(this, parsed);
+    }
+    return true;
+  };
+
+  GPS.prototype['partial'] = "";
+
+  GPS.prototype['updatePartial'] = function(chunk) {
+
+    this['partial'] += chunk;
+
+    while (true) {
+
+      var pos = this['partial'].indexOf("\r\n");
+
+      if (pos === -1)
+        break;
+
+      var line = this['partial'].slice(0, pos);
+
+      if (line.charAt(0) === '$') {
+        this['update'](line);
+      }
+      this['partial'] = this['partial'].slice(pos + 2);
+    }
+  };
+
+  GPS.prototype['on'] = function(ev, cb) {
+
+    if (this['events'][ev] === undefined) {
+      this['events'][ev] = cb;
+      return this;
+    }
+    return null;
+  };
+
+  GPS.prototype['off'] = function(ev) {
+
+    if (this['events'][ev] !== undefined) {
+      this['events'][ev] = undefined;
+    }
+    return this;
   };
 
   if (typeof exports === 'object') {

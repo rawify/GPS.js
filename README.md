@@ -101,6 +101,25 @@ After that you can open the browser and go to http://localhost:3000 The result s
 ![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
 
 
+Available Methods
+===
+
+update(line)
+---
+The update method is the most important function, it adds a new NMEA sentence and forces the callback to trigger
+
+updatePartial(chunk)
+---
+Will call `update()` when a full NMEA sentence has been arrived
+
+on(event, callback)
+---
+Adds an event listener for a protocol to occur (see implemented protocols, simply use the name - upper case) or for all sentences with `data`. Because GPS.js should be more general, it doesn't inherit `EventEmitter`, but simply invokes the callback.
+
+off(event)
+---
+Removes an event listener
+
 Implemented Protocols
 ===
 
@@ -221,6 +240,10 @@ Functions
 ===
 
 GPS.js comes with a few static functions, which help by working with geo-coordinates.
+
+GPS.Parse(line)
+---
+Parses a single line and returns the resulting object, in case the callback system isn't needed/wanted
 
 GPS.Distance(latFrom, lonFrom, latTo, lonTo)
 ---
