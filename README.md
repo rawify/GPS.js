@@ -258,7 +258,7 @@ Using GPS.js with the browser
 ===
 The use cases should be rare to parse NMEA directly inside the browser, but it works too.
 
-```
+```html
 <script src="gps.js"></script>
 <script>
    var gps = new GPS;
