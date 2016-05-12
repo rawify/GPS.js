@@ -17,8 +17,7 @@ The interface of GPS.js is as simple as the following few lines. You need to add
 var gps = new GPS;
 
 // Add an event listener on all protocols
-gps.on('data', function(raw, parsed) {
-    
+gps.on('data', function(parsed) {
     console.log(parsed);
 });
 
