@@ -34,7 +34,7 @@ State
 The real advantage over other NMEA implementations is, that the GPS information is interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
 
 ```javascript
-gps.on('data', function(raw, data) {
+gps.on('data', function() {
   console.log(gps.state);
 });
 ```
