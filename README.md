@@ -114,13 +114,13 @@ After that you can open the browser and go to http://localhost:3000 The result s
 
 Confluence
 ---
-[Confluence](http://www.confluence.org/) is a project, which tries to travel to all integer GPS coordinates and documents them. GPS.js can assist on that goal. Go into the examples folder for a simple example and run:
+[Confluence](http://www.confluence.org/) is a project, which tries to travel to and document all integer GPS coordinates. GPS.js can assist on that goal. Go into the examples folder and run:
 
 ```
 node confluence
 ```
 
-You should see something like the following updating as you come closer
+You should see something like the following, updating as you move around
 
 ```
 You are at (48.53, 9.05951),
