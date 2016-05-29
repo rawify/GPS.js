@@ -128,6 +128,14 @@ The closest confluence point (49, 9) is in 51.36 km.
 You have to go 355.2° N
 ```
 
+Set Time
+---
+On systems without a RTC - like Raspberry PI - you need to update the time yourself at runtime. If the device has an internet connection, it's quite easy to use an NTP server. An alternative for disconnected projects with access to a GPS receiver can be the high-precision time signal, sent by satellites. Go to the examples folder and run the following to update the time:
+
+```
+node set-time
+```
+
 Available Methods
 ===
 
