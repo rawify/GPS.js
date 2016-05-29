@@ -12,11 +12,11 @@ describe('GPS functions', function() {
 
   });
 
-  it('should measure bearing', function() {
+  it('should measure heading', function() {
 
-    var result = GPS.Bearing(45.527517, -122.718766, 45.373373, -121.693604);
+    var result = GPS.Heading(45.527517, -122.718766, 45.373373, -121.693604);
 
-    expect(result).to.deep.equal(113.85710071762026);
+    expect(result).to.deep.equal(101.73177498132071);
 
   });
 

@@ -48,10 +48,10 @@
             function updateSatellite(data) {
 
               var rect = svg.selectAll("rect")
-                      .data(data.sats_visible);
+                      .data(data.satsVisible);
 
               var text = svg.selectAll("text")
-                      .data(data.sats_visible);
+                      .data(data.satsVisible);
 
               rect
                       .enter()
@@ -63,20 +63,20 @@
 
               rect
                       .attr("x", function(d, i) {
-                        return i * (width / data.sats_visible.length);
+                        return i * (width / data.satsVisible.length);
                       })
                       .attr("y", function(d) {
                         var v = d.snr || 0;
                         return barHeight - (v * 4);
                       })
-                      .attr("width", width / data.sats_visible.length - padding)
+                      .attr("width", width / data.satsVisible.length - padding)
                       .attr("height", function(d) {
                         var v = d.snr || 0;
                         return v * 4;
                       })
                       .attr("fill", function(d) {
                         var v = d.snr || 0;
-                        if (-1 !== data.sats_active.indexOf(d.prn)) {
+                        if (-1 !== data.satsActive.indexOf(d.prn)) {
                           return "rgb(0, 0, " + (v * 10 | 0) + ")";
                         }
                         return "rgb(" + (v * 10 | 0) + ", 0, 0)";
@@ -84,7 +84,7 @@
 
               text
                       .attr("x", function(d, i) {
-                        return 15 + i * (width / data.sats_visible.length);
+                        return 15 + i * (width / data.satsVisible.length);
                       })
                       .attr("y", barHeight + 20)
                       .text(function(d) {
@@ -114,8 +114,8 @@
               $("#vdop").text(state.vdop);
               $("#hdop").text(state.hdop);
               
-              $("#active").text(state.sats_active.length);
-              $("#view").text(state.sats_visible.length);
+              $("#active").text(state.satsActive.length);
+              $("#view").text(state.satsVisible.length);
 
             }
 

@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.0.8 26/01/2016
+ * @license GPS.js v0.0.9 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -7,6 +7,8 @@
 
 
 (function(root) {
+
+  var D2R = Math.PI / 180;
 
   var collectSats = [];
 
@@ -33,7 +35,7 @@
     }
 
     if (data['type'] === 'GSA') {
-      state['sats_active'] = data['satellites'];
+      state['satsActive'] = data['satellites'];
       state['fix'] = data['fix'];
       state['hdop'] = data['hdop'];
       state['pdop'] = data['pdop'];
@@ -50,7 +52,7 @@
 
       // Reset stats
       if (data['msgNumber'] === data['msgsTotal']) {
-        state['sats_visible'] = collectSats;
+        state['satsVisible'] = collectSats;
         collectSats = [];
       }
     }
@@ -562,15 +564,29 @@
     return false;
   };
 
-  GPS['Bearing'] = function(lat1, lon1, lat2, lon2) {
+  // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2 
+  GPS['Heading'] = function(lat1, lon1, lat2, lon2) {
 
-    var BearingRad = Math.atan2((Math.sin(lon2 - lon1) * Math.cos(lat2)),
-            Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) *
-            Math.cos(lat2) * Math.cos(lon2 - lon1));
+    var dlon = (lon2 - lon1) * D2R;
 
-    var CalBearing = 180.0 * BearingRad / Math.PI;
+    lat1 = lat1 * D2R;
+    lat2 = lat2 * D2R;
 
-    return (CalBearing + 360) % 360;
+    var sdlon = Math.sin(dlon);
+    var cdlon = Math.cos(dlon);
+
+    var slat1 = Math.sin(lat1);
+    var clat1 = Math.cos(lat1);
+
+    var slat2 = Math.sin(lat2);
+    var clat2 = Math.cos(lat2);
+
+    var n = sdlon * clat2;
+    var d = clat1 * slat2 - slat1 * clat2 * cdlon;
+
+    var head = Math.atan2(n, d) * 180 / Math.PI;
+
+    return (head + 360) % 360;
   };
 
   GPS['Distance'] = function(lat1, lon1, lat2, lon2) {
@@ -583,13 +599,11 @@
     // var RADIUS = 6378.137; // Earth radius at equator
     var RADIUS = 6372.8; // Earth radius in km
 
-    var d2r = Math.PI / 180;
+    var hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
+    var hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
 
-    var hLat = (lat2 - lat1) * d2r * 0.5; // Half of lat difference
-    var hLon = (lon2 - lon1) * d2r * 0.5; // Half of lon difference
-
-    lat1 = lat1 * d2r;
-    lat2 = lat2 * d2r;
+    lat1 = lat1 * D2R;
+    lat2 = lat2 * D2R;
 
     var shLat = Math.sin(hLat);
     var shLon = Math.sin(hLon);

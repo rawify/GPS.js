@@ -227,10 +227,10 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 - lat: Latitude
 - lon: Longitude
 - alt: Altitude
-- sats_active: Array of active satellites
+- satsActive: Array of active satellites
 - speed: Speed over ground in km/h
 - track: Track in degrees
-- sats_visible: Array of all visible satellites
+- satsVisible: Array of all visible satellites
 
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
@@ -248,9 +248,9 @@ GPS.Distance(latFrom, lonFrom, latTo, lonTo)
 ---
 Calculates the distance between two geo-coordinates using Haversine formula
 
-GPS.Bearing(latFrom, lonFrom, latTo, lonTo)
+GPS.Heading(latFrom, lonFrom, latTo, lonTo)
 ---
-Calculates the angle from one coordinate to another
+Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270).
 
 
 Using GPS.js with the browser
