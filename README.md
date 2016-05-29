@@ -290,7 +290,12 @@ Calculates the distance between two geo-coordinates using Haversine formula
 
 GPS.Heading(latFrom, lonFrom, latTo, lonTo)
 ---
-Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270).
+Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270). The result can be used as the argument of [angles](https://github.com/infusion/Angles.js) `compass()` method:
+
+```javascript
+var angles = require('angles');
+console.log(angles.compass(GPS.Heading(50, 10, 51, 9))); // will return x ∈ { N, S, E, W, NE, ... }
+```
 
 
 Using GPS.js with the browser
