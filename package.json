@@ -28,6 +28,7 @@
         "express": "*",
         "socket.io": "*",
         "serialport": "*",
+        "angles": "*",
         "mocha": "*",
         "chai": "*",
         "byline": "*"

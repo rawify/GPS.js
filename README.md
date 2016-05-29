@@ -47,6 +47,19 @@ Installing GPS.js is as easy as cloning this repo or use the following command:
 npm install --save gps
 ```
 
+Find the serial device
+===
+
+On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multople USB ports on your computer and use them randomly, you have to lookup the path/device again.
+
+If you find yourself on a BeagleBone, the serial device must be registered manually. Luckily, this can be done within node quite easily using [octalbonescript](https://www.npmjs.com/package/octalbonescript):
+
+```javascript
+var obs = require('octalbonescript');
+obs.serial.enable('/dev/ttyS1', function() {  
+    console.log('serial device activated');
+});
+```
 
 Examples
 ===
@@ -99,6 +112,21 @@ After that you can open the browser and go to http://localhost:3000 The result s
 
 ![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
 
+Confluence
+---
+[Confluence](http://www.confluence.org/) is a project, which tries to travel to all integer GPS coordinates and documents them. GPS.js can assist on that goal. Go into the examples folder for a simple example and run:
+
+```
+node confluence
+```
+
+You should see something like the following updating as you come closer
+
+```
+You are at (48.53, 9.05951),
+The closest confluence point (49, 9) is in 51.36 km.
+You have to go 355.2° N
+```
 
 Available Methods
 ===
@@ -234,6 +262,10 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
+
+Troubleshooting
+===
+If you don't get valid position information after turning on the receiver, chances are high you simply have to wait as it takes some [time to first fix](https://en.wikipedia.org/wiki/Time_to_first_fix).
 
 Functions
 ===
