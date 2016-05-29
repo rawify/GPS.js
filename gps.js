@@ -1,5 +1,5 @@
 /**
- * GPS.js v0.0.8 26/01/2016
+ * @license GPS.js v0.0.8 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -576,7 +576,9 @@
   GPS['Distance'] = function(lat1, lon1, lat2, lon2) {
 
     // Haversine Formula
+    // R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159
 
+    // Because Earth is no exact sphere, rounding errors may be up to 0.5%.
     // var RADIUS = 6371; // Earth radius average
     // var RADIUS = 6378.137; // Earth radius at equator
     var RADIUS = 6372.8; // Earth radius in km
@@ -586,8 +588,15 @@
     var hLat = (lat2 - lat1) * d2r * 0.5; // Half of lat difference
     var hLon = (lon2 - lon1) * d2r * 0.5; // Half of lon difference
 
-    var tmp = Math.sin(hLat) * Math.sin(hLat) +
-            Math.cos(lat1 * d2r) * Math.cos(lat2 * d2r) * Math.sin(hLon) * Math.sin(hLon);
+    lat1 = lat1 * d2r;
+    lat2 = lat2 * d2r;
+
+    var shLat = Math.sin(hLat);
+    var shLon = Math.sin(hLon);
+    var clat1 = Math.cos(lat1);
+    var clat2 = Math.cos(lat2);
+
+    var tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
 
     //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
     return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
