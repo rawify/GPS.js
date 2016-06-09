@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.0.9 26/01/2016
+ * @license GPS.js v0.0.10 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -75,7 +75,7 @@
       if (year.length === 4) {
         ret.setUTCFullYear(year, month, day);
       } else {
-        // If we need to parse older GPRMC data, we should hack something like 
+        // If we need to parse older GPRMC data, we should hack something like
         // year < 73 ? 2000+year : 1900+year
         ret.setUTCFullYear('20' + year, month, day);
       }
@@ -114,10 +114,10 @@
     }
     /*
      * Mathematically, but more expensive and not numerical stable:
-     * 
+     *
      * raw = 4807.038
      * deg = Math.floor(raw / 100)
-     * 
+     *
      * dec = (raw - (100 * deg)) / 60
      * res = deg + dec // 48.1173
      */
@@ -251,7 +251,7 @@
 
   function parseDist(num, unit) {
 
-    if (unit === 'M') {
+    if (unit === 'M' || unit === '') {
       return parseNumber(num);
     }
     throw 'Unknown unit: ' + unit;
@@ -279,7 +279,7 @@
        1         2       3 4        5 6 7  8   9  10 |  12 13  14  15
        |         |       | |        | | |  |   |   | |   | |   |   |
        $--GGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
-       
+
        1) Time (UTC)
        2) Latitude
        3) N or S (North or South)
@@ -323,8 +323,8 @@
       /*
        eg1. $GPGSA,A,3,,,,,,16,18,,22,24,,,3.6,2.1,2.2*3C
        eg2. $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
-       
-       
+
+
        1    = Mode:
        M=Manual, forced to operate in 2D or 3D
        A=Automatic, 3D/2D
@@ -365,7 +365,7 @@
 
       /*
        $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a*hh
-       
+
        RMC  = Recommended Minimum Specific GPS/TRANSIT Data
        1    = UTC of position fix
        2    = Data status (A-ok, V-invalid)
@@ -406,7 +406,7 @@
        |  |  |  |  |  |  |  | |   |
        $--VTG,x.x,T,x.x,M,x.x,N,x.x,K,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-       
+
        1    = Track degrees
        2    = Fixed text 'T' indicates that track made good is relative to true north
        3    = not used
@@ -418,6 +418,15 @@
        (9)   = FAA mode indicator (NMEA 2.3 and later)
        9/10 = Checksum
        */
+
+      if (vtg[2] === '' && vtg[8] === '' && vtg[6] === '') {
+
+        return {
+          'track': null,
+          'speed': null,
+          'faa': null
+        };
+      }
 
       if (vtg[2] !== 'T') {
         throw 'Invalid VTG track mode: ' + str;
@@ -442,7 +451,7 @@
 
       /*
        $GPGSV,1,1,13,02,02,213,,03,-3,000,,11,00,121,,14,13,172,05*67
-       
+
        1    = Total number of messages of this type in this cycle
        2    = Message number
        3    = Total number of SVs in view
@@ -492,7 +501,7 @@
        |       | |        | |         | |   |
        $--GLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,a,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-       
+
        1. Latitude
        2. N or S (North or South)
        3. Longitude
@@ -564,7 +573,7 @@
     return false;
   };
 
-  // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2 
+  // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2
   GPS['Heading'] = function(lat1, lon1, lat2, lon2) {
 
     var dlon = (lon2 - lon1) * D2R;
