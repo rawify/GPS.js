@@ -7,6 +7,11 @@
     "keywords": [
         "nmea", "nmea", "gps", "serial", "parser", "distance", "geo", "location", "rmc", "gga", "gll", "gsa", "vtg", "gva"
     ],
+    "moduleType": [
+      "amd",
+      "globals",
+      "node"
+    ],
     "authors": [
         "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)"
     ],
