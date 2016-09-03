@@ -434,6 +434,21 @@ var tests = {
     'time': new Date(today + 'T22:54:44.000Z'),
     'type': 'GLL',
     'valid': true
+  },
+  '$GPGGA,174815.40,4141.46474,N,00849.77225,W,1,08,1.24,11.8,M,50.5,M,,*76': {
+    'age': null,
+    'alt': 11.8,
+    'geoidal': 50.5,
+    'hdop': 1.24,
+    'quality': 'fix',
+    'satelites': 8,
+    'stationID': null,
+    'lat': 41.691079,
+    'lon': -8.8295375,
+    'time': new Date('2016-09-03T17:48:15.400Z'),
+    'raw': '$GPGGA,174815.40,4141.46474,N,00849.77225,W,1,08,1.24,11.8,M,50.5,M,,*76',
+    'type': 'GGA',
+    'valid': true,
   }
 };
 var collect = {};

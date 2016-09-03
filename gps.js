@@ -84,7 +84,15 @@
     ret.setUTCHours(time.slice(0, 2));
     ret.setUTCMinutes(time.slice(2, 4));
     ret.setUTCSeconds(time.slice(4, 6));
-    ret.setUTCMilliseconds(parseFloat(time.slice(7)) || 0);
+    
+    // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
+    var msStr = time.slice(7);
+    var msExp = msStr.length;
+    var ms = 0;
+    if (msExp !== 0) {
+        ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
+    }
+    ret.setUTCMilliseconds(ms);
 
     return ret;
   }
