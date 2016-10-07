@@ -84,7 +84,7 @@
     ret.setUTCHours(time.slice(0, 2));
     ret.setUTCMinutes(time.slice(2, 4));
     ret.setUTCSeconds(time.slice(4, 6));
-    
+
     // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
     var msStr = time.slice(7);
     var msExp = msStr.length;
@@ -173,6 +173,10 @@
         return 'dgps-fix'; // valid DGPS fix
       case '3':
         return 'pps-fix'; // valid PPS fix
+      case '4':
+        return 'rtk'; // valid RTK fix
+      case '5':
+        return 'rtk-float'; // valid RTK float
       case '6':
         return 'estimated';
       case '7':
