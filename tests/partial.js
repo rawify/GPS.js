@@ -9,7 +9,7 @@ var res = [{
     'speed': 4.22256,
     'status': 'active',
     'time': new Date('2016-01-26T23:49:19.000Z'),
-    'track': 2.93,
+    'heading': 2.93,
     'raw': '$GPRMC,234919.000,A,4832.3914,N,00903.5500,E,2.28,2.93,260116,,*0D',
     'type': 'RMC',
     'faa': null,
@@ -17,7 +17,7 @@ var res = [{
     'variation': null
   }, {
     'speed': 4.22256,
-    'track': 2.93,
+    'heading': 2.93,
     'raw': '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66',
     'type': 'VTG',
     'faa': null,

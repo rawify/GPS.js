@@ -33,7 +33,7 @@ var tests = {
     'speed': 4.22256,
     'status': 'active',
     'time': new Date('2016-01-26T23:49:19.000Z'),
-    'track': 2.93,
+    'heading': 2.93,
     'raw': '$GPRMC,234919.000,A,4832.3914,N,00903.5500,E,2.28,2.93,260116,,*0D',
     'type': 'RMC',
     'faa': null,
@@ -42,7 +42,7 @@ var tests = {
   },
   '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66': {
     'speed': 4.22256,
-    'track': 2.93,
+    'heading': 2.93,
     'raw': '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66',
     'type': 'VTG',
     'faa': null,
@@ -86,7 +86,7 @@ var tests = {
     'status': 'active',
     'raw': '$GPRMC,081836,A,3751.65,S,14507.36,E,000.0,360.0,130998,011.3,E*62',
     'time': new Date('2098-09-13T08:18:36.000Z'),
-    'track': 360,
+    'heading': 360,
     'type': 'RMC',
     'faa': null,
     'valid': true,
@@ -209,7 +209,7 @@ var tests = {
     'speed': 41.4848,
     'status': 'active',
     'time': new Date('2094-03-23T12:35:19.000Z'),
-    'track': 84.4,
+    'heading': 84.4,
     'type': 'RMC',
     'valid': true,
     'variation': -3.1
@@ -384,7 +384,7 @@ var tests = {
     'speed': 0.037040000000000003,
     'status': 'active',
     'time': new Date('2011-05-28T09:27:50.000Z'),
-    'track': 31.66,
+    'heading': 31.66,
     'type': 'RMC',
     'valid': true,
     'variation': null
@@ -412,7 +412,7 @@ var tests = {
     'speed': 0.11112,
     'status': 'active',
     'time': new Date('2011-05-28T09:27:51.000Z'),
-    'track': 31.66,
+    'heading': 31.66,
     'type': 'RMC',
     'valid': true,
     'variation': null
