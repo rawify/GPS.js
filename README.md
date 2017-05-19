@@ -189,7 +189,7 @@ The parsed object will have the following attributes:
 - lat: The latitude
 - lon: The longitude
 - speed: Speed over the ground in km/h
-- track: Track angle in degrees
+- heading: Track angle in degrees
 - variation: Magnetic Variation
 - faa: The FAA mode, introduced with NMEA 2.3
 - valid: Indicates if the checksum is okay
@@ -242,7 +242,7 @@ VTG - vector track and speed over ground
 The parsed object will have the following attributes:
 
 - type: "VTG"
-- track: Track in degrees
+- heading: Track heading in degrees
 - speed: Speed over ground in km/h
 - faa: The FAA mode, introduced with NMEA 2.3
 - valid: Indicates if the checksum is okay
@@ -265,8 +265,9 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 - alt: Altitude
 - satsActive: Array of active satellites
 - speed: Speed over ground in km/h
-- track: Track in degrees
+- heading: Track angle in degrees
 - satsVisible: Array of all visible satellites
+- lastFix: Timestamp of last fix
 
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
@@ -296,6 +297,8 @@ Calculates the angle from one coordinate to another. Heading is represented as w
 var angles = require('angles');
 console.log(angles.compass(GPS.Heading(50, 10, 51, 9))); // will return x ∈ { N, S, E, W, NE, ... }
 ```
+
+**Note:** GPS.js provides the heading, sent by the GPS receiver with *state.heading*. Maybe you should fuse the provided value with a manual calculation.
 
 
 Using GPS.js with the browser

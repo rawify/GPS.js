@@ -8,16 +8,24 @@
 
 (function(root) {
 
-  var D2R = Math.PI / 180;
+  var Deg2Rad = Math.PI / 180;
+  var Rad2Deg = 180 / Math.PI;
 
   var collectSats = [];
 
   function updateState(state, data) {
+    
+    // Skip update if data is void
+    if (data['type'] === 'RMC' && data['status'] !== 'A' || data['type'] === 'GGA' && data['quality'] === null) {
+      return;
+    }
 
     if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL') {
       state['time'] = data['time'];
       state['lat'] = data['lat'];
       state['lon'] = data['lon'];
+      
+      state['lastFix'] = Date.now(); // Check data.quality==fix maybe?
     }
 
     if (data['type'] === 'ZDA') {
@@ -26,12 +34,13 @@
 
     if (data['type'] === 'GGA') {
       state['alt'] = data['alt'];
+      state['hdop'] = data['hdop'];
     }
 
     if (data['type'] === 'RMC'/* || data['type'] === 'VTG'*/) {
-      // TODO: is rmc speed/track really interchangeable with vtg speed/track?
+      // TODO: is rmc speed/heading really interchangeable with vtg speed/heading?
       state['speed'] = data['speed'];
-      state['track'] = data['track'];
+      state['heading'] = data['heading'];
     }
 
     if (data['type'] === 'GSA') {
@@ -97,7 +106,7 @@
     return ret;
   }
 
-  function parseCoord(coord, dir) {
+  function parseDegree(coord, dir) {
 
     // Latitude can go from 0 to 90; longitude can go from 0 to 180.
 
@@ -314,8 +323,8 @@
 
       return {
         'time': parseTime(gga[1]),
-        'lat': parseCoord(gga[2], gga[3]),
-        'lon': parseCoord(gga[4], gga[5]),
+        'lat': parseDegree(gga[2], gga[3]),
+        'lon': parseDegree(gga[4], gga[5]),
         'alt': parseDist(gga[9], gga[10]),
         'quality': parseGGAFix(gga[6]),
         'satelites': parseNumber(gga[7]),
@@ -393,14 +402,16 @@
        (12) = NMEA 2.3 introduced FAA mode indicator (A=Autonomous, D=Differential, E=Estimated, N=Data not valid)
        12   = Checksum
        */
+      
+      // Throw packet away if status!='A'?
 
       return {
         'time': parseTime(rmc[1], rmc[9]),
         'status': parseRMC_GLLStatus(rmc[2]),
-        'lat': parseCoord(rmc[3], rmc[4]),
-        'lon': parseCoord(rmc[5], rmc[6]),
+        'lat': parseDegree(rmc[3], rmc[4]),
+        'lon': parseDegree(rmc[5], rmc[6]),
         'speed': parseKnots(rmc[7]),
-        'track': parseNumber(rmc[8]),
+        'heading': parseNumber(rmc[8]),
         'variation': parseRMCVariation(rmc[10], rmc[11]),
         'faa': rmc.length === 14 ? parseFAA(rmc[12]) : null
       };
@@ -434,7 +445,7 @@
       if (vtg[2] === '' && vtg[8] === '' && vtg[6] === '') {
 
         return {
-          'track': null,
+          'heading': null,
           'speed': null,
           'faa': null
         };
@@ -449,7 +460,7 @@
       }
 
       return {
-        'track': parseNumber(vtg[1]),
+        'heading': parseNumber(vtg[1]),
         'speed': parseKnots(vtg[5]),
         'faa': vtg.length === 11 ? parseFAA(vtg[9]) : null
       };
@@ -527,8 +538,8 @@
       return {
         'time': parseTime(gll[5]),
         'status': parseRMC_GLLStatus(gll[6]),
-        'lat': parseCoord(gll[1], gll[2]),
-        'lon': parseCoord(gll[3], gll[4])
+        'lat': parseDegree(gll[1], gll[2]),
+        'lon': parseDegree(gll[3], gll[4])
       };
     },
     // UTC Date / Time and Local Time Zone Offset
@@ -585,27 +596,18 @@
     return false;
   };
 
-  // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2
+  // Heading (N=0, E=90, S=180, W=270) from point 1 to point 2
   GPS['Heading'] = function(lat1, lon1, lat2, lon2) {
 
-    var dlon = (lon2 - lon1) * D2R;
+    var dlon = (lon2 - lon1) * Deg2Rad;
 
-    lat1 = lat1 * D2R;
-    lat2 = lat2 * D2R;
+    lat1 = lat1 * Deg2Rad;
+    lat2 = lat2 * Deg2Rad;
 
-    var sdlon = Math.sin(dlon);
-    var cdlon = Math.cos(dlon);
+    var n = Math.sin(dlon) * Math.cos(lat2);
+    var d = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dlon);
 
-    var slat1 = Math.sin(lat1);
-    var clat1 = Math.cos(lat1);
-
-    var slat2 = Math.sin(lat2);
-    var clat2 = Math.cos(lat2);
-
-    var n = sdlon * clat2;
-    var d = clat1 * slat2 - slat1 * clat2 * cdlon;
-
-    var head = Math.atan2(n, d) * 180 / Math.PI;
+    var head = Math.atan2(n, d) * Rad2Deg;
 
     return (head + 360) % 360;
   };
@@ -620,11 +622,11 @@
     // var RADIUS = 6378.137; // Earth radius at equator
     var RADIUS = 6372.8; // Earth radius in km
 
-    var hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
-    var hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
+    var hLat = (lat2 - lat1) * Deg2Rad * 0.5; // Half of lat difference
+    var hLon = (lon2 - lon1) * Deg2Rad * 0.5; // Half of lon difference
 
-    lat1 = lat1 * D2R;
-    lat2 = lat2 * D2R;
+    lat1 = lat1 * Deg2Rad;
+    lat2 = lat2 * Deg2Rad;
 
     var shLat = Math.sin(hLat);
     var shLon = Math.sin(hLon);
