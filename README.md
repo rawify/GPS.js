@@ -44,7 +44,7 @@ Installation
 Installing GPS.js is as easy as cloning this repo or use the following command:
 
 ```
-npm install --save gps
+npm install gps
 ```
 
 Find the serial device
