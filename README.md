@@ -278,7 +278,7 @@ If you don't get valid position information after turning on the receiver, chanc
 Functions
 ===
 
-GPS.js comes with a few static functions, which help by working with geo-coordinates.
+GPS.js comes with a few static functions, which helps working with geo-coordinates.
 
 GPS.Parse(line)
 ---
