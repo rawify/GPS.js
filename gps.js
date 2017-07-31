@@ -8,6 +8,8 @@
 
 (function(root) {
 
+  'use strict';
+  
   var D2R = Math.PI / 180;
 
   var collectSats = [];
