@@ -8,11 +8,19 @@ var io = require('socket.io')(http);
 //var file = '/dev/tty.usbserial';
 var file = '/dev/tty.usbmodem1411';
 
-var SerialPort = require('serialport');
-var port = new SerialPort.SerialPort(file, {
-  baudrate: 4800,
-  parser: SerialPort.parsers.readline('\r\n')
+const SerialPort = require('serialport');
+const parsers = SerialPort.parsers;
+
+const parser = new parsers.Readline({
+  delimiter: '\r\n'
 });
+
+const port = new SerialPort(file, {
+  baudRate: 4800
+});
+
+port.pipe(parser);
+
 
 var GPS = require('../../gps.js');
 var gps = new GPS;
@@ -30,6 +38,6 @@ http.listen(3000, function() {
   console.log('listening on *:3000');
 });
 
-port.on('data', function(data) {
+parser.on('data', function(data) {
   gps.update(data);
 });
