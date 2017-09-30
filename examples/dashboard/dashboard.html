@@ -27,6 +27,7 @@
 
               updateSatellite(state);
               updateTable(state);
+              updateSkyView(state);
             });
 
 
@@ -37,20 +38,95 @@
 
             var dataset = [];
 
-            //Create SVG element
-            var svg = d3.select("body")
+            //Create SVG elements
+
+            var svgSky = d3.select("body")
+                    .append("svg")
+                    .attr("width", 250)
+                    .attr("height", 250);
+
+            var svgSat = d3.select("body")
                     .append("svg")
                     .attr("width", width)
                     .attr("height", barHeight + 50)
                     .append("g");
 
 
+
+            function elevationToRadius(e) {
+              // Degrees:
+              // 0° has radius of 120
+              // 90° has radius of 0
+
+              return 110 * (1 - e / 90);
+            }
+
+            for (var i = 0; i < 90; i += 30) {
+
+              svgSky.append("circle")
+                      .attr("cx", 125)
+                      .attr("cy", 125)
+                      .attr("r", elevationToRadius(i))
+                      .attr("fill", "none")
+                      .attr("stroke", "black");
+
+              svgSky.append("text")
+                      .attr("x", elevationToRadius(i + 30) + 123)
+                      .attr("y", 125 + 9)
+                      .attr("fill", "black")
+                      .attr("text-anchor", "end")
+                      .attr("font-size", "8")
+                      .text((30 + i) + "°");
+
+            }
+
+            svgSky.append("line")
+                    .attr("x1", 125)
+                    .attr("y1", 125 - elevationToRadius(30))
+                    .attr("x2", 125)
+                    .attr("y2", 125 + elevationToRadius(30))
+                    .attr("stroke", "black");
+
+            svgSky.append("line")
+                    .attr("x1", 125 - elevationToRadius(30))
+                    .attr("y1", 125)
+                    .attr("x2", 125 + elevationToRadius(30))
+                    .attr("y2", 125)
+                    .attr("stroke", "black");
+
+            var steps = 36;
+
+            for (var i = 0; i < steps; i++) {
+
+              var alpha = (i / steps - 90 / 360) * Math.PI * 2;
+
+              var L = i % 3 === 0 ? 15 : 5;
+
+              svgSky.append("line")
+                      .attr("x1", Math.cos(alpha) * 110 + 125)
+                      .attr("y1", Math.sin(alpha) * 110 + 125)
+                      .attr("x2", Math.cos(alpha) * (110 - L) + 125)
+                      .attr("y2", Math.sin(alpha) * (110 - L) + 125)
+                      .attr("stroke", "black");
+
+              if (i % 3 == 0)
+                svgSky.append("text")
+                        .attr("x", Math.cos(alpha) * 118 + 125)
+                        .attr("y", Math.sin(alpha) * 118 + 125 + 4)
+                        .attr("fill", "black")
+                        .attr("text-anchor", "middle")
+                        .attr("font-size", "8")
+                        .text(Math.round(90 + alpha / Math.PI * 180) + "°");
+            }
+
+            var satsGroup = svgSky.append("g");
+
             function updateSatellite(data) {
 
-              var rect = svg.selectAll("rect")
+              var rect = svgSat.selectAll("rect")
                       .data(data.satsVisible);
 
-              var text = svg.selectAll("text")
+              var text = svgSat.selectAll("text")
                       .data(data.satsVisible);
 
               rect
@@ -102,6 +178,35 @@
 
             }
 
+            function updateSkyView(data) {
+
+              satsGroup.selectAll("circle")
+                      .data(data.satsVisible)
+
+                      .enter()
+                      .append("circle")
+
+                      .attr("cx", function(d, i) {
+                        return 125 + Math.cos(d.azimuth / 180 * Math.PI - Math.PI / 2) * elevationToRadius(d.elevation);
+                      })
+                      .attr("cy", function(d, i) {
+                        return 125 + Math.sin(d.azimuth / 180 * Math.PI - Math.PI / 2) * elevationToRadius(d.elevation);
+                      })
+                      .attr("r", 5)
+                      .attr("fill", function(d) {
+                        var v = d.snr || 0;
+                        if (-1 !== data.satsActive.indexOf(d.prn)) {
+                          return "rgb(0, 0, " + (v * 10 | 0) + ")";
+                        }
+                        return "rgb(" + (v * 10 | 0) + ", 0, 0)";
+                      })
+
+                      .append("title")
+                      .text(function(d, i) {
+                        return d.prn;
+                      });
+            }
+
             function updateTable(state) {
 
               $("#date").text(state.time);
@@ -113,7 +218,7 @@
               $("#pdop").text(state.pdop);
               $("#vdop").text(state.vdop);
               $("#hdop").text(state.hdop);
-              
+
               $("#active").text(state.satsActive.length);
               $("#view").text(state.satsVisible.length);
 
@@ -139,7 +244,7 @@
                 <th>Altitude</th>
                 <td id="alt"></td>
             </tr>
-                        <tr>
+            <tr>
                 <th>Speed</th>
                 <td id="speed"></td>
             </tr>
