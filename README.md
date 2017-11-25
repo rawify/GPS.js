@@ -52,6 +52,9 @@ Find the serial device
 
 On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multople USB ports on your computer and use them randomly, you have to lookup the path/device again.
 
+Register device on a BeagleBone
+=== 
+
 If you find yourself on a BeagleBone, the serial device must be registered manually. Luckily, this can be done within node quite easily using [octalbonescript](https://www.npmjs.com/package/octalbonescript):
 
 ```javascript
