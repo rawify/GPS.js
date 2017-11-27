@@ -52,6 +52,9 @@ Find the serial device
 
 On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multople USB ports on your computer and use them randomly, you have to lookup the path/device again.
 
+Register device on a BeagleBone
+---
+
 If you find yourself on a BeagleBone, the serial device must be registered manually. Luckily, this can be done within node quite easily using [octalbonescript](https://www.npmjs.com/package/octalbonescript):
 
 ```javascript
@@ -133,7 +136,7 @@ Set Time
 On systems without a RTC - like Raspberry PI - you need to update the time yourself at runtime. If the device has an internet connection, it's quite easy to use an NTP server. An alternative for disconnected projects with access to a GPS receiver can be the high-precision time signal, sent by satellites. Go to the examples folder and run the following to update the time:
 
 ```
-node set-time
+node set-date
 ```
 
 Available Methods
