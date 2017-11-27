@@ -9,7 +9,7 @@
 (function(root) {
 
   'use strict';
-  
+
   var D2R = Math.PI / 180;
 
   var collectSats = [];
@@ -550,6 +550,35 @@
       return {
         'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
                 //'delta': time === null ? null : (Date.now() - time) / 1000
+      };
+    },
+    'GST': function(str, gst) {
+
+      if (gst.length !== 10) {
+        throw 'Invalid GST length: ' + str;
+      }
+
+      /*
+       1    = Time (UTC)
+       2    = RMS value of the pseudorange residuals; includes carrier phase residuals during periods of RTK (float) and RTK (fixed) processing
+       3    = Error ellipse semi-major axis 1 sigma error, in meters
+       4    = Error ellipse semi-minor axis 1 sigma error, in meters
+       5    = Error ellipse orientation, degrees from true north
+       6    = Latitude 1 sigma error, in meters
+       7    = Longitude 1 sigma error, in meters
+       8    = Height 1 sigma error, in meters
+       9    = Checksum
+       */
+
+      return {
+        'time': parseTime(gst[1]),
+        'rms': parseNumber(gst[2]),
+        'ellipseMajor': parseNumber(gst[3]),
+        'ellipseMinor': parseNumber(gst[4]),
+        'ellipseOrientation': parseNumber(gst[5]),
+        'latitudeError': parseNumber(gst[6]),
+        'longitudeError': parseNumber(gst[7]),
+        'heightError': parseNumber(gst[8])
       };
     }
 

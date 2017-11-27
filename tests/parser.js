@@ -449,7 +449,46 @@ var tests = {
     'raw': '$GPGGA,174815.40,4141.46474,N,00849.77225,W,1,08,1.24,11.8,M,50.5,M,,*76',
     'type': 'GGA',
     'valid': true,
-  }
+  },
+  '$GPGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*6A': {
+    'time': new Date(today+'T17:28:14.000Z'),
+    'rms': 0.006,
+    'ellipseMajor': 0.023,
+    'ellipseMinor': 0.020,
+    'ellipseOrientation': 273.6,
+    'latitudeError': 0.023,
+    'longitudeError': 0.020,
+    'heightError': 0.031,
+    'raw': '$GPGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*6A',
+    'type': 'GST',
+    'valid': true
+  },
+  '$GLGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*76': {
+    'time': new Date(today+'T17:28:14.000Z'),
+    'rms': 0.006,
+    'ellipseMajor': 0.023,
+    'ellipseMinor': 0.020,
+    'ellipseOrientation': 273.6,
+    'latitudeError': 0.023,
+    'longitudeError': 0.020,
+    'heightError': 0.031,
+    'raw': '$GLGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*76',
+    'type': 'GST',
+    'valid': true
+  },
+  '$GNGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*74': {
+    'time': new Date(today+'T17:28:14.000Z'),
+    'rms': 0.006,
+    'ellipseMajor': 0.023,
+    'ellipseMinor': 0.020,
+    'ellipseOrientation': 273.6,
+    'latitudeError': 0.023,
+    'longitudeError': 0.020,
+    'heightError': 0.031,
+    'raw': '$GNGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*74',
+    'type': 'GST',
+    'valid': true
+  },
 };
 var collect = {};
 gps.on('data', function(data) {
