@@ -258,6 +258,22 @@ The parsed object will have the following attributes:
 - type: "ZDA"
 - time: The time given as a JavaScript Date object
 
+GST - Position error statistics
+---
+
+The parsed object will have the following attributes:
+
+- type: "GST"
+- time: The time given as a JavaScript Date object
+- rms: RMS value of the pseudorange residuals; includes carrier phase residuals during periods of RTK (float) and RTK (fixed) 
+- ellipseMajor: Error ellipse semi-major axis 1 sigma error, in meters
+- ellipseMinor: Error ellipse semi-minor axis 1 sigma error, in meters
+- ellipseOrientation: Error ellipse orientation, degrees from true north
+- latitudeError: Latitude 1 sigma error, in meters
+- longitudeError: Longitude 1 sigma error, in meters
+- heightError: Height 1 sigma error, in meters
+- valid: Indicates if the checksum is okay
+
 GPS State
 ===
 If the streaming API is not needed, but a solid state of the system, the `gps.state` object can be used. It has the following properties:
