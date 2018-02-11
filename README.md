@@ -307,6 +307,10 @@ GPS.Distance(latFrom, lonFrom, latTo, lonTo)
 ---
 Calculates the distance between two geo-coordinates using Haversine formula
 
+GPS.TotalDistance(points)
+---
+Calculates the length of a traveled route, given as an array of {lat: x, lon: y} point objects
+
 GPS.Heading(latFrom, lonFrom, latTo, lonTo)
 ---
 Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270). The result can be used as the argument of [angles](https://github.com/infusion/Angles.js) `compass()` method:

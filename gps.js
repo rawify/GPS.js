@@ -10,9 +10,14 @@
 
   'use strict';
 
-  var D2R = Math.PI / 180;
+  const D2R = Math.PI / 180;
 
-  var collectSats = [];
+  const MIN_LON = -Math.PI;
+  const MAX_LON = Math.PI;
+  const MIN_LAT = -Math.PI / 2;
+  const MAX_LAT = Math.PI / 2;
+
+  let collectSats = [];
 
   function updateState(state, data) {
 
@@ -47,8 +52,8 @@
     // TODO: better merge algorithm
     if (data['type'] === 'GSV') {
 
-      var sats = data['satellites'];
-      for (var i = 0; i < sats.length; i++) {
+      const sats = data['satellites'];
+      for (let i = 0; i < sats.length; i++) {
         collectSats.push(sats[i]);
       }
 
@@ -66,13 +71,13 @@
       return null;
     }
 
-    var ret = new Date;
+    const ret = new Date;
 
     if (date) {
 
-      var year = date.slice(4);
-      var month = date.slice(2, 4) - 1;
-      var day = date.slice(0, 2);
+      const year = date.slice(4);
+      const month = date.slice(2, 4) - 1;
+      const day = date.slice(0, 2);
 
       if (year.length === 4) {
         ret.setUTCFullYear(year, month, day);
@@ -88,11 +93,11 @@
     ret.setUTCSeconds(time.slice(4, 6));
 
     // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
-    var msStr = time.slice(7);
-    var msExp = msStr.length;
-    var ms = 0;
+    const msStr = time.slice(7);
+    const msExp = msStr.length;
+    let ms = 0;
     if (msExp !== 0) {
-        ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
+      ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
     }
     ret.setUTCMilliseconds(ms);
 
@@ -106,7 +111,7 @@
     if (coord === '')
       return null;
 
-    var n, sgn = 1;
+    let n, sgn = 1;
 
     switch (dir) {
 
@@ -160,7 +165,7 @@
       case '':
         return null;
     }
-    throw 'INVALID GSA MODE: ' + mode;
+    throw new Error('INVALID GSA MODE: ' + mode);
   }
 
   function parseGGAFix(fix) {
@@ -186,7 +191,7 @@
       case '8':
         return 'simulated';
     }
-    throw 'INVALID GGA FIX: ' + fix;
+    throw new Error('INVALID GGA FIX: ' + fix);
   }
 
   function parseGSAFix(fix) {
@@ -200,7 +205,7 @@
       case '3':
         return '3D';
     }
-    throw 'INVALID GSA FIX: ' + fix;
+    throw new Error('INVALID GSA FIX: ' + fix);
   }
 
   function parseRMC_GLLStatus(status) {
@@ -213,7 +218,7 @@
       case '':
         return null;
     }
-    throw 'INVALID RMC/GLL STATUS: ' + status;
+    throw new Error('INVALID RMC/GLL STATUS: ' + status);
   }
 
   function parseFAA(faa) {
@@ -236,7 +241,7 @@
       case 'P':
         return 'precise';
     }
-    throw 'INVALID FAA MODE: ' + faa;
+    throw new Error('INVALID FAA MODE: ' + faa);
   }
 
   function parseRMCVariation(vari, dir) {
@@ -244,16 +249,16 @@
     if (vari === '' || dir === '')
       return null;
 
-    var q = (dir === 'W') ? -1.0 : 1.0;
+    const q = (dir === 'W') ? -1.0 : 1.0;
 
     return parseFloat(vari) * q;
   }
 
   function isValid(str, crc) {
 
-    var checksum = 0;
-    for (var i = 1; i < str.length; i++) {
-      var c = str.charCodeAt(i);
+    let checksum = 0;
+    for (let i = 1; i < str.length; i++) {
+      const c = str.charCodeAt(i);
 
       if (c === 42) // Asterisk: *
         break;
@@ -268,11 +273,16 @@
     if (unit === 'M' || unit === '') {
       return parseNumber(num);
     }
-    throw 'Unknown unit: ' + unit;
+    throw new Error('Unknown unit: ' + unit);
   }
 
 
   function GPS() {
+
+    if (!(this instanceof GPS)) {
+      return new GPS;
+    }
+
     this['events'] = {};
     this['state'] = {};
   }
@@ -285,7 +295,7 @@
     'GGA': function(str, gga) {
 
       if (gga.length !== 16) {
-        throw 'Invalid GGA length: ' + str;
+        throw new Error('Invalid GGA length: ' + str);
       }
 
       /*
@@ -293,7 +303,7 @@
        1         2       3 4        5 6 7  8   9  10 |  12 13  14  15
        |         |       | |        | | |  |   |   | |   | |   |   |
        $--GGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
-
+       
        1) Time (UTC)
        2) Latitude
        3) N or S (North or South)
@@ -331,14 +341,14 @@
     'GSA': function(str, gsa) {
 
       if (gsa.length !== 19) {
-        throw 'Invalid GSA length: ' + str;
+        throw new Error('Invalid GSA length: ' + str);
       }
 
       /*
        eg1. $GPGSA,A,3,,,,,,16,18,,22,24,,,3.6,2.1,2.2*3C
        eg2. $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
-
-
+       
+       
        1    = Mode:
        M=Manual, forced to operate in 2D or 3D
        A=Automatic, 3D/2D
@@ -353,8 +363,8 @@
        18   = Checksum
        */
 
-      var sats = [];
-      for (var i = 3; i < 12 + 3; i++) {
+      const sats = [];
+      for (let i = 3; i < 12 + 3; i++) {
 
         if (gsa[i] !== '') {
           sats.push(parseInt(gsa[i], 10));
@@ -374,12 +384,12 @@
     'RMC': function(str, rmc) {
 
       if (rmc.length !== 13 && rmc.length !== 14) {
-        throw 'Invalid RMC length: ' + str;
+        throw new Error('Invalid RMC length: ' + str);
       }
 
       /*
        $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a*hh
-
+       
        RMC  = Recommended Minimum Specific GPS/TRANSIT Data
        1    = UTC of position fix
        2    = Data status (A-ok, V-invalid)
@@ -411,7 +421,7 @@
     'VTG': function(str, vtg) {
 
       if (vtg.length !== 10 && vtg.length !== 11) {
-        throw 'Invalid VTG length: ' + str;
+        throw new Error('Invalid VTG length: ' + str);
       }
 
       /*
@@ -420,11 +430,11 @@
        |  |  |  |  |  |  |  | |   |
        $--VTG,x.x,T,x.x,M,x.x,N,x.x,K,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
-       1    = Track degrees
+       
+       1    = Track made good (degrees true)
        2    = Fixed text 'T' indicates that track made good is relative to true north
-       3    = not used
-       4    = not used
+       3    = optional: Track made good (degrees magnetic)
+       4    = optional: M: track made good is relative to magnetic north
        5    = Speed over ground in knots
        6    = Fixed text 'N' indicates that speed over ground in in knots
        7    = Speed over ground in kilometers/hour
@@ -437,21 +447,23 @@
 
         return {
           'track': null,
+          'trackMagetic': null,
           'speed': null,
           'faa': null
         };
       }
 
       if (vtg[2] !== 'T') {
-        throw 'Invalid VTG track mode: ' + str;
+        throw new Error('Invalid VTG track mode: ' + str);
       }
 
       if (vtg[8] !== 'K' || vtg[6] !== 'N') {
-        throw 'Invalid VTG speed tag: ' + str;
+        throw new Error('Invalid VTG speed tag: ' + str);
       }
 
       return {
         'track': parseNumber(vtg[1]),
+        'trackMagnetic': vtg[3] === '' ? null : parseNumber(vtg[3]),
         'speed': parseKnots(vtg[5]),
         'faa': vtg.length === 11 ? parseFAA(vtg[9]) : null
       };
@@ -460,12 +472,12 @@
     'GSV': function(str, gsv) {
 
       if (gsv.length < 9 || gsv.length % 4 !== 1) {
-        throw 'Invalid GSV length: ' + str;
+        throw new Error('Invalid GSV length: ' + str);
       }
 
       /*
        $GPGSV,1,1,13,02,02,213,,03,-3,000,,11,00,121,,14,13,172,05*67
-
+       
        1    = Total number of messages of this type in this cycle
        2    = Message number
        3    = Total number of SVs in view
@@ -479,12 +491,12 @@
        8/12/16/20   = Checksum
        */
 
-      var sats = [];
+      const sats = [];
 
-      for (var i = 4; i < gsv.length - 1; i += 4) {
+      for (let i = 4; i < gsv.length - 1; i += 4) {
 
-        var prn = parseNumber(gsv[i]);
-        var snr = parseNumber(gsv[i + 3]);
+        const prn = parseNumber(gsv[i]);
+        const snr = parseNumber(gsv[i + 3]);
 
         sats.push({
           'prn': prn,
@@ -506,7 +518,7 @@
     'GLL': function(str, gll) {
 
       if (gll.length !== 9) {
-        throw 'Invalid GLL length: ' + str;
+        throw new Error('Invalid GLL length: ' + str);
       }
 
       /*
@@ -515,7 +527,7 @@
        |       | |        | |         | |   |
        $--GLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,a,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1. Latitude
        2. N or S (North or South)
        3. Longitude
@@ -555,7 +567,7 @@
     'GST': function(str, gst) {
 
       if (gst.length !== 10) {
-        throw 'Invalid GST length: ' + str;
+        throw new Error('Invalid GST length: ' + str);
       }
 
       /*
@@ -589,9 +601,9 @@
     if (typeof line !== 'string')
       return false;
 
-    var nmea = line.split(',');
+    const nmea = line.split(',');
 
-    var last = nmea.pop();
+    let last = nmea.pop();
 
     if (nmea.length < 4 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
       return false;
@@ -606,7 +618,7 @@
 
     if (GPS['mod'][nmea[0]] !== undefined) {
       // set raw data here as well?
-      var data = this['mod'][nmea[0]](line, nmea);
+      const data = this['mod'][nmea[0]](line, nmea);
       data['raw'] = line;
       data['valid'] = isValid(line, nmea[nmea.length - 1]);
       data['type'] = nmea[0];
@@ -619,24 +631,24 @@
   // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2
   GPS['Heading'] = function(lat1, lon1, lat2, lon2) {
 
-    var dlon = (lon2 - lon1) * D2R;
+    const dlon = (lon2 - lon1) * D2R;
 
     lat1 = lat1 * D2R;
     lat2 = lat2 * D2R;
 
-    var sdlon = Math.sin(dlon);
-    var cdlon = Math.cos(dlon);
+    const sdlon = Math.sin(dlon);
+    const cdlon = Math.cos(dlon);
 
-    var slat1 = Math.sin(lat1);
-    var clat1 = Math.cos(lat1);
+    const slat1 = Math.sin(lat1);
+    const clat1 = Math.cos(lat1);
 
-    var slat2 = Math.sin(lat2);
-    var clat2 = Math.cos(lat2);
+    const slat2 = Math.sin(lat2);
+    const clat2 = Math.cos(lat2);
 
-    var n = sdlon * clat2;
-    var d = clat1 * slat2 - slat1 * clat2 * cdlon;
+    const y = sdlon * clat2;
+    const x = clat1 * slat2 - slat1 * clat2 * cdlon;
 
-    var head = Math.atan2(n, d) * 180 / Math.PI;
+    const head = Math.atan2(y, x) * 180 / Math.PI;
 
     return (head + 360) % 360;
   };
@@ -647,43 +659,53 @@
     // R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159
 
     // Because Earth is no exact sphere, rounding errors may be up to 0.5%.
-    // var RADIUS = 6371; // Earth radius average
-    // var RADIUS = 6378.137; // Earth radius at equator
-    var RADIUS = 6372.8; // Earth radius in km
+    // const RADIUS = 6371; // Earth radius average
+    // const RADIUS = 6378.137; // Earth radius at equator
+    const RADIUS = 6372.8; // Earth radius in km
 
-    var hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
-    var hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
+    const hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
+    const hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
 
     lat1 = lat1 * D2R;
     lat2 = lat2 * D2R;
 
-    var shLat = Math.sin(hLat);
-    var shLon = Math.sin(hLon);
-    var clat1 = Math.cos(lat1);
-    var clat2 = Math.cos(lat2);
+    const shLat = Math.sin(hLat);
+    const shLon = Math.sin(hLon);
+    const clat1 = Math.cos(lat1);
+    const clat2 = Math.cos(lat2);
 
-    var tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
+    const tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
 
     //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
     return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
   };
 
+  GPS['TotalDistance'] = function(path) {
+
+    if (path.length < 2)
+      return 0;
+
+    let len = 0;
+    for (let i = 0; i < path.length - 1; i++) {
+      const c = path[i];
+      const n = path[i + 1];
+      len += GPS['Distance'](c['lat'], c['lon'], n['lat'], n['lon']);
+    }
+    return len;
+  };
+
   GPS.prototype['update'] = function(line) {
 
-    var parsed = GPS['Parse'](line);
+    const parsed = GPS['Parse'](line);
 
     if (parsed === false)
       return false;
 
     updateState(this.state, parsed);
 
-    if (this['events']['data'] !== undefined) {
-      this['events']['data'].call(this, parsed);
-    }
+    this['emit']('data', parsed);
+    this['emit'](parsed.type, parsed);
 
-    if (this['events'][parsed.type] !== undefined) {
-      this['events'][parsed.type].call(this, parsed);
-    }
     return true;
   };
 
@@ -695,12 +717,12 @@
 
     while (true) {
 
-      var pos = this['partial'].indexOf("\r\n");
+      const pos = this['partial'].indexOf("\r\n");
 
       if (pos === -1)
         break;
 
-      var line = this['partial'].slice(0, pos);
+      const line = this['partial'].slice(0, pos);
 
       if (line.charAt(0) === '$') {
         this['update'](line);
@@ -724,6 +746,12 @@
       this['events'][ev] = undefined;
     }
     return this;
+  };
+
+  GPS.prototype['emit'] = function(ev, data) {
+    if (this['events'][ev] !== undefined) {
+      this['events'][ev].call(this, data);
+    }
   };
 
   if (typeof exports === 'object') {

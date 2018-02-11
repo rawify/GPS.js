@@ -7,6 +7,12 @@ var file = '/dev/tty.usbmodem1411';
 const SerialPort = require('serialport');
 const parsers = SerialPort.parsers;
 
+/*
+SerialPort.list(function (err, ports) {
+  console.log(ports);
+});
+ */
+
 const parser = new parsers.Readline({
   delimiter: '\r\n'
 });

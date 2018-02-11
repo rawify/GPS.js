@@ -1,7 +1,7 @@
 
 var expect = require('chai').expect;
 var GPS = require('../gps.js');
-var pgps = new GPS;
+var gps = new GPS;
 
 var res = [{
     'lat': 48.539856666666665,
@@ -18,6 +18,7 @@ var res = [{
   }, {
     'speed': 4.22256,
     'track': 2.93,
+    'trackMagnetic': null,
     'raw': '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66',
     'type': 'VTG',
     'faa': null,
@@ -31,12 +32,13 @@ describe('partial updates', function() {
 
     var K = 0;
 
-    pgps.on('data', function(data) {
+    gps.on('data', function(data) {
 
       try {
         expect(data).to.deep.equal(res[K++]);
       } catch (e) {
         done(e);
+        return;
       }
 
       if (K === res.length) {
@@ -44,10 +46,10 @@ describe('partial updates', function() {
       }
     });
 
-    pgps.updatePartial("6,,*0D\r\n$GPRMC,234919.000");
-    pgps.updatePartial(",A,4832.3914,N,00903.5500");
-    pgps.updatePartial(",E,2.28,2.93,260116,,*0D\r\n$GPVTG,2.");
-    pgps.updatePartial("93,T,,M,2.28,N,4.2,K*66\r\nfoo");
+    gps.updatePartial("6,,*0D\r\n$GPRMC,234919.000");
+    gps.updatePartial(",A,4832.3914,N,00903.5500");
+    gps.updatePartial(",E,2.28,2.93,260116,,*0D\r\n$GPVTG,2.");
+    gps.updatePartial("93,T,,M,2.28,N,4.2,K*66\r\nfoo");
 
   });
 });

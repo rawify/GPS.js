@@ -8,10 +8,12 @@
     "keywords": [
         "nmea",
         "gps",
+        "glonass",
         "serial",
         "parser",
         "distance",
         "geo",
+        "stream",
         "location",
         "rmc",
         "gga",
@@ -25,7 +27,8 @@
     "private": false,
     "readmeFilename": "README.md",
     "directories": {
-        "example": "examples"
+        "example": "examples",
+        "test": "tests"
     },
     "license": "MIT OR GPL-2.0",
     "repository": {

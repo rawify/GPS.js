@@ -43,6 +43,7 @@ var tests = {
   '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66': {
     'speed': 4.22256,
     'track': 2.93,
+    'trackMagnetic': null,
     'raw': '$GPVTG,2.93,T,,M,2.28,N,4.2,K*66',
     'type': 'VTG',
     'faa': null,
