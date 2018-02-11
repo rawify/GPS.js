@@ -21,6 +21,7 @@
 
   function updateState(state, data) {
 
+    // TODO: can we really use RMC time here or is it the time of fix?
     if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL') {
       state['time'] = data['time'];
       state['lat'] = data['lat'];
@@ -49,7 +50,9 @@
       state['vdop'] = data['vdop'];
     }
 
-    // TODO: better merge algorithm
+    // TODO: better merge algorithm: 
+    // 1. update every sat and mark as updated.
+    // 2. If last msg, delete all unmarked sats & reset mark
     if (data['type'] === 'GSV') {
 
       const sats = data['satellites'];
@@ -84,6 +87,7 @@
       } else {
         // If we need to parse older GPRMC data, we should hack something like
         // year < 73 ? 2000+year : 1900+year
+        // Since GPS appeared in 1973
         ret.setUTCFullYear('20' + year, month, day);
       }
     }
@@ -106,7 +110,7 @@
 
   function parseCoord(coord, dir) {
 
-    // Latitude can go from 0 to 90; longitude can go from 0 to 180.
+    // Latitude can go from 0 to 90; longitude can go from -180 to 180.
 
     if (coord === '')
       return null;
@@ -333,7 +337,7 @@
         'satelites': parseNumber(gga[7]),
         'hdop': parseNumber(gga[8]), // dilution
         'geoidal': parseDist(gga[11], gga[12]), // aboveGeoid
-        'age': parseNumber(gga[13]), // dgpsUpdate???
+        'age': parseNumber(gga[13]), // dgps time since update
         'stationID': parseNumber(gga[14]) // dgpsReference??
       };
     },
@@ -364,7 +368,7 @@
        */
 
       const sats = [];
-      for (let i = 3; i < 12 + 3; i++) {
+      for (let i = 3; i < 15; i++) {
 
         if (gsa[i] !== '') {
           sats.push(parseInt(gsa[i], 10));
@@ -412,7 +416,7 @@
         'lat': parseCoord(rmc[3], rmc[4]),
         'lon': parseCoord(rmc[5], rmc[6]),
         'speed': parseKnots(rmc[7]),
-        'track': parseNumber(rmc[8]),
+        'track': parseNumber(rmc[8]), // heading
         'variation': parseRMCVariation(rmc[10], rmc[11]),
         'faa': rmc.length === 14 ? parseFAA(rmc[12]) : null
       };
@@ -462,8 +466,8 @@
       }
 
       return {
-        'track': parseNumber(vtg[1]),
-        'trackMagnetic': vtg[3] === '' ? null : parseNumber(vtg[3]),
+        'track': parseNumber(vtg[1]), // heading
+        'trackMagnetic': vtg[3] === '' ? null : parseNumber(vtg[3]), // heading uncorrected to magnetic north
         'speed': parseKnots(vtg[5]),
         'faa': vtg.length === 11 ? parseFAA(vtg[9]) : null
       };
