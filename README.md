@@ -87,7 +87,7 @@ gps.on('data', function(data) {
 });
 
 port.on('data', function(data) {
-  gps.update(data);
+  gps.updatePartial(data);
 });
 ```
 
@@ -144,7 +144,7 @@ Available Methods
 
 update(line)
 ---
-The update method is the most important function, it adds a new NMEA sentence and forces the callback to trigger
+The update method is the most important function, it parses a NMEA sentence and forces the callbacks to trigger
 
 updatePartial(chunk)
 ---
