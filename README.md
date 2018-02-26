@@ -175,7 +175,7 @@ The parsed object will have the following attributes:
 - quality: Fix quality (either invalid, fix or diff)
 - satelites: Number of satellites being tracked
 - hdop: Horizontal [dilution of precision](https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS))
-- geoidal: Height of geoid (mean sea level) 
+- geoidal: Height of geoid in meters (mean sea level) 
 - age: time in seconds since last DGPS update
 - stationID: DGPS station ID number
 - valid: Indicates if the checksum is okay
