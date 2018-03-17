@@ -5,11 +5,15 @@
         <meta name="viewport" content="initial-scale=1.0">
         <meta charset="utf-8">
 
+        <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+
         <style>
+            body {
+                font-family: 'Oswald', sans-serif;
+            }
             th{
                 text-align:right
             }
-
         </style>
 
     </head>
@@ -24,7 +28,7 @@
             var socket = io();
 
             socket.on('state', function(state) {
-
+              updateSpeed(state);
               updateSatellite(state);
               updateTable(state);
               updateSkyView(state);
@@ -51,6 +55,163 @@
                     .attr("height", barHeight + 50)
                     .append("g");
 
+            var svgSpeed = d3.select("body")
+                    .append("svg")
+                    .style("position", "fixed")
+                    .style("right", "10px")
+                    .style("bottom", "10px")
+                    .attr("width", 160)
+                    .attr("height", 160)
+                    .append("g");
+
+            var centerX = 80;
+            var centerY = 80;
+            var path1 = [];
+            var path2 = [];
+
+            var start = 270; // °
+            var end = -10; // °
+            var startH = 0;
+            var endH = 45;
+            var stepH = 5;
+            var n = (endH - startH);
+
+            function speedAngle(i) {
+              return end + (Math.min(i, endH) - endH) / (startH - endH) * (start - end)
+            }
+
+            for (var i = 0; i <= n; i++) {
+
+              var alpha = (end + start - speedAngle(i)) / 180 * Math.PI;
+              var path = path2;
+              var r = 4;
+
+              if (i % 5 === 0) {
+
+                path = path1;
+                r = 7;
+
+                svgSpeed.append("text")
+                        .attr("x", Math.cos(alpha) * 60 + centerX - 5)
+                        .attr("y", -Math.sin(alpha) * 60 + centerY + 5)
+                        .attr("font-weight", "bold")
+                        .attr("font-size", "10px")
+                        .text(endH - i);
+              }
+
+              path.push("M");
+              path.push(Math.cos(alpha) * (r + 70) + centerX);
+              path.push(-Math.sin(alpha) * (r + 70) + centerY);
+              path.push("L");
+              path.push(Math.cos(alpha) * 70 + centerX);
+              path.push(-Math.sin(alpha) * 70 + centerY);
+            }
+
+            function arc(x, y, radius, startAngle, endAngle) {
+
+              var start = {
+                x: x + (radius * Math.cos(endAngle * Math.PI / 180)),
+                y: y - (radius * Math.sin(endAngle * Math.PI / 180))
+              };
+
+              var end = {
+                x: x + (radius * Math.cos(startAngle * Math.PI / 180)),
+                y: y - (radius * Math.sin(startAngle * Math.PI / 180))
+              };
+
+              var a = (startAngle - endAngle) > 180 ? 1 : 0;
+              return [
+                "M", start.x, start.y,
+                "A", radius, radius, 0, a, 0, end.x, end.y
+              ].join(" ");
+            }
+
+            var speed = 0;
+
+            var shadowSpeed = svgSpeed.append("path")
+                    .attr("d", arc(centerX, centerY, 72, start, speedAngle(speed)))
+                    .attr("fill", "none")
+                    .style("stroke-width", "3")
+                    .attr("stroke", "rgba(0, 220, 255, 0)");
+
+            svgSpeed.append("path")
+                    .attr("d", path1.join(" "))
+                    .attr("fill", "none")
+                    .style("stroke-width", "2")
+                    .attr("stroke", "black");
+
+            svgSpeed.append("path")
+                    .attr("d", path2.join(" "))
+                    .attr("fill", "none")
+                    .attr("stroke", "black");
+
+            var direction = svgSpeed.append("path")
+                    .attr("d", [
+                      "M", Math.cos(Math.PI / 2 + Math.PI) * 5, -Math.sin(Math.PI / 2 + Math.PI) * 5,
+                      "L", Math.cos(Math.PI / 4 + Math.PI) * 15, -Math.sin(Math.PI / 4 + Math.PI) * 15,
+                      "L", Math.cos(Math.PI / 2) * 20, -Math.sin(Math.PI / 2) * 20,
+                      "L", Math.cos(-Math.PI / 4) * 15, -Math.sin(-Math.PI / 4) * 15,
+                      "Z"
+                    ].join(" "))
+                    .style("transform", "translate(" + centerX + "px," + centerY + "px)")
+                    .attr("fill", "#c00")
+                    .attr("stroke", "none");
+
+            var circleSpeed = svgSpeed.append("circle")
+                    .attr("r", 4)
+                    .attr("cx", Math.cos(speedAngle(speed) / 180 * Math.PI) * 72 + centerX)
+                    .attr("cy", -Math.sin(speedAngle(speed) / 180 * Math.PI) * 72 + centerY)
+                    .attr("fill", "white")
+                    .style("stroke-width", 2)
+                    .attr("stroke", "black");
+
+            var textSpeed = svgSpeed.append("text")
+                    .attr("x", 90)
+                    .attr("y", 140)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "30px")
+                    .attr("fill", "black")
+                    .text(speed);
+
+            svgSpeed.append("text")
+                    .attr("x", 95)
+                    .attr("y", 155)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "13px")
+                    .attr("fill", "black")
+                    .text("kph");
+
+            svgSpeed.append("text")
+                    .attr("x", centerX - 30 - 4)
+                    .attr("y", centerY + 4)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "13px")
+                    .attr("fill", "black")
+                    .text("W");
+
+            svgSpeed.append("text")
+                    .attr("x", centerX + 30 - 4)
+                    .attr("y", centerY + 4)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "13px")
+                    .attr("fill", "black")
+                    .text("E");
+
+            svgSpeed.append("text")
+                    .attr("x", centerX - 4)
+                    .attr("y", centerY - 30 + 3)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "13px")
+                    .attr("fill", "black")
+                    .text("N");
+
+            svgSpeed.append("text")
+                    .attr("x", centerX - 4)
+                    .attr("y", centerY + 30 + 7)
+                    .attr("font-weight", "bold")
+                    .attr("font-size", "13px")
+                    .attr("fill", "black")
+                    .text("S");
 
 
             function elevationToRadius(e) {
@@ -77,7 +238,6 @@
                       .attr("text-anchor", "end")
                       .attr("font-size", "8")
                       .text((30 + i) + "°");
-
             }
 
             svgSky.append("line")
@@ -120,6 +280,24 @@
             }
 
             var satsGroup = svgSky.append("g");
+
+            function updateSpeed(data) {
+
+              var speed = data.speed;
+
+              textSpeed.text(speed);
+
+              direction
+                      .style("transform", "translate(" + centerX + "px," + centerY + "px)rotate(" + data.bearing + "deg)")
+
+              circleSpeed
+                      .attr("cx", Math.cos(speedAngle(speed) / 180 * Math.PI) * 72 + centerX)
+                      .attr("cy", -Math.sin(speedAngle(speed) / 180 * Math.PI) * 72 + centerY);
+
+              shadowSpeed
+                      .attr("d", arc(centerX, centerY, 72, start, speedAngle(speed)))
+                      .attr("stroke", "rgba(0, 220, 255, " + (speed / (endH - startH)) + ")");
+            }
 
             function updateSatellite(data) {
 
@@ -221,7 +399,6 @@
 
               $("#active").text(state.satsActive.length);
               $("#view").text(state.satsVisible.length);
-
             }
 
         </script>
