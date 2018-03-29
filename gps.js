@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.4.3 26/01/2016
+ * @license GPS.js v0.4.4 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -68,6 +68,12 @@
     }
   }
 
+  /**
+   * 
+   * @param {String} time
+   * @param {String=} date
+   * @returns {Date}
+   */
   function parseTime(time, date) {
 
     if (time === '') {
@@ -83,18 +89,18 @@
       const day = date.slice(0, 2);
 
       if (year.length === 4) {
-        ret.setUTCFullYear(year, month, day);
+        ret.setUTCFullYear(Number(year), Number(month), Number(day));
       } else {
         // If we need to parse older GPRMC data, we should hack something like
         // year < 73 ? 2000+year : 1900+year
         // Since GPS appeared in 1973
-        ret.setUTCFullYear('20' + year, month, day);
+        ret.setUTCFullYear(Number('20' + year), Number(month), Number(day));
       }
     }
 
-    ret.setUTCHours(time.slice(0, 2));
-    ret.setUTCMinutes(time.slice(2, 4));
-    ret.setUTCSeconds(time.slice(4, 6));
+    ret.setUTCHours(Number(time.slice(0, 2)));
+    ret.setUTCMinutes(Number(time.slice(2, 4)));
+    ret.setUTCSeconds(Number(time.slice(4, 6)));
 
     // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
     const msStr = time.slice(7);
@@ -103,7 +109,7 @@
     if (msExp !== 0) {
       ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
     }
-    ret.setUTCMilliseconds(ms);
+    ret.setUTCMilliseconds(Number(ms));
 
     return ret;
   }
@@ -280,7 +286,10 @@
     throw new Error('Unknown unit: ' + unit);
   }
 
-
+  /**
+   * 
+   * @constructor
+   */
   function GPS() {
 
     if (!(this instanceof GPS)) {
@@ -705,7 +714,7 @@
     if (parsed === false)
       return false;
 
-    updateState(this.state, parsed);
+    updateState(this['state'], parsed);
 
     this['emit']('data', parsed);
     this['emit'](parsed.type, parsed);
@@ -759,7 +768,10 @@
   };
 
   if (typeof exports === 'object') {
-    module.exports = GPS;
+    Object.defineProperty(exports, "__esModule", {'value': true});
+    module['exports'] = GPS;
+    exports['Angles'] = GPS;
+    exports['default'] = GPS;
   } else {
     root['GPS'] = GPS;
   }
