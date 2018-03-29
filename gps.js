@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.4.4 26/01/2016
+ * @license GPS.js v0.4.5 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -769,9 +769,9 @@
 
   if (typeof exports === 'object') {
     Object.defineProperty(exports, "__esModule", {'value': true});
+    GPS['default'] = GPS;
+    GPS['GPS'] = GPS;
     module['exports'] = GPS;
-    exports['Angles'] = GPS;
-    exports['default'] = GPS;
   } else {
     root['GPS'] = GPS;
   }
