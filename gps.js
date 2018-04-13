@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.4.5 26/01/2016
+ * @license GPS.js v0.4.6 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -10,14 +10,14 @@
 
   'use strict';
 
-  const D2R = Math.PI / 180;
+  var D2R = Math.PI / 180;
 
-  const MIN_LON = -Math.PI;
-  const MAX_LON = Math.PI;
-  const MIN_LAT = -Math.PI / 2;
-  const MAX_LAT = Math.PI / 2;
+  var MIN_LON = -Math.PI;
+  var MAX_LON = Math.PI;
+  var MIN_LAT = -Math.PI / 2;
+  var MAX_LAT = Math.PI / 2;
 
-  let collectSats = [];
+  var collectSats = [];
 
   function updateState(state, data) {
 
@@ -55,8 +55,8 @@
     // 2. If last msg, delete all unmarked sats & reset mark
     if (data['type'] === 'GSV') {
 
-      const sats = data['satellites'];
-      for (let i = 0; i < sats.length; i++) {
+      var sats = data['satellites'];
+      for (var i = 0; i < sats.length; i++) {
         collectSats.push(sats[i]);
       }
 
@@ -80,13 +80,13 @@
       return null;
     }
 
-    const ret = new Date;
+    var ret = new Date;
 
     if (date) {
 
-      const year = date.slice(4);
-      const month = date.slice(2, 4) - 1;
-      const day = date.slice(0, 2);
+      var year = date.slice(4);
+      var month = date.slice(2, 4) - 1;
+      var day = date.slice(0, 2);
 
       if (year.length === 4) {
         ret.setUTCFullYear(Number(year), Number(month), Number(day));
@@ -103,9 +103,9 @@
     ret.setUTCSeconds(Number(time.slice(4, 6)));
 
     // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
-    const msStr = time.slice(7);
-    const msExp = msStr.length;
-    let ms = 0;
+    var msStr = time.slice(7);
+    var msExp = msStr.length;
+    var ms = 0;
     if (msExp !== 0) {
       ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
     }
@@ -121,7 +121,7 @@
     if (coord === '')
       return null;
 
-    let n, sgn = 1;
+    var n, sgn = 1;
 
     switch (dir) {
 
@@ -259,16 +259,16 @@
     if (vari === '' || dir === '')
       return null;
 
-    const q = (dir === 'W') ? -1.0 : 1.0;
+    var q = (dir === 'W') ? -1.0 : 1.0;
 
     return parseFloat(vari) * q;
   }
 
   function isValid(str, crc) {
 
-    let checksum = 0;
-    for (let i = 1; i < str.length; i++) {
-      const c = str.charCodeAt(i);
+    var checksum = 0;
+    for (var i = 1; i < str.length; i++) {
+      var c = str.charCodeAt(i);
 
       if (c === 42) // Asterisk: *
         break;
@@ -376,8 +376,8 @@
        18   = Checksum
        */
 
-      const sats = [];
-      for (let i = 3; i < 15; i++) {
+      var sats = [];
+      for (var i = 3; i < 15; i++) {
 
         if (gsa[i] !== '') {
           sats.push(parseInt(gsa[i], 10));
@@ -504,12 +504,12 @@
        8/12/16/20   = Checksum
        */
 
-      const sats = [];
+      var sats = [];
 
-      for (let i = 4; i < gsv.length - 1; i += 4) {
+      for (var i = 4; i < gsv.length - 1; i += 4) {
 
-        const prn = parseNumber(gsv[i]);
-        const snr = parseNumber(gsv[i + 3]);
+        var prn = parseNumber(gsv[i]);
+        var snr = parseNumber(gsv[i + 3]);
 
         sats.push({
           'prn': prn,
@@ -614,9 +614,9 @@
     if (typeof line !== 'string')
       return false;
 
-    const nmea = line.split(',');
+    var nmea = line.split(',');
 
-    let last = nmea.pop();
+    var last = nmea.pop();
 
     if (nmea.length < 4 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
       return false;
@@ -631,7 +631,7 @@
 
     if (GPS['mod'][nmea[0]] !== undefined) {
       // set raw data here as well?
-      const data = this['mod'][nmea[0]](line, nmea);
+      var data = this['mod'][nmea[0]](line, nmea);
       data['raw'] = line;
       data['valid'] = isValid(line, nmea[nmea.length - 1]);
       data['type'] = nmea[0];
@@ -644,24 +644,24 @@
   // Heading (N=0, E=90, S=189, W=270) from point 1 to point 2
   GPS['Heading'] = function(lat1, lon1, lat2, lon2) {
 
-    const dlon = (lon2 - lon1) * D2R;
+    var dlon = (lon2 - lon1) * D2R;
 
     lat1 = lat1 * D2R;
     lat2 = lat2 * D2R;
 
-    const sdlon = Math.sin(dlon);
-    const cdlon = Math.cos(dlon);
+    var sdlon = Math.sin(dlon);
+    var cdlon = Math.cos(dlon);
 
-    const slat1 = Math.sin(lat1);
-    const clat1 = Math.cos(lat1);
+    var slat1 = Math.sin(lat1);
+    var clat1 = Math.cos(lat1);
 
-    const slat2 = Math.sin(lat2);
-    const clat2 = Math.cos(lat2);
+    var slat2 = Math.sin(lat2);
+    var clat2 = Math.cos(lat2);
 
-    const y = sdlon * clat2;
-    const x = clat1 * slat2 - slat1 * clat2 * cdlon;
+    var y = sdlon * clat2;
+    var x = clat1 * slat2 - slat1 * clat2 * cdlon;
 
-    const head = Math.atan2(y, x) * 180 / Math.PI;
+    var head = Math.atan2(y, x) * 180 / Math.PI;
 
     return (head + 360) % 360;
   };
@@ -672,22 +672,22 @@
     // R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159
 
     // Because Earth is no exact sphere, rounding errors may be up to 0.5%.
-    // const RADIUS = 6371; // Earth radius average
-    // const RADIUS = 6378.137; // Earth radius at equator
-    const RADIUS = 6372.8; // Earth radius in km
+    // var RADIUS = 6371; // Earth radius average
+    // var RADIUS = 6378.137; // Earth radius at equator
+    var RADIUS = 6372.8; // Earth radius in km
 
-    const hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
-    const hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
+    var hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
+    var hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
 
     lat1 = lat1 * D2R;
     lat2 = lat2 * D2R;
 
-    const shLat = Math.sin(hLat);
-    const shLon = Math.sin(hLon);
-    const clat1 = Math.cos(lat1);
-    const clat2 = Math.cos(lat2);
+    var shLat = Math.sin(hLat);
+    var shLon = Math.sin(hLon);
+    var clat1 = Math.cos(lat1);
+    var clat2 = Math.cos(lat2);
 
-    const tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
+    var tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
 
     //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
     return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
@@ -698,10 +698,10 @@
     if (path.length < 2)
       return 0;
 
-    let len = 0;
-    for (let i = 0; i < path.length - 1; i++) {
-      const c = path[i];
-      const n = path[i + 1];
+    var len = 0;
+    for (var i = 0; i < path.length - 1; i++) {
+      var c = path[i];
+      var n = path[i + 1];
       len += GPS['Distance'](c['lat'], c['lon'], n['lat'], n['lon']);
     }
     return len;
@@ -709,7 +709,7 @@
 
   GPS.prototype['update'] = function(line) {
 
-    const parsed = GPS['Parse'](line);
+    var parsed = GPS['Parse'](line);
 
     if (parsed === false)
       return false;
@@ -730,12 +730,12 @@
 
     while (true) {
 
-      const pos = this['partial'].indexOf("\r\n");
+      var pos = this['partial'].indexOf("\r\n");
 
       if (pos === -1)
         break;
 
-      const line = this['partial'].slice(0, pos);
+      var line = this['partial'].slice(0, pos);
 
       if (line.charAt(0) === '$') {
         this['update'](line);
