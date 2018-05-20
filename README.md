@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/infusion/GPS.js.svg?branch=master)](https://travis-ci.org/infusion/GPS.js)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-GPS.js is an extensible parser for [NMEA](http://www.gpsinformation.org/dale/nmea.htm) sentences, given by any common GPS receiver. The output is tried to be as high-level as possible to make it more useful than simply splitting the information. The aim is, that you don't have to understand NMEA, just plug in your receiver and you're ready to go. 
+GPS.js is an extensible parser for [NMEA](http://www.gpsinformation.org/dale/nmea.htm) sentences, given by any common GPS receiver. The output is tried to be as high-level as possible to make it more useful than simply splitting the information. The aim is, that you don't have to understand NMEA, just plug in your receiver and you're ready to go.
 
 
 Usage
@@ -173,9 +173,9 @@ The parsed object will have the following attributes:
 - lon: The longitude
 - alt: The altitude
 - quality: Fix quality (either invalid, fix or diff)
-- satelites: Number of satellites being tracked
+- satellites: Number of satellites being tracked
 - hdop: Horizontal [dilution of precision](https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS))
-- geoidal: Height of geoid in meters (mean sea level) 
+- geoidal: Height of geoid in meters (mean sea level)
 - age: time in seconds since last DGPS update
 - stationID: DGPS station ID number
 - valid: Indicates if the checksum is okay
@@ -265,7 +265,7 @@ The parsed object will have the following attributes:
 
 - type: "GST"
 - time: The time given as a JavaScript Date object
-- rms: RMS value of the pseudorange residuals; includes carrier phase residuals during periods of RTK (float) and RTK (fixed) 
+- rms: RMS value of the pseudorange residuals; includes carrier phase residuals during periods of RTK (float) and RTK (fixed)
 - ellipseMajor: Error ellipse semi-major axis 1 sigma error, in meters
 - ellipseMinor: Error ellipse semi-minor axis 1 sigma error, in meters
 - ellipseOrientation: Error ellipse orientation, degrees from true north
@@ -345,4 +345,3 @@ Copyright and licensing
 ===
 Copyright (c) 2016, [Robert Eisele](https://www.xarg.org/)
 Dual licensed under the MIT or GPL Version 2 licenses.
-
