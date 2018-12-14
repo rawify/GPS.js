@@ -511,6 +511,13 @@
         var prn = parseNumber(gsv[i]);
         var snr = parseNumber(gsv[i + 3]);
 
+        /*
+         Plot satellites in Radar chart with north on top
+         by linear map elevation from 0° to 90° into r to 0
+
+         centerX + cos(azimuth - 90) * (1 - elevation / 90) * radius
+         centerY + sin(azimuth - 90) * (1 - elevation / 90) * radius
+        */
         sats.push({
           'prn': prn,
           'elevation': parseNumber(gsv[i + 1]),
