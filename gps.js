@@ -612,8 +612,32 @@
         'longitudeError': parseNumber(gst[7]),
         'heightError': parseNumber(gst[8])
       };
-    }
+    },
 
+    // add HDT
+    'HDT': function (str, hdt) {
+
+      if (hdt.length !== 4) {
+        throw new Error('Invalid HDT length: ' + str);
+      }
+
+      /*
+       ------------------------------------------------------------------------------
+               1      2  3
+               |      |  |
+       $--HDT,hhh.hhh,T*XX<CR><LF>
+       ------------------------------------------------------------------------------
+
+       1. Heading in degrees
+       2. T: indicates heading relative to True North
+       3. Checksum
+      */
+      
+      return {
+        'heading': parseFloat(hdt[1]),
+        'trueNorth': hdt[2] === 'T'
+      };
+    }
   };
 
   GPS['Parse'] = function(line) {
