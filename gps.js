@@ -179,26 +179,27 @@
   }
 
   function parseGGAFix(fix) {
+    var int = parseInt(fix, 10);
 
-    switch (fix) {
+    switch (int || fix) {
       case '':
-      case '0':
+      case 0:
         return null;
-      case '1':
+      case 1:
         return 'fix'; // valid SPS fix
-      case '2':
+      case 2:
         return 'dgps-fix'; // valid DGPS fix
-      case '3':
+      case 3:
         return 'pps-fix'; // valid PPS fix
-      case '4':
+      case 4:
         return 'rtk'; // valid RTK fix
-      case '5':
+      case 5:
         return 'rtk-float'; // valid RTK float
-      case '6':
+      case 6:
         return 'estimated';
-      case '7':
+      case 7:
         return 'manual';
-      case '8':
+      case 8:
         return 'simulated';
     }
     throw new Error('INVALID GGA FIX: ' + fix);
