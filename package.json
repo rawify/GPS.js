@@ -20,7 +20,8 @@
         "gll",
         "gsa",
         "vtg",
-        "gva"
+        "gva",
+        "hdt"
     ],
     "author": "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)",
     "main": "gps",

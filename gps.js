@@ -179,26 +179,27 @@
   }
 
   function parseGGAFix(fix) {
+    var int = parseInt(fix, 10);
 
-    switch (fix) {
+    switch (int || fix) {
       case '':
-      case '0':
+      case 0:
         return null;
-      case '1':
+      case 1:
         return 'fix'; // valid SPS fix
-      case '2':
+      case 2:
         return 'dgps-fix'; // valid DGPS fix
-      case '3':
+      case 3:
         return 'pps-fix'; // valid PPS fix
-      case '4':
+      case 4:
         return 'rtk'; // valid RTK fix
-      case '5':
+      case 5:
         return 'rtk-float'; // valid RTK float
-      case '6':
+      case 6:
         return 'estimated';
-      case '7':
+      case 7:
         return 'manual';
-      case '8':
+      case 8:
         return 'simulated';
     }
     throw new Error('INVALID GGA FIX: ' + fix);
@@ -612,8 +613,32 @@
         'longitudeError': parseNumber(gst[7]),
         'heightError': parseNumber(gst[8])
       };
-    }
+    },
 
+    // add HDT
+    'HDT': function (str, hdt) {
+
+      if (hdt.length !== 4) {
+        throw new Error('Invalid HDT length: ' + str);
+      }
+
+      /*
+       ------------------------------------------------------------------------------
+               1      2  3
+               |      |  |
+       $--HDT,hhh.hhh,T*XX<CR><LF>
+       ------------------------------------------------------------------------------
+
+       1. Heading in degrees
+       2. T: indicates heading relative to True North
+       3. Checksum
+      */
+      
+      return {
+        'heading': parseFloat(hdt[1]),
+        'trueNorth': hdt[2] === 'T'
+      };
+    }
   };
 
   GPS['Parse'] = function(line) {
@@ -625,7 +650,8 @@
 
     var last = nmea.pop();
 
-    if (nmea.length < 4 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
+    // HDT is 2 items length
+    if (nmea.length < 2 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
       return false;
     }
 
