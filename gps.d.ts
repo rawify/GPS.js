@@ -155,8 +155,7 @@ declare namespace GPS {
     export interface VTG {
         track: number;
         trackMagnetic: number;
-        speedKn: number;
-        speedKm: number;
+        speed: number;
         faa: FAA;
         raw: string;
         valid: boolean;
