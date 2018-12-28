@@ -258,6 +258,16 @@ The parsed object will have the following attributes:
 - type: "ZDA"
 - time: The time given as a JavaScript Date object
 
+HDT - Heading
+---
+
+The parsed object will have the following attributes:
+
+- type: "HDT"
+- heading: Heading in degrees
+- trueNorth: Indicates heading relative to True North
+- valid: Indicates if the checksum is okay
+
 GST - Position error statistics
 ---
 
