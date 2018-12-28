@@ -24,7 +24,8 @@
         "hdt"
     ],
     "author": "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)",
-    "main": "gps",
+    "main": "gps.js",
+    "types": "gps.d.ts",
     "private": false,
     "readmeFilename": "README.md",
     "directories": {
