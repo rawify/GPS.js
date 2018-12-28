@@ -451,6 +451,22 @@ var tests = {
     'type': 'GGA',
     'valid': true,
   },
+  // test with two digits on quality
+  '$GPGGA,174815.40,4141.46474,N,00849.77225,W,05,08,1.24,11.8,M,50.5,M,,*42': {
+    'age': null,
+    'alt': 11.8,
+    'geoidal': 50.5,
+    'hdop': 1.24,
+    'quality': 'rtk-float',
+    'satellites': 8,
+    'stationID': null,
+    'lat': 41.691079,
+    'lon': -8.8295375,
+    'time': new Date(today+'T17:48:15.400Z'),
+    'raw': '$GPGGA,174815.40,4141.46474,N,00849.77225,W,05,08,1.24,11.8,M,50.5,M,,*42',
+    'type': 'GGA',
+    'valid': true,
+  },
   '$GPGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*6A': {
     'time': new Date(today+'T17:28:14.000Z'),
     'rms': 0.006,
@@ -493,8 +509,8 @@ var tests = {
   // add hdt test
   '$HEHDT,066.2,T*2D': {
     'heading': 66.2,
-    'truNorth': true,
     'raw': '$HEHDT,066.2,T*2D',
+    'trueNorth': true,
     'type': 'HDT',
     'valid': true
   }
