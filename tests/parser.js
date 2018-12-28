@@ -490,6 +490,14 @@ var tests = {
     'type': 'GST',
     'valid': true
   },
+  // add hdt test
+  '$HEHDT,066.2,T*2D': {
+    'heading': 66.2,
+    'truNorth': true,
+    'raw': '$HEHDT,066.2,T*2D',
+    'type': 'HDT',
+    'valid': true
+  }
 };
 var collect = {};
 gps.on('data', function(data) {
@@ -535,4 +543,5 @@ describe('NMEA syntax', function() {
  $GPGGA,181650.692,7204.589,N,01915.106,W,0,00,,,M,,M,,*59
  $GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75
  $GPGGA,181514.692,4951.923,S,03050.357,W,0,00,,,M,,M,,*4F
+ $HEHDT,066.2,T*2D
  */

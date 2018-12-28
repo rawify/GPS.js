@@ -650,7 +650,8 @@
 
     var last = nmea.pop();
 
-    if (nmea.length < 4 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
+    // HDT is 2 items length
+    if (nmea.length < 2 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
       return false;
     }
 
