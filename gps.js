@@ -179,10 +179,11 @@
   }
 
   function parseGGAFix(fix) {
-    var int = parseInt(fix, 10);
 
-    switch (int || fix) {
-      case '':
+    if (fix === '')
+      return null;
+
+    switch (parseInt(fix, 10)) {
       case 0:
         return null;
       case 1:
@@ -317,7 +318,7 @@
        1         2       3 4        5 6 7  8   9  10 |  12 13  14  15
        |         |       | |        | | |  |   |   | |   | |   |   |
        $--GGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
-
+       
        1) Time (UTC)
        2) Latitude
        3) N or S (North or South)
@@ -361,8 +362,8 @@
       /*
        eg1. $GPGSA,A,3,,,,,,16,18,,22,24,,,3.6,2.1,2.2*3C
        eg2. $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
-
-
+       
+       
        1    = Mode:
        M=Manual, forced to operate in 2D or 3D
        A=Automatic, 3D/2D
@@ -403,7 +404,7 @@
 
       /*
        $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a*hh
-
+       
        RMC  = Recommended Minimum Specific GPS/TRANSIT Data
        1    = UTC of position fix
        2    = Data status (A-ok, V-invalid)
@@ -444,7 +445,7 @@
        |  |  |  |  |  |  |  | |   |
        $--VTG,x.x,T,x.x,M,x.x,N,x.x,K,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1    = Track made good (degrees true)
        2    = Fixed text 'T' indicates that track made good is relative to true north
        3    = optional: Track made good (degrees magnetic)
@@ -491,7 +492,7 @@
 
       /*
        $GPGSV,1,1,13,02,02,213,,03,-3,000,,11,00,121,,14,13,172,05*67
-
+       
        1    = Total number of messages of this type in this cycle
        2    = Message number
        3    = Total number of SVs in view
@@ -515,10 +516,10 @@
         /*
          Plot satellites in Radar chart with north on top
          by linear map elevation from 0° to 90° into r to 0
-
+         
          centerX + cos(azimuth - 90) * (1 - elevation / 90) * radius
          centerY + sin(azimuth - 90) * (1 - elevation / 90) * radius
-        */
+         */
         sats.push({
           'prn': prn,
           'elevation': parseNumber(gsv[i + 1]),
@@ -548,7 +549,7 @@
        |       | |        | |         | |   |
        $--GLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,a,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1. Latitude
        2. N or S (North or South)
        3. Longitude
@@ -616,7 +617,7 @@
     },
 
     // add HDT
-    'HDT': function (str, hdt) {
+    'HDT': function(str, hdt) {
 
       if (hdt.length !== 4) {
         throw new Error('Invalid HDT length: ' + str);
@@ -624,16 +625,16 @@
 
       /*
        ------------------------------------------------------------------------------
-               1      2  3
-               |      |  |
+       1      2  3
+       |      |  |
        $--HDT,hhh.hhh,T*XX<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1. Heading in degrees
        2. T: indicates heading relative to True North
        3. Checksum
-      */
-      
+       */
+
       return {
         'heading': parseFloat(hdt[1]),
         'trueNorth': hdt[2] === 'T'
