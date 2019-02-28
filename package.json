@@ -1,7 +1,7 @@
 {
     "name": "gps",
     "title": "gps.js",
-    "version": "0.4.9",
+    "version": "0.5.0",
     "homepage": "https://github.com/infusion/GPS.js",
     "bugs": "https://github.com/infusion/GPS.js/issues",
     "description": "A GPS NMEA parser library",

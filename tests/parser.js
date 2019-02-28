@@ -525,7 +525,7 @@ var tests = {
     "raw": "$GPGGA,023920.476,5230.942,N,01323.025,E,0,12,1.0,0.0,M,0.0,M,,*6E",
     "satellites": 12,
     "stationID": null,
-    "time": new Date('2019-01-20T02:39:20.476Z'),
+    "time": new Date(today + 'T02:39:20.476Z'),
     "type": "GGA",
     "valid": false // false because we manually changed fix to 0
   }

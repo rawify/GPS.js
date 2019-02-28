@@ -88,6 +88,8 @@ declare namespace GPS {
 
     export interface GPSState {
         [key: string]: any;
+        processed: number;
+        errors: number;
 
         time?: Date;
         lat?: number;
