@@ -97,6 +97,7 @@ var tests = {
     'msgNumber': 2,
     'raw': '$GPGSV,3,2,12,16,17,148,46,20,61,307,51,23,36,283,47,25,06,034,00*78',
     'msgsTotal': 3,
+    'signalId': null,
     'satellites': [
       {
         'azimuth': 148,
@@ -171,6 +172,7 @@ var tests = {
   '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70': {
     'msgNumber': 1,
     'msgsTotal': 3,
+    'signalId': null,
     'raw': '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70',
     'satellites': [
       {
@@ -250,6 +252,7 @@ var tests = {
   '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74': {
     'msgNumber': 1,
     'msgsTotal': 3,
+    'signalId': null,
     'raw': '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74',
     'satellites': [
       {
@@ -284,6 +287,7 @@ var tests = {
   '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D': {
     'msgNumber': 2,
     'msgsTotal': 3,
+    'signalId': null,
     'raw': '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D',
     'satellites': [
       {
@@ -318,6 +322,7 @@ var tests = {
   '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77': {
     'msgNumber': 2,
     'msgsTotal': 3,
+    'signalId': null,
     'raw': '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77',
     'satellites': [
       {
@@ -352,6 +357,7 @@ var tests = {
   '$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76': {
     'msgNumber': 3,
     'msgsTotal': 3,
+    'signalId': null,
     'raw': '$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76',
     'satellites': [
       {
@@ -528,6 +534,163 @@ var tests = {
     "time": new Date(today + 'T02:39:20.476Z'),
     "type": "GGA",
     "valid": false // false because we manually changed fix to 0
+  },
+  "$GPGSV,3,1,11,02,20,106,26,06,20,072,18,12,77,040,37,14,30,309,25,1*65": {
+    "msgNumber": 1,
+    "msgsTotal": 3,
+    "raw": "$GPGSV,3,1,11,02,20,106,26,06,20,072,18,12,77,040,37,14,30,309,25,1*65",
+    "satellites": [
+      {
+        "azimuth": 106,
+        "elevation": 20,
+        "prn": 2,
+        "snr": 26,
+        "status": "tracking"
+      }, {
+        "azimuth": 72,
+        "elevation": 20,
+        "prn": 6,
+        "snr": 18,
+        "status": "tracking"
+      }, {
+        "azimuth": 40,
+        "elevation": 77,
+        "prn": 12,
+        "snr": 37,
+        "status": "tracking"
+      }, {
+        "azimuth": 309,
+        "elevation": 30,
+        "prn": 14,
+        "snr": 25,
+        "status": "tracking"
+      }
+    ],
+    "signalId": 1,
+    "type": "GSV",
+    "valid": true
+  },
+  "$GAGSV,3,3,09,33,11,027,,7*4F": {
+    "msgNumber": 3,
+    "msgsTotal": 3,
+    "raw": "$GAGSV,3,3,09,33,11,027,,7*4F",
+    "satellites": [
+      {
+        "azimuth": 27,
+        "elevation": 11,
+        "prn": 33,
+        "snr": null,
+        "status": "in view"
+      }
+    ],
+    "signalId": 7,
+    "type": "GSV",
+    "valid": true
+  },
+  "$GPGSV,3,1,12,02,22,103,,03,00,357,,06,21,068,18,12,73,046,32,6*66": {
+    "msgNumber": 1,
+    "msgsTotal": 3,
+    "raw": "$GPGSV,3,1,12,02,22,103,,03,00,357,,06,21,068,18,12,73,046,32,6*66",
+    "satellites": [
+      {
+        "azimuth": 103,
+        "elevation": 22,
+        "prn": 2,
+        "snr": null,
+        "status": "in view"
+      }, {
+        "azimuth": 357,
+        "elevation": 0,
+        "prn": 3,
+        "snr": null,
+        "status": "in view"
+      }, {
+        "azimuth": 68,
+        "elevation": 21,
+        "prn": 6,
+        "snr": 18,
+        "status": "tracking"
+      }, {
+        "azimuth": 46,
+        "elevation": 73,
+        "prn": 12,
+        "snr": 32,
+        "status": "tracking"
+      }
+    ],
+    "signalId": 6,
+    "type": "GSV",
+    "valid": true
+  },
+  "$GAGSV,3,1,11,02,49,285,30,03,22,221,29,07,12,328,,08,32,278,35,7*74": {
+    "msgNumber": 1,
+    "msgsTotal": 3,
+    "raw": "$GAGSV,3,1,11,02,49,285,30,03,22,221,29,07,12,328,,08,32,278,35,7*74",
+    "satellites": [
+      {
+        "azimuth": 285,
+        "elevation": 49,
+        "prn": 2,
+        "snr": 30,
+        "status": "tracking"
+      }, {
+        "azimuth": 221,
+        "elevation": 22,
+        "prn": 3,
+        "snr": 29,
+        "status": "tracking"
+      }, {
+        "azimuth": 328,
+        "elevation": 12,
+        "prn": 7,
+        "snr": null,
+        "status": "in view"
+      }, {
+        "azimuth": 278,
+        "elevation": 32,
+        "prn": 8,
+        "snr": 35,
+        "status": "tracking"
+      }
+    ],
+    "signalId": 7,
+    "type": "GSV",
+    "valid": true
+  },
+  "$GBGSV,1,1,04,13,31,064,,21,12,255,,26,18,293,27,29,46,155,31,1*78": {
+    "msgNumber": 1,
+    "msgsTotal": 1,
+    "raw": "$GBGSV,1,1,04,13,31,064,,21,12,255,,26,18,293,27,29,46,155,31,1*78",
+    "satellites": [
+      {
+        "azimuth": 64,
+        "elevation": 31,
+        "prn": 13,
+        "snr": null,
+        "status": "in view"
+      }, {
+        "azimuth": 255,
+        "elevation": 12,
+        "prn": 21,
+        "snr": null,
+        "status": "in view"
+      }, {
+        "azimuth": 293,
+        "elevation": 18,
+        "prn": 26,
+        "snr": 27,
+        "status": "tracking"
+      }, {
+        "azimuth": 155,
+        "elevation": 46,
+        "prn": 29,
+        "snr": 31,
+        "status": "tracking"
+      }
+    ],
+    "signalId": 1,
+    "type": "GSV",
+    "valid": true
   }
 };
 var collect = {};

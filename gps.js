@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.5.0 26/01/2016
+ * @license GPS.js v0.5.1 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -486,7 +486,7 @@
     // satellites in view
     'GSV': function(str, gsv) {
 
-      if (gsv.length < 9 || gsv.length % 4 !== 1) {
+      if (gsv.length < 9 || gsv.length % 4 % 3 === 0) {
         throw new Error('Invalid GSV length: ' + str);
       }
 
@@ -496,23 +496,22 @@
        1    = Total number of messages of this type in this cycle
        2    = Message number
        3    = Total number of SVs in view
+       repeat [
        4    = SV PRN number
        5    = Elevation in degrees, 90 maximum
        6    = Azimuth, degrees from true north, 000 to 359
        7    = SNR (signal to noise ratio), 00-99 dB (null when not tracking, higher is better)
-       8-11 = Information about second SV, same as field 4-7
-       12-15= Information about third SV, same as field 4-7
-       16-19= Information about fourth SV, same as field 4-7
-       8/12/16/20   = Checksum
+       ]
+       N+1   = signalID NMEA 4.10
+       N+2   = Checksum
        */
 
       var sats = [];
 
-      for (var i = 4; i < gsv.length - 1; i += 4) {
+      for (var i = 4; i < gsv.length - 3; i += 4) {
 
         var prn = parseNumber(gsv[i]);
         var snr = parseNumber(gsv[i + 3]);
-
         /*
          Plot satellites in Radar chart with north on top
          by linear map elevation from 0° to 90° into r to 0
@@ -533,7 +532,8 @@
         'msgNumber': parseNumber(gsv[2]),
         'msgsTotal': parseNumber(gsv[1]),
         //'satsInView'  : parseNumber(gsv[3]), // Can be obtained by satellites.length
-        'satellites': sats
+        'satellites': sats,
+        'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null // NMEA 4.10 addition
       };
     },
     // Geographic Position - Latitude/Longitude
