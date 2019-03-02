@@ -318,7 +318,7 @@
        1         2       3 4        5 6 7  8   9  10 |  12 13  14  15
        |         |       | |        | | |  |   |   | |   | |   |   |
        $--GGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
-
+       
        1) Time (UTC)
        2) Latitude
        3) N or S (North or South)
@@ -355,15 +355,15 @@
     // GPS DOP and active satellites
     'GSA': function(str, gsa) {
 
-      if (gsa.length !== 19) {
+      if (gsa.length !== 19 && gsa.length !== 20) {
         throw new Error('Invalid GSA length: ' + str);
       }
 
       /*
        eg1. $GPGSA,A,3,,,,,,16,18,,22,24,,,3.6,2.1,2.2*3C
        eg2. $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
-
-
+       
+       
        1    = Mode:
        M=Manual, forced to operate in 2D or 3D
        A=Automatic, 3D/2D
@@ -375,6 +375,7 @@
        15   = PDOP
        16   = HDOP
        17   = VDOP
+       (18) = systemID NMEA 4.10
        18   = Checksum
        */
 
@@ -392,19 +393,20 @@
         'satellites': sats,
         'pdop': parseNumber(gsa[15]),
         'hdop': parseNumber(gsa[16]),
-        'vdop': parseNumber(gsa[17])
+        'vdop': parseNumber(gsa[17]),
+        'systemId': gsa.length > 19 ? parseNumber(gsa[18]) : null
       };
     },
     // Recommended Minimum data for gps
     'RMC': function(str, rmc) {
 
-      if (rmc.length !== 13 && rmc.length !== 14) {
+      if (rmc.length !== 13 && rmc.length !== 14 && rmc.length !== 15) {
         throw new Error('Invalid RMC length: ' + str);
       }
 
       /*
        $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a*hh
-
+       
        RMC  = Recommended Minimum Specific GPS/TRANSIT Data
        1    = UTC of position fix
        2    = Data status (A-ok, V-invalid)
@@ -418,6 +420,7 @@
        10   = Magnetic variation degrees (Easterly var. subtracts from true course)
        11   = E or W
        (12) = NMEA 2.3 introduced FAA mode indicator (A=Autonomous, D=Differential, E=Estimated, N=Data not valid)
+       (13) = NMEA 4.10 introduced nav status
        12   = Checksum
        */
 
@@ -429,7 +432,8 @@
         'speed': parseKnots(rmc[7]),
         'track': parseNumber(rmc[8]), // heading
         'variation': parseRMCVariation(rmc[10], rmc[11]),
-        'faa': rmc.length === 14 ? parseFAA(rmc[12]) : null
+        'faa': rmc.length > 13 ? parseFAA(rmc[12]) : null,
+        'navStatus': rmc.length > 14 ? rmc[13] : null
       };
     },
     // Track info
@@ -445,7 +449,7 @@
        |  |  |  |  |  |  |  | |   |
        $--VTG,x.x,T,x.x,M,x.x,N,x.x,K,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1    = Track made good (degrees true)
        2    = Fixed text 'T' indicates that track made good is relative to true north
        3    = optional: Track made good (degrees magnetic)
@@ -492,7 +496,7 @@
 
       /*
        $GPGSV,1,1,13,02,02,213,,03,-3,000,,11,00,121,,14,13,172,05*67
-
+       
        1    = Total number of messages of this type in this cycle
        2    = Message number
        3    = Total number of SVs in view
@@ -515,7 +519,7 @@
         /*
          Plot satellites in Radar chart with north on top
          by linear map elevation from 0° to 90° into r to 0
-
+         
          centerX + cos(azimuth - 90) * (1 - elevation / 90) * radius
          centerY + sin(azimuth - 90) * (1 - elevation / 90) * radius
          */
@@ -549,7 +553,7 @@
        |       | |        | |         | |   |
        $--GLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,a,m,*hh<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1. Latitude
        2. N or S (North or South)
        3. Longitude
@@ -629,7 +633,7 @@
        |      |  |
        $--HDT,hhh.hhh,T*XX<CR><LF>
        ------------------------------------------------------------------------------
-
+       
        1. Heading in degrees
        2. T: indicates heading relative to True North
        3. Checksum

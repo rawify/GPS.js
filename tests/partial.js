@@ -13,6 +13,7 @@ var res = [{
     'raw': '$GPRMC,234919.000,A,4832.3914,N,00903.5500,E,2.28,2.93,260116,,*0D',
     'type': 'RMC',
     'faa': null,
+    "navStatus": null,
     'valid': true,
     'variation': null
   }, {
@@ -43,6 +44,7 @@ describe('partial updates', function() {
 
       if (K === res.length) {
         done();
+        return;
       }
     });
 

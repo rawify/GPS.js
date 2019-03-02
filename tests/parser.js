@@ -24,6 +24,7 @@ var tests = {
       21
     ],
     'type': 'GSA',
+    "systemId": null,
     'valid': true,
     'vdop': 1
   },
@@ -34,6 +35,7 @@ var tests = {
     'status': 'active',
     'time': new Date('2016-01-26T23:49:19.000Z'),
     'track': 2.93,
+    "navStatus": null,
     'raw': '$GPRMC,234919.000,A,4832.3914,N,00903.5500,E,2.28,2.93,260116,,*0D',
     'type': 'RMC',
     'faa': null,
@@ -89,6 +91,7 @@ var tests = {
     'time': new Date('2098-09-13T08:18:36.000Z'),
     'track': 360,
     'type': 'RMC',
+    "navStatus": null,
     'faa': null,
     'valid': true,
     'variation': 11.3
@@ -154,6 +157,7 @@ var tests = {
     'hdop': 1.03,
     'mode': 'automatic',
     'pdop': 1.72,
+    "systemId": null,
     'raw': '$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A',
     'satellites': [
       10,
@@ -214,6 +218,7 @@ var tests = {
     'time': new Date('2094-03-23T12:35:19.000Z'),
     'track': 84.4,
     'type': 'RMC',
+    "navStatus": null,
     'valid': true,
     'variation': -3.1
   },
@@ -239,6 +244,7 @@ var tests = {
     'mode': 'automatic',
     'pdop': 9.4,
     'raw': '$GPGSA,A,3,12,05,25,29,,,,,,,,,9.4,7.6,5.6*37',
+    "systemId": null,
     'satellites': [
       12,
       5,
@@ -393,6 +399,7 @@ var tests = {
     'time': new Date('2011-05-28T09:27:50.000Z'),
     'track': 31.66,
     'type': 'RMC',
+    "navStatus": null,
     'valid': true,
     'variation': null
   },
@@ -421,6 +428,7 @@ var tests = {
     'time': new Date('2011-05-28T09:27:51.000Z'),
     'track': 31.66,
     'type': 'RMC',
+    "navStatus": null,
     'valid': true,
     'variation': null
   },
@@ -691,6 +699,39 @@ var tests = {
     "signalId": 1,
     "type": "GSV",
     "valid": true
+  },
+  "$GNRMC,191029.00,A,4843.01033,N,00227.78756,E,0.024,,010319,,,A,V*1C": {
+    "faa": "autonomous",
+    "lat": 48.716838833333334,
+    "lon": 2.463126,
+    "navStatus": "V",
+    "raw": "$GNRMC,191029.00,A,4843.01033,N,00227.78756,E,0.024,,010319,,,A,V*1C",
+    "speed": 0.044448,
+    "status": "active",
+    "time": new Date("2019-03-01T19:10:29.000Z"),
+    "track": null,
+    "type": "RMC",
+    "valid": true,
+    "variation": null
+  },
+  "$GNGSA,A,3,25,29,31,26,16,21,,,,,,,1.55,0.84,1.30,1*00": {
+    "fix": "3D",
+    "hdop": 0.84,
+    "mode": "automatic",
+    "systemId": 1,
+    "pdop": 1.55,
+    "raw": "$GNGSA,A,3,25,29,31,26,16,21,,,,,,,1.55,0.84,1.30,1*00",
+    "satellites": [
+      25,
+      29,
+      31,
+      26,
+      16,
+      21
+    ],
+    "type": "GSA",
+    "valid": true,
+    "vdop": 1.3
   }
 };
 var collect = {};
