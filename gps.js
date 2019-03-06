@@ -12,11 +12,6 @@
 
   var D2R = Math.PI / 180;
 
-  var MIN_LON = -Math.PI;
-  var MAX_LON = Math.PI;
-  var MIN_LAT = -Math.PI / 2;
-  var MAX_LAT = Math.PI / 2;
-
   var collectSats = [];
 
   function updateState(state, data) {
@@ -193,11 +188,11 @@
       case 3:
         return 'pps-fix'; // valid PPS fix
       case 4:
-        return 'rtk'; // valid RTK fix
+        return 'rtk'; // valid (real time kinematic) RTK fix
       case 5:
-        return 'rtk-float'; // valid RTK float
+        return 'rtk-float'; // valid (real time kinematic) RTK float
       case 6:
-        return 'estimated';
+        return 'estimated'; // dead reckoning
       case 7:
         return 'manual';
       case 8:
@@ -238,12 +233,14 @@
     // Only A and D will correspond to an Active and reliable Sentence
 
     switch (faa) {
+      case '':
+        return null;
       case 'A':
         return 'autonomous';
       case 'D':
         return 'differential';
       case 'E':
-        return 'estimated';
+        return 'estimated'; // dead reckoning
       case 'M':
         return 'manual input';
       case 'S':
@@ -252,6 +249,10 @@
         return 'not valid';
       case 'P':
         return 'precise';
+      case 'R':
+        return 'rtk'; // valid (real time kinematic) RTK fix
+      case 'F':
+        return 'rtk-float'; // valid (real time kinematic) RTK float
     }
     throw new Error('INVALID FAA MODE: ' + faa);
   }
@@ -568,7 +569,8 @@
         'time': parseTime(gll[5]),
         'status': parseRMC_GLLStatus(gll[6]),
         'lat': parseCoord(gll[1], gll[2]),
-        'lon': parseCoord(gll[3], gll[4])
+        'lon': parseCoord(gll[3], gll[4]),
+        'faa': parseFAA(gll[7])
       };
     },
     // UTC Date / Time and Local Time Zone Offset
