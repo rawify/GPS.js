@@ -17,7 +17,7 @@
   function updateState(state, data) {
 
     // TODO: can we really use RMC time here or is it the time of fix?
-    if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL') {
+    if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL' || data['type'] === 'GNS') {
       state['time'] = data['time'];
       state['lat'] = data['lat'];
       state['lon'] = data['lon'];
@@ -667,15 +667,60 @@
       };
     },
     'GBS': function(str, gbs) {
+
+      if (gbs.length !== 10 && gbs.length !== 12) {
+        throw new Error('Invalid GBS length: ' + str);
+      }
+
+      /*
+       0      1   2   3   4   5   6   7   8
+       |      |   |   |   |   |   |   |   |
+       $--GBS,hhmmss.ss,x.x,x.x,x.x,x.x,x.x,x.x,x.x*hh<CR><LF>
+       
+       1. UTC time of the GGA or GNS fix associated with this sentence
+       2. Expected error in latitude (meters)
+       3. Expected error in longitude (meters)
+       4. Expected error in altitude (meters)
+       5. PRN (id) of most likely failed satellite
+       6. Probability of missed detection for most likely failed satellite
+       7. Estimate of bias in meters on most likely failed satellite
+       8. Standard deviation of bias estimate
+       --
+       9. systemID (NMEA 4.10)
+       10. signalID (NMEA 4.10)
+       */
+
       return {
-        'time':parseTime(gbs[1]),
+        'time': parseTime(gbs[1]),
         'errLat': parseNumber(gbs[2]),
         'errLon': parseNumber(gbs[3]),
         'errAlt': parseNumber(gbs[4]),
         'failedSat': parseNumber(gbs[5]),
         'probFailedSat': parseNumber(gbs[6]),
         'biasFailedSat': parseNumber(gbs[7]),
-        'stdFailedSat': parseNumber(gbs[8])
+        'stdFailedSat': parseNumber(gbs[8]),
+        'systemId': gbs.length === 12 ? parseNumber(gbs[9]) : null,
+        'signalId': gbs.length === 12 ? parseNumber(gbs[10]) : null
+      };
+    },
+    'GNS': function(str, gns) {
+
+      if (gns.length !== 14 && gns.length !== 15) {
+        throw new Error('Invalid GNS length: ' + str);
+      }
+
+      return {
+        'time': parseTime(gns[1]),
+        'lat': parseCoord(gns[2], gns[3]),
+        'lon': parseCoord(gns[4], gns[5]),
+        'mode': gns[6],
+        'satsUsed': parseNumber(gns[7]),
+        'hdop': parseNumber(gns[8]),
+        'alt': parseNumber(gns[9]),
+        'sep': parseNumber(gns[10]),
+        'diffAge': parseNumber(gns[11]),
+        'diffStation': parseNumber(gns[12]),
+        'navStatus': gns.length === 15 ? gns[13] : null  // NMEA 4.10
       };
     }
   };

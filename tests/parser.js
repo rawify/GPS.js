@@ -818,20 +818,57 @@ var tests = {
     "probFailedSat": null,
     "biasFailedSat": null,
     "stdFailedSat": null,
-    "valid": true
+    "valid": true,
+    "systemId": null,
+    "signalId": null
   },
   '$GPGBS,015509.00,-0.031,-0.186,0.219,19,0.000,-0.354,6.972*4D': {
     "raw": "$GPGBS,015509.00,-0.031,-0.186,0.219,19,0.000,-0.354,6.972*4D",
     "type": "GBS",
     "time": new Date(today + 'T01:55:09.000Z'),
     "errLat": -0.031,
-    "errLon":-0.186,
+    "errLon": -0.186,
     "errAlt": 0.219,
     "failedSat": 19,
     "probFailedSat": 0,
     "biasFailedSat": -0.354,
     "stdFailedSat": 6.972,
-    "valid": true
+    "valid": true,
+    "systemId": null,
+    "signalId": null
+  },
+  '$GNGSA,A,3,24,12,19,15,,,,,,,,,5.27,3.57,3.87,1*05': {
+    "fix": "3D",
+    "hdop": 3.57,
+    "mode": "automatic",
+    "pdop": 5.27,
+    "raw": "$GNGSA,A,3,24,12,19,15,,,,,,,,,5.27,3.57,3.87,1*05",
+    "satellites": [
+      24,
+      12,
+      19,
+      15
+    ],
+    "systemId": 1,
+    "type": "GSA",
+    "valid": true,
+    "vdop": 3.87
+  },
+  '$GNGNS,133216.00,4843.01093,N,00227.78866,E,ANNN,04,3.57,55.4,46.3,,,V*29': {
+    "raw": "$GNGNS,133216.00,4843.01093,N,00227.78866,E,ANNN,04,3.57,55.4,46.3,,,V*29",
+    "type": "GNS",
+    "time": new Date(today + 'T13:32:16.000Z'),
+    "valid": true,
+    "alt": 55.4,
+    "diffAge": null,
+    "diffStation": null,
+    "hdop": 3.57,
+    "lat": 48.71684883333333,
+    "lon": 2.463144333333333,
+    "mode": "ANNN",
+    "navStatus": "V",
+    "satsUsed": 4,
+    "sep": 46.3
   }
 };
 var collect = {};
