@@ -645,6 +645,38 @@
         'heading': parseFloat(hdt[1]),
         'trueNorth': hdt[2] === 'T'
       };
+    },
+
+    'GRS': function(str, grs) {
+
+      if (grs.length !== 18) {
+        throw new Error('Invalid GRS length: ' + str);
+      }
+
+      var res = [];
+      for (var i = 3; i <= 14; i++) {
+        var tmp = parseNumber(grs[i]);
+        if (tmp !== null)
+          res.push(tmp);
+      }
+
+      return {
+        'time': parseTime(grs[1]),
+        'mode': parseNumber(grs[2]),
+        'res': res
+      };
+    },
+    'GBS': function(str, gbs) {
+      return {
+        'time':parseTime(gbs[1]),
+        'errLat': parseNumber(gbs[2]),
+        'errLon': parseNumber(gbs[3]),
+        'errAlt': parseNumber(gbs[4]),
+        'failedSat': parseNumber(gbs[5]),
+        'probFailedSat': parseNumber(gbs[6]),
+        'biasFailedSat': parseNumber(gbs[7]),
+        'stdFailedSat': parseNumber(gbs[8])
+      };
     }
   };
 

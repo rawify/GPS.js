@@ -763,6 +763,75 @@ var tests = {
     "time": new Date(today + 'T10:03:13.990Z'),
     "type": "GGA",
     "valid": true
+  },
+  '$GNGRS,112423.00,1,-0.1,-0.4,5.6,-4.3,1.4,-0.2,,,,,,,1,1*51': {
+    "mode": 1,
+    "raw": "$GNGRS,112423.00,1,-0.1,-0.4,5.6,-4.3,1.4,-0.2,,,,,,,1,1*51",
+    "res": [
+      -0.1,
+      -0.4,
+      5.6,
+      -4.3,
+      1.4,
+      -0.2
+    ],
+    "time": new Date(today + 'T11:24:23.000Z'),
+    "type": "GRS",
+    "valid": true
+  },
+  '$GNGRS,112423.00,1,0.0,0.0,0.0,-6.4,-1.2,,,,,,,,1,6*7F': {
+    "mode": 1,
+    "raw": "$GNGRS,112423.00,1,0.0,0.0,0.0,-6.4,-1.2,,,,,,,,1,6*7F",
+    "res": [
+      0,
+      0,
+      0,
+      -6.4,
+      -1.2
+    ],
+    "time": new Date(today + 'T11:24:23.000Z'),
+    "type": "GRS",
+    "valid": true
+  },
+  '$GNGRS,112423.00,1,-2.5,0.8,0.2,7.2,6.2,,,,,,,,2,1*5B': {
+    "mode": 1,
+    "raw": "$GNGRS,112423.00,1,-2.5,0.8,0.2,7.2,6.2,,,,,,,,2,1*5B",
+    "res": [
+      -2.5,
+      0.8,
+      0.2,
+      7.2,
+      6.2
+    ],
+    "time": new Date(today + 'T11:24:23.000Z'),
+    "type": "GRS",
+    "valid": true
+  },
+  '$GNGBS,112424.00,2.5,1.5,5.4,,,,,,*5D': {
+    "raw": "$GNGBS,112424.00,2.5,1.5,5.4,,,,,,*5D",
+    "type": "GBS",
+    "time": new Date(today + 'T11:24:24.000Z'),
+    "errLat": 2.5,
+    "errLon": 1.5,
+    "errAlt": 5.4,
+    "failedSat": null,
+    "probFailedSat": null,
+    "biasFailedSat": null,
+    "stdFailedSat": null,
+    "valid": true
+  },
+  '$GPGBS,015509.00,-0.031,-0.186,0.219,19,0.000,-0.354,6.972*4D': {
+    "raw": "$GPGBS,015509.00,-0.031,-0.186,0.219,19,0.000,-0.354,6.972*4D",
+    "type": "GBS",
+    "time": new Date(today + 'T01:55:09.000Z'),
+    "errLat": -0.031,
+    "errLon":-0.186,
+    "errAlt": 0.219,
+    "failedSat": 19,
+    "probFailedSat": 0,
+    "biasFailedSat": -0.354,
+    "stdFailedSat": 6.972,
+    "valid": true
   }
 };
 var collect = {};
