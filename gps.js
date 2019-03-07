@@ -491,7 +491,7 @@
     // satellites in view
     'GSV': function(str, gsv) {
 
-      if (gsv.length < 9 || gsv.length % 4 % 3 === 0) {
+      if (gsv.length % 4 % 3 === 0) {
         throw new Error('Invalid GSV length: ' + str);
       }
 
@@ -896,5 +896,5 @@
   } else {
     root['GPS'] = GPS;
   }
-
+  
 })(this);
