@@ -896,5 +896,5 @@
   } else {
     root['GPS'] = GPS;
   }
-  
+
 })(this);
