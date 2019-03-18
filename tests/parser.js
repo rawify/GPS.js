@@ -869,6 +869,16 @@ var tests = {
     "navStatus": "V",
     "satsUsed": 4,
     "sep": 46.3
+  },
+  '$GPGLL,5000.05254,N,04500.02356,E,090037.059,A*35': {
+    'faa': null,
+    "lat": 50.000875666666666,
+    "lon": 45.00039266666667,
+    "raw": "$GPGLL,5000.05254,N,04500.02356,E,090037.059,A*35",
+    "status": "active",
+    "type": "GLL",
+    "valid": true,
+    "time": new Date(today + 'T09:00:37.059Z'),
   }
 };
 var collect = {};
