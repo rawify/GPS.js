@@ -879,6 +879,51 @@ var tests = {
     "type": "GLL",
     "valid": true,
     "time": new Date(today + 'T09:00:37.059Z'),
+  },
+  '$GPGGA,033016,1227.2470,S,13050.8514,E,2,6,0.9,11.8,M,,M*4A': {
+    "age": 4,
+    "alt": 11.8,
+    "geoidal": null,
+    "hdop": 0.9,
+    "lat": -12.454116666666666,
+    "lon": 130.84752333333333,
+    "quality": "dgps-fix",
+    "raw": "$GPGGA,033016,1227.2470,S,13050.8514,E,2,6,0.9,11.8,M,,M*4A",
+    "satellites": 6,
+    "stationID": null,
+    "time": new Date(today + 'T03:30:16.000Z'),
+    "type": "GGA",
+    "valid": true
+  },
+  '$GPGGA,033631,1227.2473,S,13050.8504,E,2,6,0.9,7.4,M,,M*70': {
+    "age": 70,
+    "alt": 7.4,
+    "geoidal": null,
+    "hdop": 0.9,
+    "lat": -12.454121666666667,
+    "lon": 130.84750666666667,
+    "quality": "dgps-fix",
+    "raw": "$GPGGA,033631,1227.2473,S,13050.8504,E,2,6,0.9,7.4,M,,M*70",
+    "satellites": 6,
+    "stationID": null,
+    "time": new Date(today + 'T03:36:31.000Z'),
+    "type": "GGA",
+    "valid": true
+},
+  '$GPGGA,034030,1227.2475,S,13050.8528,E,2,6,0.9,8.1,M,,M*72': {
+    "age": 72,
+    "alt": 8.1,
+    "geoidal": null,
+    "hdop": 0.9,
+    "lat": -12.454125,
+    "lon": 130.84754666666666,
+    "quality": "dgps-fix",
+    "raw": "$GPGGA,034030,1227.2475,S,13050.8528,E,2,6,0.9,8.1,M,,M*72",
+    "satellites": 6,
+    "stationID": null,
+    "time": new Date(today + 'T03:40:30.000Z'),
+    "type": "GGA",
+    "valid": true
   }
 };
 var collect = {};

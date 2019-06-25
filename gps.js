@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.5.2 26/01/2016
+ * @license GPS.js v0.5.3 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -310,7 +310,7 @@
     // Global Positioning System Fix Data
     'GGA': function(str, gga) {
 
-      if (gga.length !== 16) {
+      if (gga.length !== 16 && gga.length !== 14) {
         throw new Error('Invalid GGA length: ' + str);
       }
 
@@ -349,8 +349,8 @@
         'satellites': parseNumber(gga[7]),
         'hdop': parseNumber(gga[8]), // dilution
         'geoidal': parseDist(gga[11], gga[12]), // aboveGeoid
-        'age': parseNumber(gga[13]), // dgps time since update
-        'stationID': parseNumber(gga[14]) // dgpsReference??
+        'age': gga[13] === undefined ? null : parseNumber(gga[13]), // dgps time since update
+        'stationID': gga[14] === undefined ? null : parseNumber(gga[14]) // dgpsReference??
       };
     },
     // GPS DOP and active satellites
