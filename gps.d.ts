@@ -47,7 +47,7 @@ declare class GPS {
      * @param lonFrom
      * @param latTo
      * @param lonTo
-     * @returns Distance in meters
+     * @returns Distance in km
      */
     static Distance(
         latFrom: number,
@@ -59,7 +59,7 @@ declare class GPS {
     /**
      * Calculates the length of a traveled route, given as an array of {lat: x, lon: y} point objects
      * @param points Array of {lat: x, lon: y}
-     * @returns Distance in meters
+     * @returns Distance in km
      */
     static TotalDistance(points: GPS.LatLon[]): number;
 
