@@ -44,13 +44,13 @@
         "test": "mocha tests/*.js"
     },
     "devDependencies": {
-        "angles": "^0.2.0",
+        "angles": "^0.2.4",
         "byline": "^5.0.0",
-        "chai": "^4.1.0",
-        "express": "^4.16.4",
-        "mocha": "^5.2.0",
-        "serialport": "^7.1.1",
-        "socket.io": "^2.0.3",
+        "chai": "^4.2.0",
+        "express": "^4.17.1",
+        "mocha": "^7.1.0",
+        "serialport": "^8.0.7",
+        "socket.io": "^2.3.0",
         "kalman": "0.0.2",
         "sylvester": "0.0.21"
     }
