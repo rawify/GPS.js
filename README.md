@@ -50,7 +50,7 @@ npm install gps
 Find the serial device
 ===
 
-On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multople USB ports on your computer and use them randomly, you have to lookup the path/device again.
+On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multiple USB ports on your computer and use them randomly, you have to lookup the path/device again.
 
 Register device on a BeagleBone
 ---
@@ -67,7 +67,7 @@ obs.serial.enable('/dev/ttyS1', function() {
 Examples
 ===
 
-GPS.js comes with some examples, like drawing the current latutude and longitude to Google Maps, displaying a persistent state and displaying the parsed raw data. In some cases you have to adjust the serial path to your own GPS receiver to make it work.
+GPS.js comes with some examples, like drawing the current latitude and longitude to Google Maps, displaying a persistent state and displaying the parsed raw data. In some cases you have to adjust the serial path to your own GPS receiver to make it work.
 
 Simple serial example
 ---
