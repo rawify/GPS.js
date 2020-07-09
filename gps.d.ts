@@ -97,7 +97,7 @@ declare namespace GPS {
         alt?: number;
         speed?: number;
         track?: number;
-        statsActive?: number[];
+        satsActive?: number[];
         satsVisible?: Satellite[];
     }
 
