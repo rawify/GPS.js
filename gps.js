@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.5.3 26/01/2016
+ * @license GPS.js v0.6.0 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -12,7 +12,8 @@
 
   var D2R = Math.PI / 180;
 
-  var collectSats = [];
+  var collectSats = {};
+  var lastSeenSat = {};
 
   function updateState(state, data) {
 
@@ -45,21 +46,23 @@
       state['vdop'] = data['vdop'];
     }
 
-    // TODO: better merge algorithm:
-    // 1. update every sat and mark as updated.
-    // 2. If last msg, delete all unmarked sats & reset mark
     if (data['type'] === 'GSV') {
+
+      var now = new Date().getTime();
 
       var sats = data['satellites'];
       for (var i = 0; i < sats.length; i++) {
-        collectSats.push(sats[i]);
+        var prn = sats[i].prn;
+        lastSeenSat[prn] = now;
+        collectSats[prn] = sats[i];
       }
 
-      // Reset stats
-      if (data['msgNumber'] === data['msgsTotal']) {
-        state['satsVisible'] = collectSats;
-        collectSats = [];
+      var ret = [];
+      for (var prn in collectSats) {
+        if (now - lastSeenSat[prn] < 3000) // Sats are visible for 3 seconds
+          ret.push(collectSats[prn])
       }
+      state['satsVisible'] = ret;
     }
   }
 
