@@ -99,7 +99,7 @@ Go into the folder `examples/dashboard` and start the server with
 node server
 ```
 
-After that you can open the browser and go to http://localhost:3000. The result should look like the following, which in principle is just a visualiziation of the state object `gps.state`
+After that you can open the browser and go to http://localhost:3000. The result should look like the following, which in principle is just a visualization of the state object `gps.state`
 
 ![GPS TU Dresden](https://github.com/infusion/GPS.js/blob/master/res/dashboard.png?raw=true)
 
