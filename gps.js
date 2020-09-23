@@ -892,7 +892,7 @@
   };
 
   if (typeof exports === 'object') {
-    Object.defineProperty(exports, "__esModule", {'value': true});
+    Object.defineProperty(GPS, "__esModule", {'value': true});
     GPS['default'] = GPS;
     GPS['GPS'] = GPS;
     module['exports'] = GPS;
