@@ -862,7 +862,12 @@
       var line = this['partial'].slice(0, pos);
 
       if (line.charAt(0) === '$') {
-        this['update'](line);
+        try {
+          this['update'](line);
+        } catch (err) {
+          this['partial'] = "";
+          throw new Error(err);
+        }
       }
       this['partial'] = this['partial'].slice(pos + 2);
     }
