@@ -78,7 +78,9 @@ const GPS = require('gps')
 
 const port = new SerialPort('/dev/tty.usbmodem11401', { // change path
   baudRate: 9600,
-  parser: new SerialPort.parsers.Readline('\r\n')
+  parser: new SerialPort.parsers.Readline({
+    delimiter: '\r\n'
+  })
 })
 
 const gps = new GPS()
