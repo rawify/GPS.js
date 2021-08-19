@@ -14,10 +14,10 @@ Usage
 The interface of GPS.js is as simple as the following few lines. You need to add an event-listener for the completion of the task and invoke the update method with a sentence you want to process. There are much more examples in the examples folder.
 
 ```javascript
-var gps = new GPS;
+const gps = new GPS;
 
 // Add an event listener on all protocols
-gps.on('data', function(parsed) {
+gps.on('data', parsed => {
     console.log(parsed);
 });
 
@@ -34,7 +34,7 @@ State
 The real advantage over other NMEA implementations is, that the GPS information is interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
 
 ```javascript
-gps.on('data', function() {
+gps.on('data', () => {
   console.log(gps.state);
 });
 ```
@@ -58,8 +58,8 @@ Register device on a BeagleBone
 If you find yourself on a BeagleBone, the serial device must be registered manually. Luckily, this can be done within node quite easily using [octalbonescript](https://www.npmjs.com/package/octalbonescript):
 
 ```javascript
-var obs = require('octalbonescript');
-obs.serial.enable('/dev/ttyS1', function() {  
+const obs = require('octalbonescript');
+obs.serial.enable('/dev/ttyS1', () => {  
     console.log('serial device activated');
 });
 ```
@@ -73,24 +73,24 @@ Simple serial example
 ---
 
 ```javascript
-const SerialPort = require('serialport')
-const GPS = require('gps')
+const SerialPort = require('serialport');
+const GPS = require('gps');
 
 const port = new SerialPort('/dev/tty.usbmodem11401', { // change path
   baudRate: 9600,
   parser: new SerialPort.parsers.Readline({
     delimiter: '\r\n'
   })
+});
+
+const gps = new GPS;
+
+gps.on('data', data => {
+  console.log(data, gps.state);
 })
 
-const gps = new GPS()
-
-gps.on('data', (data) => {
-  console.log(data, gps.state)
-})
-
-port.on('data', (data) => {
-  gps.updatePartial(data)
+port.on('data', data => {
+  gps.updatePartial(data);
 })
 ```
 
@@ -329,7 +329,7 @@ GPS.Heading(latFrom, lonFrom, latTo, lonTo)
 Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270). The result can be used as the argument of [angles](https://github.com/infusion/Angles.js) `compass()` method:
 
 ```javascript
-var angles = require('angles');
+const angles = require('angles');
 console.log(angles.compass(GPS.Heading(50, 10, 51, 9))); // will return x ∈ { N, S, E, W, NE, ... }
 ```
 
