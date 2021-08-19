@@ -73,22 +73,25 @@ Simple serial example
 ---
 
 ```javascript
-var SerialPort = require('serialport');
-var port = new SerialPort.SerialPort('/dev/tty.usbserial', { // change path
-  baudrate: 4800,
-  parser: SerialPort.parsers.readline('\r\n')
-});
+const SerialPort = require('serialport')
+const GPS = require('gps')
 
-var GPS = require('gps');
-var gps = new GPS;
+const port = new SerialPort('/dev/tty.usbmodem11401', { // change path
+  baudRate: 9600,
+  parser: new SerialPort.parsers.Readline({
+    delimiter: '\r\n'
+  })
+})
 
-gps.on('data', function(data) {
-  console.log(data, gps.state);
-});
+const gps = new GPS()
 
-port.on('data', function(data) {
-  gps.updatePartial(data);
-});
+gps.on('data', (data) => {
+  console.log(data, gps.state)
+})
+
+port.on('data', (data) => {
+  gps.updatePartial(data)
+})
 ```
 
 Dashboard
