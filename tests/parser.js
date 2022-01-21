@@ -100,6 +100,7 @@ var tests = {
     'msgNumber': 2,
     'raw': '$GPGSV,3,2,12,16,17,148,46,20,61,307,51,23,36,283,47,25,06,034,00*78',
     'msgsTotal': 3,
+    "satsInView": 12,
     'signalId': null,
     'satellites': [
       {
@@ -176,6 +177,7 @@ var tests = {
   '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70': {
     'msgNumber': 1,
     'msgsTotal': 3,
+    "satsInView": 11,
     'signalId': null,
     'raw': '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70',
     'satellites': [
@@ -258,6 +260,7 @@ var tests = {
   '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74': {
     'msgNumber': 1,
     'msgsTotal': 3,
+    "satsInView": 11,
     'signalId': null,
     'raw': '$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74',
     'satellites': [
@@ -293,6 +296,7 @@ var tests = {
   '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D': {
     'msgNumber': 2,
     'msgsTotal': 3,
+    "satsInView": 11,
     'signalId': null,
     'raw': '$GPGSV,3,2,11,14,25,170,00,16,57,208,39,18,67,296,40,19,40,246,00*2D',
     'satellites': [
@@ -328,6 +332,7 @@ var tests = {
   '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77': {
     'msgNumber': 2,
     'msgsTotal': 3,
+    "satsInView": 11,
     'signalId': null,
     'raw': '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77',
     'satellites': [
@@ -363,6 +368,7 @@ var tests = {
   '$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76': {
     'msgNumber': 3,
     'msgsTotal': 3,
+    "satsInView": 11,
     'signalId': null,
     'raw': '$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76',
     'satellites': [
@@ -576,6 +582,7 @@ var tests = {
         "status": "tracking"
       }
     ],
+    "satsInView": 11,
     "signalId": 1,
     "type": "GSV",
     "valid": true
@@ -593,6 +600,7 @@ var tests = {
         "status": "in view"
       }
     ],
+    "satsInView": 9,
     "signalId": 7,
     "type": "GSV",
     "valid": true
@@ -628,6 +636,7 @@ var tests = {
         "status": "tracking"
       }
     ],
+    "satsInView": 12,
     "signalId": 6,
     "type": "GSV",
     "valid": true
@@ -663,6 +672,7 @@ var tests = {
         "status": "tracking"
       }
     ],
+    "satsInView": 11,
     "signalId": 7,
     "type": "GSV",
     "valid": true
@@ -698,6 +708,7 @@ var tests = {
         "status": "tracking"
       }
     ],
+    "satsInView": 4,
     "signalId": 1,
     "type": "GSV",
     "valid": true
@@ -909,7 +920,7 @@ var tests = {
     "time": new Date(today + 'T03:36:31.000Z'),
     "type": "GGA",
     "valid": true
-},
+  },
   '$GPGGA,034030,1227.2475,S,13050.8528,E,2,6,0.9,8.1,M,,M*72': {
     "age": 72,
     "alt": 8.1,
@@ -924,10 +935,106 @@ var tests = {
     "time": new Date(today + 'T03:40:30.000Z'),
     "type": "GGA",
     "valid": true
+  },
+  '$BDGSV,4,1,16,01,,,37,02,,,38,03,,,39,05,,,37,0,4*6A': {
+    "msgNumber": 1,
+    "msgsTotal": 4,
+    "raw": "$BDGSV,4,1,16,01,,,37,02,,,38,03,,,39,05,,,37,0,4*6A",
+    "satellites": [{
+      "azimuth": null,
+      "elevation": null,
+      "prn": 1,
+      "snr": 37,
+      "status": "tracking"
+    }, {
+      "azimuth": null,
+      "elevation": null,
+      "prn": 2,
+      "snr": 38,
+      "status": "tracking"
+    }, {
+      "azimuth": null,
+      "elevation": null,
+      "prn": 3,
+      "snr": 39,
+      "status": "tracking"
+    }, {
+      "azimuth": null,
+      "elevation": null,
+      "prn": 5,
+      "snr": 37,
+      "status": "tracking"
+    }],
+    "satsInView": 16,
+    "signalId": null,
+    "type": "GSV",
+    "valid": true
+  },
+  '$BDGSV,1,1,03,10,46,329,31,08,43,161,,09,40,217,*52': {
+    "msgNumber": 1,
+    "msgsTotal": 1,
+    "raw": "$BDGSV,1,1,03,10,46,329,31,08,43,161,,09,40,217,*52",
+    "satellites": [{
+      "azimuth": 329,
+      "elevation": 46,
+      "prn": 10,
+      "snr": 31,
+      "status": "tracking"
+    }, {
+      "azimuth": 161,
+      "elevation": 43,
+      "prn": 8,
+      "snr": null,
+      "status": "in view"
+    }, {
+      "azimuth": 217,
+      "elevation": 40,
+      "prn": 9,
+      "snr": null,
+      "status": "in view"
+    }],
+    "satsInView": 3,
+    "signalId": null,
+    "type": "GSV",
+    "valid": true
+  },
+  '$BDGSV,2,1,06,211,18,305,36,205,07,113,,206,04,029,,209,30,046,*67': {
+    "msgNumber": 1,
+    "msgsTotal": 2,
+    "raw": "$BDGSV,2,1,06,211,18,305,36,205,07,113,,206,04,029,,209,30,046,*67",
+    "satellites": [{
+      "azimuth": 305,
+      "elevation": 18,
+      "prn": 211,
+      "snr": 36,
+      "status": "tracking"
+    }, {
+      "azimuth": 113,
+      "elevation": 7,
+      "prn": 205,
+      "snr": null,
+      "status": "in view"
+    }, {
+      "azimuth": 29,
+      "elevation": 4,
+      "prn": 206,
+      "snr": null,
+      "status": "in view"
+    }, {
+      "azimuth": 46,
+      "elevation": 30,
+      "prn": 209,
+      "snr": null,
+      "status": "in view"
+    }],
+    "satsInView": 6,
+    "signalId": null,
+    "type": "GSV",
+    "valid": true
   }
 };
 var collect = {};
-gps.on('data', function(data) {
+gps.on('data', function (data) {
 
   collect[data.raw] = data;
 });
@@ -938,13 +1045,13 @@ for (var i in tests) {
   }
 }
 
-describe('NMEA syntax', function() {
+describe('NMEA syntax', function () {
 
   for (var i in collect) {
 
-    (function(i) {
+    (function (i) {
 
-      it('Should pass ' + i, function() {
+      it('Should pass ' + i, function () {
         expect(collect[i]).to.deep.equal(tests[i]);
       });
     })(i);

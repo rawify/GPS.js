@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.6.0 26/01/2016
+ * @license GPS.js v0.6.1 26/01/2016
  *
  * Copyright (c) 2016, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -303,7 +303,7 @@
     }
 
     this['events'] = {};
-    this['state'] = {'errors': 0, 'processed': 0};
+    this['state'] = { 'errors': 0, 'processed': 0 };
   }
 
   GPS.prototype['events'] = null;
@@ -494,7 +494,10 @@
     // satellites in view
     'GSV': function(str, gsv) {
 
-      if (gsv.length % 4 % 3 === 0) {
+      if (gsv.length % 4 === 0) {
+        // = 1 -> normal package
+        // = 2 -> NMEA 4.10 extension
+        // = 3 -> BeiDou extension?
         throw new Error('Invalid GSV length: ' + str);
       }
 
@@ -539,7 +542,7 @@
       return {
         'msgNumber': parseNumber(gsv[2]),
         'msgsTotal': parseNumber(gsv[1]),
-        //'satsInView'  : parseNumber(gsv[3]), // Can be obtained by satellites.length
+        'satsInView': parseNumber(gsv[3]),
         'satellites': sats,
         'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null // NMEA 4.10 addition
       };
@@ -592,7 +595,7 @@
 
       return {
         'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
-                //'delta': time === null ? null : (Date.now() - time) / 1000
+        //'delta': time === null ? null : (Date.now() - time) / 1000
       };
     },
     'GST': function(str, gst) {
@@ -897,7 +900,7 @@
   };
 
   if (typeof exports === 'object') {
-    Object.defineProperty(GPS, "__esModule", {'value': true});
+    Object.defineProperty(GPS, "__esModule", { 'value': true });
     GPS['default'] = GPS;
     GPS['GPS'] = GPS;
     module['exports'] = GPS;
