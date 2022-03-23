@@ -157,8 +157,9 @@
 
   function parseKnots(knots) {
 
-    if (knots === '')
+    if (knots === '') {
       return null;
+    }
 
     return parseFloat(knots) * 1.852;
   }
@@ -178,27 +179,25 @@
 
   function parseGGAFix(fix) {
 
-    if (fix === '')
-      return null;
-
-    switch (parseInt(fix, 10)) {
-      case 0:
+    switch (fix) {
+      case '':
+      case '0':
         return null;
-      case 1:
+      case '1':
         return 'fix'; // valid SPS fix
-      case 2:
+      case '2':
         return 'dgps-fix'; // valid DGPS fix
-      case 3:
+      case '3':
         return 'pps-fix'; // valid PPS fix
-      case 4:
+      case '4':
         return 'rtk'; // valid (real time kinematic) RTK fix
-      case 5:
+      case '5':
         return 'rtk-float'; // valid (real time kinematic) RTK float
-      case 6:
+      case '6':
         return 'estimated'; // dead reckoning
-      case 7:
+      case '7':
         return 'manual';
-      case 8:
+      case '8':
         return 'simulated';
     }
     throw new Error('INVALID GGA FIX: ' + fix);
@@ -207,8 +206,8 @@
   function parseGSAFix(fix) {
 
     switch (fix) {
-      case '1':
       case '':
+      case '1':
         return null;
       case '2':
         return '2D';
@@ -221,12 +220,12 @@
   function parseRMC_GLLStatus(status) {
 
     switch (status) {
+      case '':
+        return null;
       case 'A':
         return 'active';
       case 'V':
         return 'void';
-      case '':
-        return null;
     }
     throw new Error('INVALID RMC/GLL STATUS: ' + status);
   }
