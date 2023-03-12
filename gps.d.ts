@@ -21,6 +21,15 @@ declare class GPS {
     /**
      * Adds an event listener for a protocol to occur (see implemented protocols, simply use the name - upper case) or for all sentences with data.
      * Because GPS.js should be more general, it doesn't inherit EventEmitter, but simply invokes the callback.
+     * @param event "error"
+     * @param callback Callback with the error string
+     * @returns GPS instance
+     */
+    on(event: "error", callback: (errorMessage: string) => void): GPS;
+
+    /**
+     * Adds an event listener for a protocol to occur (see implemented protocols, simply use the name - upper case) or for all sentences with data.
+     * Because GPS.js should be more general, it doesn't inherit EventEmitter, but simply invokes the callback.
      * @param event Event type
      * @param callback Callback with data
      * @returns GPS instance
@@ -90,6 +99,7 @@ declare namespace GPS {
         [key: string]: any;
         processed: number;
         errors: number;
+        errorDescriptions: string[]
 
         time?: Date;
         lat?: number;
@@ -229,4 +239,11 @@ declare namespace GPS {
         valid: boolean;
         type: 'HDT';
     }
+
+    export interface TXT {
+        message: string | null
+        completed: boolean,
+        rawMessages: string[],
+        sentenceAmount: number,
+    }  
 }
