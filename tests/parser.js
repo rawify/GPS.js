@@ -1030,6 +1030,71 @@ var tests = {
     "signalId": null,
     "type": "GSV",
     "valid": true
+  },
+  '$GNTXT,01,01,02,PF=3FF*4B':{
+    "completed": true,
+    "message": "PF=3FF",
+    "raw": "$GNTXT,01,01,02,PF=3FF*4B",
+    "rawMessages": [
+      "PF=3FF",
+    ],
+    "sentenceAmount": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,ANTSTATUS=OK*25':{
+    "completed": true,
+    "message": "ANTSTATUS=OK",
+    "raw": "$GNTXT,01,01,02,ANTSTATUS=OK*25",
+    "rawMessages": [
+      "ANTSTATUS=OK",
+    ],
+    "sentenceAmount": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD*2F':{
+    "completed": true,
+    "message": "LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD",
+    "raw": "$GNTXT,01,01,02,LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD*2F",
+    "rawMessages": [
+      "LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD",
+    ],
+    "sentenceAmount": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,some escape chars: ^21*2F':{
+    "completed": true,
+    "message": "some escape chars: !",
+    "raw": "$GNTXT,01,01,02,some escape chars: ^21*2F",
+    "rawMessages": [
+      "some escape chars: !",
+    ],
+    "sentenceAmount": 1,
+    "type": "TXT",
+    "valid": false
+  },
+  '$GNTXT,02,01,02,a multipart message^2C this is part 1^0D^0A*34':{
+    "completed": false,
+    "message": null,
+    "raw": "$GNTXT,02,01,02,a multipart message^2C this is part 1^0D^0A*34",
+    "rawMessages": [],
+    "sentenceAmount": 2,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,02,02,02,a multipart message^2C this is part 2^0D^0A*34':{
+    "completed": true,
+    "message": "a multipart message, this is part 1\r\na multipart message, this is part 2\r\n",
+    "raw": "$GNTXT,02,02,02,a multipart message^2C this is part 2^0D^0A*34",
+    "rawMessages": [
+      "a multipart message, this is part 1\r\n",
+      "a multipart message, this is part 2\r\n",
+    ],
+    "sentenceAmount": 2,
+    "type": "TXT",
+    "valid": true
   }
 };
 var collect = {};
@@ -1040,6 +1105,7 @@ gps.on('data', function (data) {
 for (var i in tests) {
 
   if (!gps.update(i)) {
+    console.log(gps.state.errorDescriptions.at(-1))
     collect[i] = 'invalid';
   }
 }

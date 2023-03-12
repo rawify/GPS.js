@@ -305,7 +305,6 @@
         ",",
         "!",
         "\\",
-        "^",
         "~",
         "\u007F", // DEL HEX 7F
     ]
@@ -317,6 +316,13 @@
             )
         }
     }
+
+    if (str.replaceAll(/\^([a-zA-Z0-9]{2})/g, "").includes("^")) {
+        throw new Error(
+            `Message may not contain invalid Character '^' without escape Sequence after it`
+        )
+    }
+
 
     // this is using an replacement function as second parameter:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_function_as_the_replacement
@@ -440,7 +446,7 @@
     },
       // Text Transmission
       // according to https://www.plaisance-pratique.com/IMG/pdf/NMEA0183-2.pdf
-      'TXT': function(str, txt) {
+      'TXT': function(str, txt, gps) {
         
         if (txt.length !== 6) {
             throw new Error("Invalid TXT length: " + str)
@@ -470,7 +476,7 @@
 
         const sentenceNumber = parseInt(txt[2], 10)
 
-        if (txt[3].length !== 3) {
+        if (txt[3].length !== 2) {
             throw new Error("Invalid TXT Text identifier Length: " + txt[3])
         }
 
@@ -489,35 +495,39 @@
 
         // this tries to parse a sentence that is more than one message, it doesn'T assume, that all sentences arrive in order, but it has a timeout for receiving all!
         if (sequenceLength != 1) {
-            if (GPS["txtBuffer"][textIdentifier] === undefined) {
+            if (gps["state"]["txtBuffer"][textIdentifier] === undefined) {
                 // the map is necessary, otherwise the values in there refer all to the same value, and if you change one, you change all
-                GPS["txtBuffer"][textIdentifier] = new Array(
+                gps["state"]["txtBuffer"][textIdentifier] = new Array(
                     sequenceLength + 1
                 ).map((_, i) => {
                     if (i === sequenceLength) {
-                        const SECONDS = 20
+                        const SECONDS = 20 // 20 seconds is the arbitrary timeout
+
                         // the timeout ID is stored in that array, it gets cancelled, when all sentences arrived, otherwise it fires and sets an error!
                         return setTimeout(
-                            (_identifier, _SECONDS) => {
+                            (_identifier, _SECONDS, _gps) => {
                                 const errorMessage = `The multi sentence messsage with the identifier ${_identifier} timed out while waiting fro all pieces of the sentence for ${_SECONDS} seconds`
-                                this["state"]["errors"]++
-                                this["state"]["errorDescriptions"].push(
+                                _gps["state"]["errors"]++
+                                _gps["state"]["errorDescriptions"].push(
                                     errorMessage
                                 )
 
-                                this["emit"]("data", null)
-                                this["emit"]("error", errorMessage)
+                                _gps["emit"]("data", null)
+                                _gps["emit"]("error", errorMessage)
                             },
                             SECONDS * 1000,
                             textIdentifier,
-                            SECONDS
-                        ) // 20 seconds is the arbitrary timeout
+                            SECONDS,
+                            gps
+                        ) 
                     }
                     return ""
                 })
             }
 
-            const receivedMessages = GPS["txtBuffer"][textIdentifier].reduce(
+            gps["state"]["txtBuffer"][textIdentifier][sentenceNumber - 1] = message;
+
+            const receivedMessages = gps["state"]["txtBuffer"][textIdentifier].reduce(
                 (acc, elem, i) => {
                     if (i === sequenceLength) {
                         return acc
@@ -528,14 +538,14 @@
             )
 
             if (receivedMessages === sequenceLength) {
-                const rawMessages = GPS["txtBuffer"][textIdentifier].filter(
+                const rawMessages = gps["state"]["txtBuffer"][textIdentifier].filter(
                     (_, i) => i !== sequenceLength
                 )
 
-                const timerID = GPS["txtBuffer"][textIdentifier][sequenceLength]
+                const timerID = gps["state"]["txtBuffer"][textIdentifier][sequenceLength]
                 clearTimeout(timerID)
 
-                GPS["txtBuffer"][textIdentifier] = undefined
+                gps["state"]["txtBuffer"][textIdentifier] = undefined
 
                 return {
                     message: rawMessages.join(""),
@@ -890,7 +900,7 @@
     }
   };
 
-  GPS['Parse'] = function(line) {
+  GPS['Parse'] = function(line, gps) {
 
     if (typeof line !== 'string')
       return [false, "Input was not a string"]
@@ -933,7 +943,7 @@
     if (GPS['mod'][nmea[0]] !== undefined) {
       // set raw data here as well?
       try {
-          var data = this["mod"][nmea[0]](line, nmea)
+          var data = this["mod"][nmea[0]](line, nmea, gps)
           data["raw"] = line
           data["valid"] = isValid(line, nmea[nmea.length - 1])
           data["type"] = nmea[0]
@@ -1014,7 +1024,7 @@
 
   GPS.prototype['update'] = function(line) {
 
-    var [parsed, errorDescription] = GPS['Parse'](line);
+    var [parsed, errorDescription] = GPS['Parse'](line, this);
 
     this['state']['processed']++;
 
