@@ -447,7 +447,6 @@
       // Text Transmission
       // according to https://www.plaisance-pratique.com/IMG/pdf/NMEA0183-2.pdf
       'TXT': function(str, txt, gps) {
-        
         if (txt.length !== 6) {
             throw new Error("Invalid TXT length: " + str)
         }
@@ -495,6 +494,9 @@
 
         // this tries to parse a sentence that is more than one message, it doesn'T assume, that all sentences arrive in order, but it has a timeout for receiving all!
         if (sequenceLength != 1) {
+          if(gps === undefined){
+            throw new Error(`Can't parse multi sequence with the static function, it can't store partial messages!`)
+          }
             if (gps["state"]["txtBuffer"][textIdentifier] === undefined) {
                 // the map is necessary, otherwise the values in there refer all to the same value, and if you change one, you change all
                 gps["state"]["txtBuffer"][textIdentifier] = new Array(

@@ -48,7 +48,7 @@ declare class GPS {
      * @param line NMEA string
      * @returns NMEA object or False
      */
-    static Parse<T = any>(line: string): false | T;
+    static Parse<T = any>(line: string, GPSObject: GPS | undefined): [data: false | T, error: string | null];
 
     /**
      * Calculates the distance between two geo-coordinates using Haversine formula
