@@ -39,7 +39,7 @@ declare class GPS {
      * @param line NMEA string
      * @returns NMEA object or False
      */
-    static Parse<T = any>(line: string): false | T;
+    static Parse<T = any>(line: string, GPSObject?: GPS | undefined): false | T;
 
     /**
      * Calculates the distance between two geo-coordinates using Haversine formula
@@ -90,6 +90,7 @@ declare namespace GPS {
         [key: string]: any;
         processed: number;
         errors: number;
+        txtBuffer: Record<string, string[]>
 
         time?: Date;
         lat?: number;
@@ -229,4 +230,11 @@ declare namespace GPS {
         valid: boolean;
         type: 'HDT';
     }
+
+    export interface TXT {
+        message: string | null
+        completed: boolean,
+        rawMessages: string[],
+        sentenceAmount: number,
+    }  
 }
