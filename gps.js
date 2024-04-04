@@ -24,6 +24,11 @@
       state['lon'] = data['lon'];
     }
 
+    if (data['type'] === 'HDT') {
+      state['heading'] = data['heading'];
+      state['trueNorth'] = data['trueNorth'];
+    }
+
     if (data['type'] === 'ZDA') {
       state['time'] = data['time'];
     }
