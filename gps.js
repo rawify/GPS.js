@@ -13,6 +13,7 @@
   var D2R = Math.PI / 180;
 
   var collectSats = {};
+  var collectActiveSats = {};
   var lastSeenSat = {};
 
   function updateState(state, data) {
@@ -44,7 +45,15 @@
     }
 
     if (data['type'] === 'GSA') {
-      state['satsActive'] = data['satellites'];
+
+      var systemId = data['systemId'];
+      collectActiveSats[systemId] = data['satellites'];
+      var satsActive = [];
+      for (var s in collectActiveSats) {
+        satsActive.push(...collectActiveSats[s]);
+      }
+
+      state['satsActive'] = satsActive;
       state['fix'] = data['fix'];
       state['hdop'] = data['hdop'];
       state['pdop'] = data['pdop'];
@@ -57,15 +66,15 @@
 
       var sats = data['satellites'];
       for (var i = 0; i < sats.length; i++) {
-        var prn = sats[i].prn;
-        lastSeenSat[prn] = now;
-        collectSats[prn] = sats[i];
+        var key = sats[i].key;
+        lastSeenSat[key] = now;
+        collectSats[key] = sats[i];
       }
 
       var ret = [];
-      for (var prn in collectSats) {
-        if (now - lastSeenSat[prn] < 3000) // Sats are visible for 3 seconds
-          ret.push(collectSats[prn])
+      for (var key in collectSats) {
+        if (now - lastSeenSat[key] < 3000) // Sats are visible for 3 seconds
+          ret.push(collectSats[key])
       }
       state['satsVisible'] = ret;
     }
@@ -168,6 +177,42 @@
 
     return parseFloat(knots) * 1.852;
   }
+
+  function parseSystemId(systemId) {
+    switch (systemId) {
+      case 0:
+        return "QZSS";
+      case 1:
+        return "GPS";
+      case 2:
+        return "GLONASS";
+      case 3:
+        return "Galileo";
+      case 4:
+        return "BeiDou"
+      default:
+        return "unknown"
+    }
+  }
+
+  function parseSystem(str) {
+    var satellite = str.slice(1, 3);
+    switch (satellite) {
+      case "GP":
+        return "GPS";
+      case "GQ":
+        return "QZSS";
+      case "GL":
+        return "GLONASS";
+      case "GA":
+        return "Galileo";
+      case "GB":
+        return "BeiDou"
+      default:
+        return satellite;
+    }
+  }
+
 
   function parseGSAMode(mode) {
 
@@ -402,7 +447,8 @@
         'pdop': parseNumber(gsa[15]),
         'hdop': parseNumber(gsa[16]),
         'vdop': parseNumber(gsa[17]),
-        'systemId': gsa.length > 19 ? parseNumber(gsa[18]) : null
+        'systemId': gsa.length > 19 ? parseNumber(gsa[18]) : null,
+        'system': gsa.length > 19 ? parseSystemId(parseNumber(gsa[18])) : 'unknown'
       };
     },
     // Recommended Minimum data for gps
@@ -522,6 +568,7 @@
        */
 
       var sats = [];
+      var satellite = str.slice(1, 3);
 
       for (var i = 4; i < gsv.length - 3; i += 4) {
 
@@ -539,7 +586,9 @@
           'elevation': parseNumber(gsv[i + 1]),
           'azimuth': parseNumber(gsv[i + 2]),
           'snr': snr,
-          'status': prn !== null ? (snr !== null ? 'tracking' : 'in view') : null
+          'status': prn !== null ? (snr !== null ? 'tracking' : 'in view') : null,
+          'system': parseSystem(str),
+          'key': satellite + prn
         });
       }
 
@@ -548,7 +597,8 @@
         'msgsTotal': parseNumber(gsv[1]),
         'satsInView': parseNumber(gsv[3]),
         'satellites': sats,
-        'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null // NMEA 4.10 addition
+        'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null,// NMEA 4.10 addition
+        'system': parseSystem(str)
       };
     },
     // Geographic Position - Latitude/Longitude
