@@ -19,15 +19,15 @@ const port = new SerialPort(file, {
 
 port.pipe(parser);
 
-var GPS = require('../gps.js');
+var GPS = require('gps');
 var gps = new GPS;
 
-gps.on('data', function(data) {
+gps.on('data', function (data) {
 
   if (!data.time)
     return;
 
-  exec('date -s "' + data.time.toString() + '"', function(error, stdout, stderr) {
+  exec('date -s "' + data.time.toString() + '"', function (error, stdout, stderr) {
     if (error) throw error;
     // Clock should be set now, exit
     console.log("Set time to " + data.time.toString());
@@ -35,7 +35,7 @@ gps.on('data', function(data) {
   });
 });
 
-parser.on('data', function(data) {
+parser.on('data', function (data) {
   gps.update(data);
 });
 

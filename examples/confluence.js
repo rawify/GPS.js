@@ -20,10 +20,10 @@ port.pipe(parser);
 
 
 var Angles = require('angles');
-var GPS = require('../gps.js');
+var GPS = require('gps');
 var gps = new GPS;
 
-gps.on('data', function(data) {
+gps.on('data', function (data) {
 
   var lat1 = gps.state.lat;
   var lon1 = gps.state.lon;
@@ -36,13 +36,13 @@ gps.on('data', function(data) {
   var head = GPS.Heading(lat1, lon1, lat2, lon2);
   var rose = Angles.compass(head);
 
-  console.log("\033[2J\033[;H" + 
-  "You are at (" + lat1 + ", " + lon1 + "),\n" +
-  "The closest confluence point (" + lat2 + ", " + lon2 + ") is in " + dist + " km.\n" +
-  "You have to go " + head + "° " + rose);
+  console.log("\033[2J\033[;H" +
+    "You are at (" + lat1 + ", " + lon1 + "),\n" +
+    "The closest confluence point (" + lat2 + ", " + lon2 + ") is in " + dist + " km.\n" +
+    "You have to go " + head + "° " + rose);
 
 });
 
-parser.on('data', function(data) {
+parser.on('data', function (data) {
   gps.update(data);
 });

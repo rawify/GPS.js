@@ -2,14 +2,13 @@
 ![GPS.js](https://github.com/infusion/GPS.js/blob/master/res/logo.png?raw=true "Javascript GPS Parser")
 
 [![NPM Package](https://img.shields.io/npm/v/gps.svg?style=flat)](https://npmjs.org/package/gps "View this project on npm")
-[![Build Status](https://travis-ci.org/infusion/GPS.js.svg?branch=master)](https://travis-ci.org/infusion/GPS.js)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
 GPS.js is an extensible parser for [NMEA](http://www.gpsinformation.org/dale/nmea.htm) sentences, given by any common GPS receiver. The output is tried to be as high-level as possible to make it more useful than simply splitting the information. The aim is, that you don't have to understand NMEA, just plug in your receiver and you're ready to go.
 
 
-Usage
-===
+## Usage
+
 
 The interface of GPS.js is as simple as the following few lines. You need to add an event-listener for the completion of the task and invoke the update method with a sentence you want to process. There are much more examples in the examples folder.
 
@@ -28,8 +27,8 @@ gps.update("$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,
 
 It's also possible to add event-listeners only on one of the following protocols, by stating `gps.on('GGA', ...)` for example.
 
-State
-===
+## State
+
 
 The real advantage over other NMEA implementations is, that the GPS information is interpreted and normalized. The most high-level API is the state object, which changes with every new event. You can use this information with:
 
@@ -39,16 +38,16 @@ gps.on('data', () => {
 });
 ```
 
-Installation
-===
+## Installation
+
 Installing GPS.js is as easy as cloning this repo or use the following command:
 
 ```
 npm install gps
 ```
 
-Find the serial device
-===
+## Find the serial device
+
 
 On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multiple USB ports on your computer and use them randomly, you have to lookup the path/device again.
 
@@ -64,8 +63,8 @@ obs.serial.enable('/dev/ttyS1', () => {
 });
 ```
 
-Examples
-===
+## Examples
+
 
 GPS.js comes with some examples, like drawing the current latitude and longitude to Google Maps, displaying a persistent state and displaying the parsed raw data. In some cases you have to adjust the serial path to your own GPS receiver to make it work.
 
@@ -142,8 +141,8 @@ On systems without a RTC - like Raspberry PI - you need to update the time yours
 node set-date
 ```
 
-Available Methods
-===
+## Available Methods
+
 
 update(line)
 ---
@@ -161,8 +160,8 @@ off(event)
 ---
 Removes an event listener
 
-Implemented Protocols
-===
+## Implemented Protocols
+
 
 GGA - Fix information
 ---
@@ -287,8 +286,8 @@ The parsed object will have the following attributes:
 - heightError: Height 1 sigma error, in meters
 - valid: Indicates if the checksum is okay
 
-GPS State
-===
+## GPS State
+
 If the streaming API is not needed, but a solid state of the system, the `gps.state` object can be used. It has the following properties:
 
 - time: Current time
@@ -303,12 +302,12 @@ If the streaming API is not needed, but a solid state of the system, the `gps.st
 Adding new protocols is a matter of minutes. If you need a protocol which isn't implemented, I'm happy to see a pull request or a new ticket.
 
 
-Troubleshooting
-===
+## Troubleshooting
+
 If you don't get valid position information after turning on the receiver, chances are high you simply have to wait as it takes some [time to first fix](https://en.wikipedia.org/wiki/Time_to_first_fix).
 
-Functions
-===
+## Functions
+
 
 GPS.js comes with a few static functions, which helps working with geo-coordinates.
 
@@ -334,27 +333,36 @@ console.log(angles.compass(GPS.Heading(50, 10, 51, 9))); // will return x ∈ { 
 ```
 
 
-Using GPS.js with the browser
-===
+## Using GPS.js with the browser
+
 The use cases should be rare to parse NMEA directly inside the browser, but it works too.
 
 ```html
-<script src="gps.js"></script>
+<script src="gps.min.js"></script>
 <script>
    var gps = new GPS;
    gps.update('...');
 </script>
 ```
 
-Testing
-===
-If you plan to enhance the library, make sure you add test cases and all the previous tests are passing. You can test the library with
+## Building the library
+
+After cloning the Git repository run:
 
 ```
-npm test
+npm install
+npm run build
 ```
 
-Copyright and licensing
-===
-Copyright (c) 2016-2022, [Robert Eisele](https://www.xarg.org/)
-Dual licensed under the MIT or GPL Version 2 licenses.
+## Run a test
+
+Testing the source against the shipped test suite is as easy as
+
+```
+npm run test
+```
+
+## Copyright and licensing
+
+Copyright (c) 2025, [Robert Eisele](https://raw.org/)
+Licensed under the MIT license.

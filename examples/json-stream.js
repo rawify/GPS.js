@@ -3,18 +3,18 @@
 
 var Transform = require('stream').Transform;
 
-var GPS = require('../gps.js');
+var GPS = require('gps');
 
 process.stdin.resume();
 process.stdin.setEncoding('utf8');
 
 function Process() {
-  Transform.call(this, {objectMode: true});
+  Transform.call(this, { objectMode: true });
 }
 
 Process.prototype = {
   _line: "",
-  _transform: function(chunk, encoding, done) {
+  _transform: function (chunk, encoding, done) {
 
     var data = this._line + chunk.toString();
 
@@ -23,7 +23,7 @@ Process.prototype = {
 
     var self = this;
 
-    lines.forEach(function(x) {
+    lines.forEach(function (x) {
 
       var tmp = GPS.parse(x);
       if (tmp !== false) {
@@ -33,7 +33,7 @@ Process.prototype = {
 
     done();
   },
-  _flush: function(done) {
+  _flush: function (done) {
 
     if (this._line) {
       var tmp = GPS.parse(this._line);
@@ -53,5 +53,5 @@ for (var key in origProto) {
 Process.prototype.constructor = Process;
 
 process.stdin
-        .pipe(new Process)
-        .pipe(process.stdout);
+  .pipe(new Process)
+  .pipe(process.stdout);

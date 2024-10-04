@@ -25,7 +25,7 @@ const port = new SerialPort(file, {
 port.pipe(parser);
 
 
-var GPS = require('../../gps.js');
+var GPS = require('gps');
 var gps = new GPS;
 
 // Simple Kalman Filter set up
@@ -41,7 +41,7 @@ var u = $V([0, 0]);
 
 var filter = new Kalman($V([0, 0]), $M([[1, 0], [0, 1]]));
 
-gps.on('data', function(data) {
+gps.on('data', function (data) {
 
   if (data.lat && data.lon) {
 
@@ -65,15 +65,15 @@ gps.on('data', function(data) {
   io.emit('position', gps.state);
 });
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.sendFile(__dirname + '/maps.html');
 });
 
-http.listen(3000, function() {
+http.listen(3000, function () {
 
   console.log('listening on *:3000');
 });
 
-parser.on('data', function(data) {
+parser.on('data', function (data) {
   gps.update(data);
 });

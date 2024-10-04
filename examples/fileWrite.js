@@ -20,13 +20,13 @@ port.pipe(parser);
 var fs = require('fs');
 var ws = fs.createWriteStream('gps.dump');
 
-var GPS = require('../gps.js');
+var GPS = require('gps');
 var gps = new GPS;
 
-gps.on('data', function(data) {
+gps.on('data', function (data) {
   ws.write(data.raw + '\n');
 });
 
-parser.on('data', function(data) {
+parser.on('data', function (data) {
   gps.update(data);
 });

@@ -3,13 +3,13 @@ function _(x) {
   return x < 10 ? "0" + x : x;
 }
 
-var today = new Date();
+let today = new Date();
 today = today.getUTCFullYear() + '-' + _(today.getUTCMonth() + 1) + '-' + _(today.getUTCDate());
 
-var expect = require('chai').expect;
-var GPS = require('../gps.js');
-var gps = new GPS;
-var tests = {
+const GPS = require('gps');
+const assert = require('assert');
+const gps = new GPS;
+const tests = {
   'foo': 'invalid',
   '$GPGSA,A,3,29,26,31,21,,,,,,,,,2.0,1.7,1.0*39': {
     'fix': '3D',
@@ -24,6 +24,7 @@ var tests = {
       21
     ],
     'type': 'GSA',
+    "system": "unknown",
     "systemId": null,
     'valid': true,
     'vdop': 1
@@ -102,31 +103,40 @@ var tests = {
     'msgsTotal': 3,
     "satsInView": 12,
     'signalId': null,
+    "system": "GPS",
     'satellites': [
       {
         'azimuth': 148,
         'elevation': 17,
+        "key": "GP16",
         'prn': 16,
         'snr': 46,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 307,
         'elevation': 61,
+        "key": "GP20",
         'prn': 20,
         'snr': 51,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 283,
         'elevation': 36,
+        "key": "GP23",
         'prn': 23,
         'snr': 47,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 34,
         'elevation': 6,
+        "key": "GP25",
         'prn': 25,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }
     ],
     'type': 'GSV',
@@ -159,6 +169,7 @@ var tests = {
     'mode': 'automatic',
     'pdop': 1.72,
     "systemId": null,
+    "system": "unknown",
     'raw': '$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A',
     'satellites': [
       10,
@@ -179,32 +190,41 @@ var tests = {
     'msgsTotal': 3,
     "satsInView": 11,
     'signalId': null,
+    "system": "GPS",
     'raw': '$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70',
     'satellites': [
       {
         'azimuth': 137,
         'elevation': 63,
+        "key": "GP10",
         'prn': 10,
         'snr': 17,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 98,
         'elevation': 61,
+        "key": "GP7",
         'prn': 7,
         'snr': 15,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 290,
         'elevation': 59,
+        "key": "GP5",
         'prn': 5,
         'snr': 20,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 157,
         'elevation': 54,
+        "key": "GP8",
         'prn': 8,
         'snr': 30,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }
     ],
     'type': 'GSV',
@@ -253,6 +273,7 @@ var tests = {
       25,
       29
     ],
+    "system": "unknown",
     'type': 'GSA',
     'valid': true,
     'vdop': 5.6
@@ -267,29 +288,38 @@ var tests = {
       {
         'azimuth': 111,
         'elevation': 3,
+        "key": "GP3",
         'prn': 3,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 270,
         'elevation': 15,
+        "key": "GP4",
         'prn': 4,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 10,
         'elevation': 1,
+        "key": "GP6",
         'prn': 6,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 292,
         'elevation': 6,
+        "key": "GP13",
         'prn': 13,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }
     ],
+    "system": "GPS",
     'type': 'GSV',
     'valid': true
   },
@@ -303,30 +333,39 @@ var tests = {
       {
         'azimuth': 170,
         'elevation': 25,
+        "key": "GP14",
         'prn': 14,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 208,
         'elevation': 57,
+        "key": "GP16",
         'prn': 16,
         'snr': 39,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 296,
         'elevation': 67,
+        "key": "GP18",
         'prn': 18,
         'snr': 40,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 246,
         'elevation': 40,
+        "key": "GP19",
         'prn': 19,
         'snr': 0,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }
     ],
     'type': 'GSV',
+    "system": "GPS",
     'valid': false
   },
   '$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77': {
@@ -339,30 +378,39 @@ var tests = {
       {
         'azimuth': 223,
         'elevation': 39,
+        "key": "GP2",
         'prn': 2,
         'snr': 16,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 70,
         'elevation': 28,
+        "key": "GP13",
         'prn': 13,
         'snr': 17,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 252,
         'elevation': 23,
+        "key": "GP26",
         'prn': 26,
         'snr': null,
-        'status': 'in view'
+        'status': 'in view',
+        "system": "GPS"
       }, {
         'azimuth': 186,
         'elevation': 14,
+        "key": "GP4",
         'prn': 4,
         'snr': 15,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }
     ],
     'type': 'GSV',
+    "system": "GPS",
     'valid': true
   },
   '$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76': {
@@ -375,24 +423,31 @@ var tests = {
       {
         'azimuth': 301,
         'elevation': 9,
+        "key": "GP29",
         'prn': 29,
         'snr': 24,
-        'status': 'tracking'
+        'status': 'tracking',
+        "system": "GPS"
       }, {
         'azimuth': 20,
         'elevation': 9,
+        "key": "GP16",
         'prn': 16,
         'snr': null,
-        'status': 'in view'
+        'status': 'in view',
+        "system": "GPS"
       }, {
         'azimuth': null,
         'elevation': null,
+        "key": "GP36",
         'prn': 36,
         'snr': null,
-        'status': 'in view'
+        'status': 'in view',
+        "system": "GPS"
       }
     ],
     'type': 'GSV',
+    "system": "GPS",
     'valid': true
   },
   '$GPRMC,092750.000,A,5321.6802,N,00630.3372,W,0.02,31.66,280511,,,A*43': {
@@ -559,31 +614,40 @@ var tests = {
       {
         "azimuth": 106,
         "elevation": 20,
+        "key": "GP2",
         "prn": 2,
         "snr": 26,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }, {
         "azimuth": 72,
         "elevation": 20,
+        "key": "GP6",
         "prn": 6,
         "snr": 18,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }, {
         "azimuth": 40,
         "elevation": 77,
+        "key": "GP12",
         "prn": 12,
         "snr": 37,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }, {
         "azimuth": 309,
         "elevation": 30,
+        "key": "GP14",
         "prn": 14,
         "snr": 25,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }
     ],
     "satsInView": 11,
     "signalId": 1,
+    "system": "GPS",
     "type": "GSV",
     "valid": true
   },
@@ -595,13 +659,16 @@ var tests = {
       {
         "azimuth": 27,
         "elevation": 11,
+        "key": "GA33",
         "prn": 33,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "Galileo"
       }
     ],
     "satsInView": 9,
     "signalId": 7,
+    "system": "Galileo",
     "type": "GSV",
     "valid": true
   },
@@ -613,31 +680,40 @@ var tests = {
       {
         "azimuth": 103,
         "elevation": 22,
+        "key": "GP2",
         "prn": 2,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "GPS"
       }, {
         "azimuth": 357,
         "elevation": 0,
+        "key": "GP3",
         "prn": 3,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "GPS"
       }, {
         "azimuth": 68,
         "elevation": 21,
+        "key": "GP6",
         "prn": 6,
         "snr": 18,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }, {
         "azimuth": 46,
         "elevation": 73,
+        "key": "GP12",
         "prn": 12,
         "snr": 32,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "GPS"
       }
     ],
     "satsInView": 12,
     "signalId": 6,
+    "system": "GPS",
     "type": "GSV",
     "valid": true
   },
@@ -649,32 +725,41 @@ var tests = {
       {
         "azimuth": 285,
         "elevation": 49,
+        "key": "GA2",
         "prn": 2,
         "snr": 30,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "Galileo"
       }, {
         "azimuth": 221,
         "elevation": 22,
+        "key": "GA3",
         "prn": 3,
         "snr": 29,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "Galileo"
       }, {
         "azimuth": 328,
         "elevation": 12,
+        "key": "GA7",
         "prn": 7,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "Galileo"
       }, {
         "azimuth": 278,
         "elevation": 32,
+        "key": "GA8",
         "prn": 8,
         "snr": 35,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "Galileo"
       }
     ],
     "satsInView": 11,
     "signalId": 7,
     "type": "GSV",
+    "system": "Galileo",
     "valid": true
   },
   "$GBGSV,1,1,04,13,31,064,,21,12,255,,26,18,293,27,29,46,155,31,1*78": {
@@ -685,30 +770,39 @@ var tests = {
       {
         "azimuth": 64,
         "elevation": 31,
+        "key": "GB13",
         "prn": 13,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "BeiDou"
       }, {
         "azimuth": 255,
         "elevation": 12,
+        "key": "GB21",
         "prn": 21,
         "snr": null,
-        "status": "in view"
+        "status": "in view",
+        "system": "BeiDou"
       }, {
         "azimuth": 293,
         "elevation": 18,
+        "key": "GB26",
         "prn": 26,
         "snr": 27,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "BeiDou"
       }, {
         "azimuth": 155,
         "elevation": 46,
+        "key": "GB29",
         "prn": 29,
         "snr": 31,
-        "status": "tracking"
+        "status": "tracking",
+        "system": "BeiDou"
       }
     ],
     "satsInView": 4,
+    "system": "BeiDou",
     "signalId": 1,
     "type": "GSV",
     "valid": true
@@ -731,6 +825,7 @@ var tests = {
     "fix": "3D",
     "hdop": 0.84,
     "mode": "automatic",
+    "system": "GPS",
     "systemId": 1,
     "pdop": 1.55,
     "raw": "$GNGSA,A,3,25,29,31,26,16,21,,,,,,,1.55,0.84,1.30,1*00",
@@ -861,6 +956,7 @@ var tests = {
       15
     ],
     "systemId": 1,
+    "system": "GPS",
     "type": "GSA",
     "valid": true,
     "vdop": 3.87
@@ -943,29 +1039,38 @@ var tests = {
     "satellites": [{
       "azimuth": null,
       "elevation": null,
+      "key": "BD1",
       "prn": 1,
       "snr": 37,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }, {
       "azimuth": null,
       "elevation": null,
+      "key": "BD2",
       "prn": 2,
       "snr": 38,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }, {
       "azimuth": null,
       "elevation": null,
+      "key": "BD3",
       "prn": 3,
       "snr": 39,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }, {
       "azimuth": null,
       "elevation": null,
+      "key": "BD5",
       "prn": 5,
       "snr": 37,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }],
     "satsInView": 16,
+    "system": "BD",
     "signalId": null,
     "type": "GSV",
     "valid": true
@@ -977,24 +1082,31 @@ var tests = {
     "satellites": [{
       "azimuth": 329,
       "elevation": 46,
+      "key": "BD10",
       "prn": 10,
       "snr": 31,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }, {
       "azimuth": 161,
       "elevation": 43,
+      "key": "BD8",
       "prn": 8,
       "snr": null,
-      "status": "in view"
+      "status": "in view",
+      "system": "BD"
     }, {
       "azimuth": 217,
       "elevation": 40,
+      "key": "BD9",
       "prn": 9,
       "snr": null,
-      "status": "in view"
+      "status": "in view",
+      "system": "BD"
     }],
     "satsInView": 3,
     "signalId": null,
+    "system": "BD",
     "type": "GSV",
     "valid": true
   },
@@ -1005,29 +1117,38 @@ var tests = {
     "satellites": [{
       "azimuth": 305,
       "elevation": 18,
+      "key": "BD211",
       "prn": 211,
       "snr": 36,
-      "status": "tracking"
+      "status": "tracking",
+      "system": "BD"
     }, {
       "azimuth": 113,
       "elevation": 7,
+      "key": "BD205",
       "prn": 205,
       "snr": null,
-      "status": "in view"
+      "status": "in view",
+      "system": "BD"
     }, {
       "azimuth": 29,
       "elevation": 4,
+      "key": "BD206",
       "prn": 206,
       "snr": null,
-      "status": "in view"
+      "status": "in view",
+      "system": "BD"
     }, {
       "azimuth": 46,
       "elevation": 30,
+      "key": "BD209",
       "prn": 209,
       "snr": null,
-      "status": "in view"
+      "status": "in view",
+      "system": "BD"
     }],
     "satsInView": 6,
+    "system": "BD",
     "signalId": null,
     "type": "GSV",
     "valid": true
@@ -1052,7 +1173,7 @@ describe('NMEA syntax', function () {
     (function (i) {
 
       it('Should pass ' + i, function () {
-        expect(collect[i]).to.deep.equal(tests[i]);
+        assert.deepEqual(collect[i], tests[i]);
       });
     })(i);
   }

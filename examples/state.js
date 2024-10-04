@@ -18,13 +18,13 @@ const port = new SerialPort(file, {
 
 port.pipe(parser);
 
-var GPS = require('../gps.js');
+var GPS = require('gps');
 var gps = new GPS;
 
-gps.on('data', function(data) {
+gps.on('data', function (data) {
   console.log(gps.state);
 });
 
-parser.on('data', function(data) {
+parser.on('data', function (data) {
   gps.update(data);
 });

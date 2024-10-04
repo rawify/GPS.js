@@ -1,9 +1,9 @@
 {
     "name": "gps",
-    "title": "gps.js",
-    "version": "0.6.1",
-    "homepage": "https://www.xarg.org/2016/07/using-gps-with-node-js-and-javascript/",
-    "bugs": "https://github.com/infusion/GPS.js/issues",
+    "title": "GPS.js",
+    "version": "0.7.0",
+    "homepage": "https://raw.org/article/using-gps-with-node-js-and-javascript/",
+    "bugs": "https://github.com/rawify/GPS.js/issues",
     "description": "A GPS NMEA parser library",
     "keywords": [
         "nmea",
@@ -23,35 +23,54 @@
         "gva",
         "hdt"
     ],
-    "author": "Robert Eisele <robert@xarg.org> (http://www.xarg.org/)",
-    "main": "gps.js",
-    "types": "gps.d.ts",
     "private": false,
+    "main": "./dist/gps.js",
+    "module": "./dist/gps.mjs",
+    "types": "./gps.d.ts",
+    "browser": "./dist/gps.min.js",
+    "unpkg": "./dist/gps.min.js",
     "readmeFilename": "README.md",
+    "exports": {
+        ".": {
+            "types": "./gps.d.ts",
+            "require": "./dist/gps.js",
+            "import": "./dist/gps.mjs"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:rawify/GPS.js.git"
+    },
+    "funding": {
+        "type": "github",
+        "url": "https://github.com/sponsors/rawify"
+    },
+    "author": {
+        "name": "Robert Eisele",
+        "email": "robert@raw.org",
+        "url": "https://raw.org/"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": "*"
+    },
     "directories": {
         "example": "examples",
         "test": "tests"
     },
-    "license": "MIT OR GPL-2.0",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/infusion/GPS.js.git"
-    },
-    "engines": {
-        "node": "*"
-    },
     "scripts": {
+        "build": "crude-build GPS",
         "test": "mocha tests/*.js"
     },
     "devDependencies": {
         "angles": "^0.2.4",
         "byline": "^5.0.0",
-        "chai": "^4.3.4",
-        "express": "^4.17.2",
-        "mocha": "^9.1.4",
-        "serialport": "^9.2.8",
-        "socket.io": "^4.4.1",
+        "crude-build": "^0.0.1",
+        "express": "^4.21.0",
         "kalman": "0.0.2",
+        "mocha": "^10.7.3",
+        "serialport": "^12.0.0",
+        "socket.io": "^4.8.0",
         "sylvester": "0.0.21"
     }
 }

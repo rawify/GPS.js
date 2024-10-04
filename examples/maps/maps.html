@@ -1,129 +1,135 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Simple Map</title>
-        <meta name="viewport" content="initial-scale=1.0">
-        <meta charset="utf-8">
-        <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            #map {
-                height: 100%;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="map"></div>
 
-        <script src="/socket.io/socket.io.js"></script>
+<head>
+  <title>Simple Map</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta charset="utf-8">
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-        <script>
+    #map {
+      height: 100%;
+    }
+  </style>
+</head>
 
-            var socket = io();
+<body>
+  <div id="map"></div>
 
-            // https://www.xarg.org/2018/04/how-to-plot-a-covariance-error-ellipse/
-            function getErrorEllipse(mu, Sigma, p) {
+  <script src="/socket.io/socket.io.js"></script>
 
-              p = p || 0.95;
+  <script>
 
-              var s = -2 * Math.log(1 - p);
+    var socket = io();
 
-              var a = Sigma[0][0] + 0.0000000000001;
-              var b = Sigma[0][1] + 0.0000000000001;
-              var c = Sigma[1][0] + 0.0000000000001;
-              var d = Sigma[1][1] + 0.0000000000001;
+    // https://raw.org/math/how-to-plot-a-covariance-error-ellipse/
+    function getErrorEllipse(mu, Sigma, p) {
 
-              var tmp = Math.sqrt((a - d) * (a - d) + 4 * b * c);
-              var V = [
-                [-(tmp - a + d) / (2 * c), (tmp + a - d) / (2 * c)],
-                [1, 1]
-              ];
-              var sqrtD = [
-                Math.sqrt(s * (a + d - tmp) / 2),
-                Math.sqrt(s * (a + d + tmp) / 2)
-              ];
+      p = p || 0.95;
 
-              var norm1 = Math.hypot(V[0][0], 1);
-              var norm2 = Math.hypot(V[0][1], 1);
-              V[0][0] /= norm1;
-              V[1][0] /= norm1;
-              V[0][1] /= norm2;
-              V[1][1] /= norm2;
+      var s = -2 * Math.log(1 - p);
 
-              var ndx = sqrtD[0] < sqrtD[1] ? 1 : 0;
+      var a = Sigma[0][0] + 0.0000000000001;
+      var b = Sigma[0][1] + 0.0000000000001;
+      var c = Sigma[1][0] + 0.0000000000001;
+      var d = Sigma[1][1] + 0.0000000000001;
 
-              var x1 = mu[0] + V[0][ndx] * sqrtD[ndx];
-              var y1 = mu[1] + V[1][ndx] * sqrtD[ndx];
+      var tmp = Math.sqrt((a - d) * (a - d) + 4 * b * c);
+      var V = [
+        [-(tmp - a + d) / (2 * c), (tmp + a - d) / (2 * c)],
+        [1, 1]
+      ];
+      var sqrtD = [
+        Math.sqrt(s * (a + d - tmp) / 2),
+        Math.sqrt(s * (a + d + tmp) / 2)
+      ];
 
-              var x2 = mu[0] + V[0][1 - ndx] * sqrtD[1 - ndx];
-              var y2 = mu[1] + V[1][1 - ndx] * sqrtD[1 - ndx];
+      var norm1 = Math.hypot(V[0][0], 1);
+      var norm2 = Math.hypot(V[0][1], 1);
+      V[0][0] /= norm1;
+      V[1][0] /= norm1;
+      V[0][1] /= norm2;
+      V[1][1] /= norm2;
 
+      var ndx = sqrtD[0] < sqrtD[1] ? 1 : 0;
 
-              var x = mu[0];
-              var y = mu[1];
-              var radiusX = Math.hypot(x1 - mu[0], y1 - mu[1]);
-              var radiusY = Math.hypot(x2 - mu[0], y2 - mu[1]);
-              var rotation = Math.atan2(y1 - mu[1], x1 - mu[0]);
+      var x1 = mu[0] + V[0][ndx] * sqrtD[ndx];
+      var y1 = mu[1] + V[1][ndx] * sqrtD[ndx];
 
-              var pts = [];
-              for (var i = 0; i <= 50; i++) {
-                var a = i / 50 * Math.PI * 2+Math.random();
-                pts.push({
-                  lat: x + radiusX * Math.cos(a+rotation),
-                  lng: y + radiusY * Math.sin(a)
-                });
-              }
-              return pts;
-            }
+      var x2 = mu[0] + V[0][1 - ndx] * sqrtD[1 - ndx];
+      var y2 = mu[1] + V[1][1 - ndx] * sqrtD[1 - ndx];
 
 
-            function initMap() {
+      var x = mu[0];
+      var y = mu[1];
+      var radiusX = Math.hypot(x1 - mu[0], y1 - mu[1]);
+      var radiusY = Math.hypot(x2 - mu[0], y2 - mu[1]);
+      var rotation = Math.atan2(y1 - mu[1], x1 - mu[0]);
 
-              var gstate = {
-                lat: 0,
-                lng: 0
-              };
+      var pts = [];
+      for (var i = 0; i <= 50; i++) {
+        var a = i / 50 * Math.PI * 2 + Math.random();
+        pts.push({
+          lat: x + radiusX * Math.cos(a + rotation),
+          lng: y + radiusY * Math.sin(a)
+        });
+      }
+      return pts;
+    }
 
-              var map = new google.maps.Map(document.getElementById('map'), {
-                center: gstate,
-                zoom: 15
-              });
 
-              var marker = new google.maps.Marker({
-                position: gstate,
-                map: map,
-                title: 'Your Position'
-              });
+    function initMap() {
 
-              var ellipse = new google.maps.Polygon({
-                paths: [],
-                strokeColor: 'black',
-                strokeOpacity: 0.9,
-                strokeWeight: 1,
-                fillColor: 'red',
-                fillOpacity: 0.3,
-                map: map
-              });
+      var gstate = {
+        lat: 0,
+        lng: 0
+      };
 
-              socket.on('position', function(state) {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: gstate,
+        zoom: 15
+      });
 
-                gstate.lat = state.position.pos[0];
-                gstate.lng = state.position.pos[1];
+      var marker = new google.maps.Marker({
+        position: gstate,
+        map: map,
+        title: 'Your Position'
+      });
 
-                var path = getErrorEllipse(state.position.pos, state.position.cov);
+      var ellipse = new google.maps.Polygon({
+        paths: [],
+        strokeColor: 'black',
+        strokeOpacity: 0.9,
+        strokeWeight: 1,
+        fillColor: 'red',
+        fillOpacity: 0.3,
+        map: map
+      });
 
-                ellipse.setPaths(path);
-                map.setCenter(gstate);
-                marker.setPosition(gstate);
-              });
-            }
+      socket.on('position', function (state) {
 
-        </script>
+        gstate.lat = state.position.pos[0];
+        gstate.lng = state.position.pos[1];
 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADf2Ss5DEZdZMFEJ0f8fmi1KcYRZMYLZI&callback=initMap" async defer></script>
+        var path = getErrorEllipse(state.position.pos, state.position.cov);
 
-    </body>
+        ellipse.setPaths(path);
+        map.setCenter(gstate);
+        marker.setPosition(gstate);
+      });
+    }
+
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADf2Ss5DEZdZMFEJ0f8fmi1KcYRZMYLZI&callback=initMap"
+    async defer></script>
+
+</body>
+
 </html>
