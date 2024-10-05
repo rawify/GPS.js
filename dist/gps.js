@@ -944,8 +944,7 @@ GPS.prototype['emit'] = function (ev, data) {
   }
 };
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = GPS;
-module.exports = GPS; 
+Object.defineProperty(GPS, "__esModule", { 'value': true });
+GPS['default'] = GPS;
+GPS['GPS'] = GPS;
+module['exports'] = GPS;
