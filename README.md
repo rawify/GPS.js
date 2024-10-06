@@ -1,5 +1,5 @@
 
-![GPS.js](https://github.com/infusion/GPS.js/blob/master/res/logo.png?raw=true "Javascript GPS Parser")
+![GPS.js](https://github.com/infusion/GPS.js/blob/main/res/logo.png?raw=true "Javascript GPS Parser")
 
 [![NPM Package](https://img.shields.io/npm/v/gps.svg?style=flat)](https://npmjs.org/package/gps "View this project on npm")
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
@@ -103,7 +103,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000. The result should look like the following, which in principle is just a visualization of the state object `gps.state`
 
-![GPS TU Dresden](https://github.com/infusion/GPS.js/blob/master/res/dashboard.png?raw=true)
+![GPS TU Dresden](https://github.com/infusion/GPS.js/blob/main/res/dashboard.png?raw=true)
 
 Google Maps
 ---
@@ -115,7 +115,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000 The result should look like
 
-![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/master/res/maps.png?raw=true)
+![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/main/res/maps.png?raw=true)
 
 Confluence
 ---
