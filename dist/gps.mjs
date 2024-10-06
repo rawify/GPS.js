@@ -944,5 +944,5 @@ GPS.prototype['emit'] = function (ev, data) {
   }
 };
 export {
-  GPS as default
+  GPS as default, GPS
 };
