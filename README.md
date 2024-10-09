@@ -1,4 +1,3 @@
-
 ![GPS.js](https://github.com/infusion/GPS.js/blob/main/res/logo.png?raw=true "Javascript GPS Parser")
 
 [![NPM Package](https://img.shields.io/npm/v/gps.svg?style=flat)](https://npmjs.org/package/gps "View this project on npm")
@@ -362,7 +361,7 @@ Testing the source against the shipped test suite is as easy as
 npm run test
 ```
 
-## Copyright and licensing
+## Copyright and Licensing
 
-Copyright (c) 2025, [Robert Eisele](https://raw.org/)
+Copyright (c) 2024, [Robert Eisele](https://raw.org/)
 Licensed under the MIT license.
