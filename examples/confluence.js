@@ -5,14 +5,15 @@
 //var file = '/dev/tty.usbserial';
 var file = '/dev/tty.usbmodem1411';
 
-const SerialPort = require('serialport');
-const parsers = SerialPort.parsers;
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
 
-const parser = new parsers.Readline({
+const parser = new ReadlineParser({
   delimiter: '\r\n'
 });
 
-const port = new SerialPort(file, {
+const port = new SerialPort({
+  path: file,
   baudRate: 4800
 });
 

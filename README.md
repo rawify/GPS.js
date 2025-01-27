@@ -351,5 +351,5 @@ npm run test
 
 ## Copyright and Licensing
 
-Copyright (c) 2024, [Robert Eisele](https://raw.org/)
+Copyright (c) 2025, [Robert Eisele](https://raw.org/)
 Licensed under the MIT license.

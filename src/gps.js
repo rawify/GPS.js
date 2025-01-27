@@ -1,8 +1,8 @@
 /**
- * @license GPS.js v0.7.3 10/9/2024
+ * @license GPS.js v0.7.4 1/27/2025
  * https://raw.org/article/using-gps-with-node-js-and-javascript/
  *
- * Copyright (c) 2024, Robert Eisele (https://raw.org/)
+ * Copyright (c) 2025, Robert Eisele (https://raw.org/)
  * Licensed under the MIT license.
  **/
 

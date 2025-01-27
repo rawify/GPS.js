@@ -1,7 +1,7 @@
 {
     "name": "gps",
     "title": "GPS.js",
-    "version": "0.7.3",
+    "version": "0.7.4",
     "homepage": "https://raw.org/article/using-gps-with-node-js-and-javascript/",
     "bugs": "https://github.com/rawify/GPS.js/issues",
     "description": "A GPS NMEA parser library",
@@ -63,14 +63,14 @@
         "test": "mocha tests/*.js"
     },
     "devDependencies": {
-        "angles": "^0.2.4",
+        "angles": "^0.3.0",
         "byline": "^5.0.0",
-        "crude-build": "^0.1.1",
-        "express": "^4.21.1",
+        "crude-build": "^0.1.2",
+        "express": "^4.21.2",
         "kalman": "0.0.2",
-        "mocha": "^10.7.3",
-        "serialport": "^12.0.0",
-        "socket.io": "^4.8.0",
+        "mocha": "^11.1.0",
+        "serialport": "^13.0.0",
+        "socket.io": "^4.8.1",
         "sylvester": "0.0.21"
     }
 }
