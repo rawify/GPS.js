@@ -118,14 +118,14 @@ declare namespace GPS {
     }
 
     export enum GGAQuality {
-        'fix'       = 1,
-        'dgps-fix'  = 2,
-        'pps-fix'   = 3,
-        'rtk'       = 4,
-        'rtk-float' = 5,
-        'estimated' = 6,
-        'manual'    = 7,
-        'simulated' = 8
+        fix = 'fix',
+        'dgps-fix' = 'dgps-fix',
+        'pps-fix' = 'pps-fix',
+        rtk = 'rtk',
+        'rtk-float' = 'rtk-float',
+        estimated = 'estimated',
+        manual = 'manual',
+        simulated = 'simulated'
     }
 
     export interface GSA {
