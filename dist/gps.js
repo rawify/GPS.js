@@ -1,334 +1,165 @@
 'use strict';
 
-var D2R = Math.PI / 180;
+const D2R = Math.PI / 180;
 
-var collectSats = {};
-var collectActiveSats = {};
-var lastSeenSat = {};
+function parseTime(time, date = null) {
+  // Accepts hhmmss(.sss)? and optional ddmmyy or ddmmyyyy (ZDA/GPRMC variants).
+  if (!time) return null;
 
-function updateState(state, data) {
-
-  // TODO: can we really use RMC time here or is it the time of fix?
-  if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL' || data['type'] === 'GNS') {
-    state['time'] = data['time'];
-    state['lat'] = data['lat'];
-    state['lon'] = data['lon'];
-  }
-
-  if (data['type'] === 'HDT') {
-    state['heading'] = data['heading'];
-    state['trueNorth'] = data['trueNorth'];
-  }
-
-  if (data['type'] === 'ZDA') {
-    state['time'] = data['time'];
-  }
-
-  if (data['type'] === 'GGA') {
-    state['alt'] = data['alt'];
-  }
-
-  if (data['type'] === 'RMC'/* || data['type'] === 'VTG'*/) {
-    // TODO: is rmc speed/track really interchangeable with vtg speed/track?
-    state['speed'] = data['speed'];
-    state['track'] = data['track'];
-  }
-
-  if (data['type'] === 'GSA') {
-
-    var systemId = data['systemId'];
-    collectActiveSats[systemId] = data['satellites'];
-    var satsActive = [];
-    for (var s in collectActiveSats) {
-      satsActive.push(...collectActiveSats[s]);
-    }
-
-    state['satsActive'] = satsActive;
-    state['fix'] = data['fix'];
-    state['hdop'] = data['hdop'];
-    state['pdop'] = data['pdop'];
-    state['vdop'] = data['vdop'];
-  }
-
-  if (data['type'] === 'GSV') {
-
-    var now = new Date().getTime();
-
-    var sats = data['satellites'];
-    for (var i = 0; i < sats.length; i++) {
-      var key = sats[i].key;
-      lastSeenSat[key] = now;
-      collectSats[key] = sats[i];
-    }
-
-    var ret = [];
-    for (var key in collectSats) {
-      if (now - lastSeenSat[key] < 3000) // Sats are visible for 3 seconds
-        ret.push(collectSats[key])
-    }
-    state['satsVisible'] = ret;
-  }
-}
-
-/**
- *
- * @param {String} time
- * @param {String=} date
- * @returns {Date}
- */
-function parseTime(time, date) {
-
-  if (time === '') {
-    return null;
-  }
-
-  var ret = new Date;
+  const ret = new Date();
 
   if (date) {
-
-    var year = date.slice(4);
-    var month = date.slice(2, 4) - 1;
-    var day = date.slice(0, 2);
+    const year = date.slice(4);
+    const month = date.slice(2, 4) - 1;
+    const day = date.slice(0, 2);
 
     if (year.length === 4) {
-      ret.setUTCFullYear(Number(year), Number(month), Number(day));
+      ret.setUTCFullYear(+year, +month, +day);
     } else {
       // If we need to parse older GPRMC data, we should hack something like
       // year < 73 ? 2000+year : 1900+year
       // Since GPS appeared in 1973
-      ret.setUTCFullYear(Number('20' + year), Number(month), Number(day));
+      ret.setUTCFullYear(Number('20' + year), +month, +day);
     }
   }
 
-  ret.setUTCHours(Number(time.slice(0, 2)));
-  ret.setUTCMinutes(Number(time.slice(2, 4)));
-  ret.setUTCSeconds(Number(time.slice(4, 6)));
+  ret.setUTCHours(+time.slice(0, 2));
+  ret.setUTCMinutes(+time.slice(2, 4));
+  ret.setUTCSeconds(+time.slice(4, 6));
 
-  // Extract the milliseconds, since they can be not present, be 3 decimal place, or 2 decimal places, or other?
-  var msStr = time.slice(7);
-  var msExp = msStr.length;
-  var ms = 0;
-  if (msExp !== 0) {
-    ms = parseFloat(msStr) * Math.pow(10, 3 - msExp);
+  // Milliseconds: allow no decimals, .ss, .sss, .ssss... and normalize to ms
+  const dot = time.indexOf('.');
+  let ms = 0;
+  if (dot !== -1 && dot + 1 < time.length) {
+    const frac = time.slice(dot + 1);
+    // Take up to 3 digits; if fewer, scale; if more, truncate
+    if (frac.length >= 3) {
+      ms = +frac.slice(0, 3);
+    } else if (frac.length === 2) {
+      ms = +frac * 10; // .xx => xx0 ms
+    } else if (frac.length === 1) {
+      ms = +frac * 100; // .x => x00 ms
+    }
   }
-  ret.setUTCMilliseconds(Number(ms));
-
+  ret.setUTCMilliseconds(ms);
   return ret;
 }
 
 function parseCoord(coord, dir) {
-
+  // NMEA lat: DDMM.mmmm; lon: DDDMM.mmmm; dir in {N,S,E,W}
   // Latitude can go from 0 to 90; longitude can go from -180 to 180.
+  if (coord === '') return null;
 
-  if (coord === '')
-    return null;
-
-  var n, sgn = 1;
-
+  let n, sgn = 1;
   switch (dir) {
-
-    case 'S':
-      sgn = -1;
-    case 'N':
-      n = 2;
-      break;
-
-    case 'W':
-      sgn = -1;
-    case 'E':
-      n = 3;
-      break;
+    case 'S': sgn = -1;
+    case 'N': n = 2; break;
+    case 'W': sgn = -1;
+    case 'E': n = 3; break;
+    default: return null; // Unknown direction
   }
-  /*
-   * Mathematically, but more expensive and not numerical stable:
-   *
-   * raw = 4807.038
-   * deg = Math.floor(raw / 100)
-   *
-   * dec = (raw - (100 * deg)) / 60
-   * res = deg + dec // 48.1173
-   */
   return sgn * (parseFloat(coord.slice(0, n)) + parseFloat(coord.slice(n)) / 60);
 }
 
 function parseNumber(num) {
-
-  if (num === '') {
-    return null;
-  }
-  return parseFloat(num);
+  return num === '' ? null : parseFloat(num);
 }
 
 function parseKnots(knots) {
-
-  if (knots === '') {
-    return null;
-  }
-  return parseFloat(knots) * 1.852;
+  return knots === '' ? null : parseFloat(knots) * 1.852; // km/h
 }
 
 function parseSystemId(systemId) {
   switch (systemId) {
-    case 0:
-      return "QZSS";
-    case 1:
-      return "GPS";
-    case 2:
-      return "GLONASS";
-    case 3:
-      return "Galileo";
-    case 4:
-      return "BeiDou"
-    default:
-      return "unknown"
+    case 0: return 'QZSS';
+    case 1: return 'GPS';
+    case 2: return 'GLONASS';
+    case 3: return 'Galileo';
+    case 4: return 'BeiDou';
+    default: return 'unknown';
   }
 }
 
 function parseSystem(str) {
-  var satellite = str.slice(1, 3);
+  const satellite = str.slice(1, 3);
   switch (satellite) {
-    case "GP":
-      return "GPS";
-    case "GQ":
-      return "QZSS";
-    case "GL":
-      return "GLONASS";
-    case "GA":
-      return "Galileo";
-    case "GB":
-      return "BeiDou"
-    default:
-      return satellite;
+    case 'GP': return 'GPS';
+    case 'GQ': return 'QZSS';
+    case 'GL': return 'GLONASS';
+    case 'GA': return 'Galileo';
+    case 'GB': return 'BeiDou';
+    default: return satellite;
   }
 }
 
-
 function parseGSAMode(mode) {
-
   switch (mode) {
-    case 'M':
-      return 'manual';
-    case 'A':
-      return 'automatic';
-    case '':
-      return null;
+    case 'M': return 'manual';
+    case 'A': return 'automatic';
+    case '': return null;
   }
   throw new Error('INVALID GSA MODE: ' + mode);
 }
 
 function parseGGAFix(fix) {
-
   if (fix === '') return null;
-
   switch (parseInt(fix, 10)) {
-    case 0:
-      return null;
-    case 1:
-      return 'fix'; // valid SPS fix
-    case 2:
-      return 'dgps-fix'; // valid DGPS fix
-    case 3:
-      return 'pps-fix'; // valid PPS fix
-    case 4:
-      return 'rtk'; // valid (real time kinematic) RTK fix
-    case 5:
-      return 'rtk-float'; // valid (real time kinematic) RTK float
-    case 6:
-      return 'estimated'; // dead reckoning
-    case 7:
-      return 'manual';
-    case 8:
-      return 'simulated';
+    case 0: return null;
+    case 1: return 'fix';         // valid SPS fix
+    case 2: return 'dgps-fix';    // valid DGPS fix
+    case 3: return 'pps-fix';     // valid PPS fix
+    case 4: return 'rtk';         // RTK fixed
+    case 5: return 'rtk-float';   // RTK float
+    case 6: return 'estimated';   // dead reckoning
+    case 7: return 'manual';
+    case 8: return 'simulated';
   }
   throw new Error('INVALID GGA FIX: ' + fix);
 }
 
 function parseGSAFix(fix) {
-
   if (fix === '') return null;
-
   switch (parseInt(fix, 10)) {
-    case 1:
-      return null;
-    case 2:
-      return '2D';
-    case 3:
-      return '3D';
+    case 1: return null;
+    case 2: return '2D';
+    case 3: return '3D';
   }
   throw new Error('INVALID GSA FIX: ' + fix);
 }
 
 function parseRMC_GLLStatus(status) {
-
   switch (status) {
-    case '':
-      return null;
-    case 'A':
-      return 'active';
-    case 'V':
-      return 'void';
+    case '': return null;
+    case 'A': return 'active';
+    case 'V': return 'void';
   }
   throw new Error('INVALID RMC/GLL STATUS: ' + status);
 }
 
 function parseFAA(faa) {
-
-  // Only A and D will correspond to an Active and reliable Sentence
-
+  // Only A and D will correspond to an Active and reliable sentence
   switch (faa) {
-    case '':
-      return null;
-    case 'A':
-      return 'autonomous';
-    case 'D':
-      return 'differential';
-    case 'E':
-      return 'estimated'; // dead reckoning
-    case 'M':
-      return 'manual input';
-    case 'S':
-      return 'simulated';
-    case 'N':
-      return 'not valid';
-    case 'P':
-      return 'precise';
-    case 'R':
-      return 'rtk'; // valid (real time kinematic) RTK fix
-    case 'F':
-      return 'rtk-float'; // valid (real time kinematic) RTK float
+    case '': return null;
+    case 'A': return 'autonomous';
+    case 'D': return 'differential';
+    case 'E': return 'estimated';    // dead reckoning
+    case 'M': return 'manual input';
+    case 'S': return 'simulated';
+    case 'N': return 'not valid';
+    case 'P': return 'precise';
+    case 'R': return 'rtk';
+    case 'F': return 'rtk-float';
   }
   throw new Error('INVALID FAA MODE: ' + faa);
 }
 
 function parseRMCVariation(vari, dir) {
-
-  if (vari === '' || dir === '')
-    return null;
-
-  var q = (dir === 'W') ? -1.0 : 1.0;
-
-  return parseFloat(vari) * q;
-}
-
-function isValid(str, crc) {
-
-  var checksum = 0;
-  for (var i = 1; i < str.length; i++) {
-    var c = str.charCodeAt(i);
-
-    if (c === 42) // Asterisk: *
-      break;
-
-    checksum ^= c;
-  }
-  return checksum === parseInt(crc, 16);
+  if (vari === '' || dir === '') return null;
+  return parseFloat(vari) * (dir === 'W' ? -1 : 1);
 }
 
 function parseDist(num, unit) {
-
-  if (unit === 'M' || unit === '') {
-    return parseNumber(num);
-  }
+  if (unit === 'M' || unit === '') return parseNumber(num);
   throw new Error('Unknown unit: ' + unit);
 }
 
@@ -337,22 +168,25 @@ function parseDist(num, unit) {
  * @constructor
  */
 function GPS() {
+  if (!(this instanceof GPS)) return new GPS();
 
-  if (!(this instanceof GPS)) {
-    return new GPS;
-  }
-
-  this['events'] = {};
+  // Public fields
+  this['events'] = Object.create(null);
   this['state'] = { 'errors': 0, 'processed': 0 };
+
+  // Internal, per-instance collectors (avoid cross-stream state bleed)
+  this['_collectSats'] = Object.create(null);
+  this['_collectActiveSats'] = Object.create(null);
+  this['_lastSeenSat'] = Object.create(null);
+
+  // Streaming buffer
+  this['partial'] = '';
 }
 
-GPS.prototype['events'] = null;
-GPS.prototype['state'] = null;
-
+/* Static fields (explicit for speed and minification) */
 GPS['mod'] = {
   // Global Positioning System Fix Data
   'GGA': function (str, gga) {
-
     if (gga.length !== 16 && gga.length !== 14) {
       throw new Error('Invalid GGA length: ' + str);
     }
@@ -391,11 +225,12 @@ GPS['mod'] = {
       'quality': parseGGAFix(gga[6]),
       'satellites': parseNumber(gga[7]),
       'hdop': parseNumber(gga[8]), // dilution
-      'geoidal': parseDist(gga[11], gga[12]), // aboveGeoid
-      'age': gga[13] === undefined ? null : parseNumber(gga[13]), // dgps time since update
-      'stationID': gga[14] === undefined ? null : parseNumber(gga[14]) // dgpsReference??
+      'geoidal': parseDist(gga[11], gga[12]), // above geoid
+      'age': gga[13] === undefined ? null : parseNumber(gga[13]),   // DGPS age
+      'stationID': gga[14] === undefined ? null : parseNumber(gga[14])    // DGPS ref
     };
   },
+
   // GPS DOP and active satellites
   'GSA': function (str, gsa) {
 
@@ -423,14 +258,11 @@ GPS['mod'] = {
      18   = Checksum
      */
 
-    var sats = [];
-    for (var i = 3; i < 15; i++) {
-
-      if (gsa[i] !== '') {
-        sats.push(parseInt(gsa[i], 10));
-      }
+    const sats = [];
+    for (let i = 3; i < 15; i++) {
+      if (gsa[i] !== '') sats.push(parseInt(gsa[i], 10));
     }
-
+    const sid = gsa.length > 19 ? parseNumber(gsa[18]) : null;
     return {
       'mode': parseGSAMode(gsa[1]),
       'fix': parseGSAFix(gsa[2]),
@@ -438,13 +270,13 @@ GPS['mod'] = {
       'pdop': parseNumber(gsa[15]),
       'hdop': parseNumber(gsa[16]),
       'vdop': parseNumber(gsa[17]),
-      'systemId': gsa.length > 19 ? parseNumber(gsa[18]) : null,
-      'system': gsa.length > 19 ? parseSystemId(parseNumber(gsa[18])) : 'unknown'
+      'systemId': sid,
+      'system': sid !== null ? parseSystemId(sid) : 'unknown'
     };
   },
-  // Recommended Minimum data for gps
-  'RMC': function (str, rmc) {
 
+  // Recommended Minimum data for GPS
+  'RMC': function (str, rmc) {
     if (rmc.length !== 13 && rmc.length !== 14 && rmc.length !== 15) {
       throw new Error('Invalid RMC length: ' + str);
     }
@@ -475,15 +307,15 @@ GPS['mod'] = {
       'lat': parseCoord(rmc[3], rmc[4]),
       'lon': parseCoord(rmc[5], rmc[6]),
       'speed': parseKnots(rmc[7]),
-      'track': parseNumber(rmc[8]), // heading
+      'track': parseNumber(rmc[8]), // heading (true)
       'variation': parseRMCVariation(rmc[10], rmc[11]),
       'faa': rmc.length > 13 ? parseFAA(rmc[12]) : null,
       'navStatus': rmc.length > 14 ? rmc[13] : null
     };
   },
+
   // Track info
   'VTG': function (str, vtg) {
-
     if (vtg.length !== 10 && vtg.length !== 11) {
       throw new Error('Invalid VTG length: ' + str);
     }
@@ -507,11 +339,11 @@ GPS['mod'] = {
      9/10 = Checksum
      */
 
+    // Empty / all-null VTG (some receivers output this)
     if (vtg[2] === '' && vtg[8] === '' && vtg[6] === '') {
-
       return {
         'track': null,
-        'trackMagetic': null,
+        'trackMagnetic': null,
         'speed': null,
         'faa': null
       };
@@ -520,21 +352,22 @@ GPS['mod'] = {
     if (vtg[2] !== 'T') {
       throw new Error('Invalid VTG track mode: ' + str);
     }
-
     if (vtg[8] !== 'K' || vtg[6] !== 'N') {
       throw new Error('Invalid VTG speed tag: ' + str);
     }
 
     return {
-      'track': parseNumber(vtg[1]), // heading
-      'trackMagnetic': vtg[3] === '' ? null : parseNumber(vtg[3]), // heading uncorrected to magnetic north
+      'track': parseNumber(vtg[1]),                           // true heading
+      'trackMagnetic': vtg[3] === '' ? null : parseNumber(vtg[3]),    // magnetic
       'speed': parseKnots(vtg[5]),
       'faa': vtg.length === 11 ? parseFAA(vtg[9]) : null
     };
   },
-  // satellites in view
-  'GSV': function (str, gsv) {
 
+  // Satellites in view
+  'GSV': function (str, gsv) {
+    // NMEA allows variable chunks of 4 fields per satellite + header/footer.
+    // Keep legacy guard but allow most common valid shapes.
     if (gsv.length % 4 === 0) {
       // = 1 -> normal package
       // = 2 -> NMEA 4.10 extension
@@ -558,13 +391,12 @@ GPS['mod'] = {
      N+2   = Checksum
      */
 
-    var sats = [];
-    var satellite = str.slice(1, 3);
-
-    for (var i = 4; i < gsv.length - 3; i += 4) {
-
-      var prn = parseNumber(gsv[i]);
-      var snr = parseNumber(gsv[i + 3]);
+    const sats = [];
+    const satellite = str.slice(1, 3);
+    // fields: [totMsgs, msgNum, satsInView, (prn,elev,az,snr)*, (signalId)?, checksum]
+    for (let i = 4; i < gsv.length - 3; i += 4) {
+      const prn = parseNumber(gsv[i]);
+      const snr = parseNumber(gsv[i + 3]);
       /*
        Plot satellites in Radar chart with north on top
        by linear map elevation from 0° to 90° into r to 0
@@ -588,13 +420,13 @@ GPS['mod'] = {
       'msgsTotal': parseNumber(gsv[1]),
       'satsInView': parseNumber(gsv[3]),
       'satellites': sats,
-      'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null,// NMEA 4.10 addition
+      'signalId': gsv.length % 4 === 2 ? parseNumber(gsv[gsv.length - 2]) : null, // NMEA 4.10
       'system': parseSystem(str)
     };
   },
+
   // Geographic Position - Latitude/Longitude
   'GLL': function (str, gll) {
-
     if (gll.length !== 9 && gll.length !== 8) {
       throw new Error('Invalid GLL length: ' + str);
     }
@@ -624,6 +456,7 @@ GPS['mod'] = {
       'faa': gll.length === 9 ? parseFAA(gll[7]) : null
     };
   },
+
   // UTC Date / Time and Local Time Zone Offset
   'ZDA': function (str, zda) {
 
@@ -638,13 +471,14 @@ GPS['mod'] = {
 
     // TODO: incorporate local zone information
 
+    // (No strict length guard; some receivers omit trailing fields)
     return {
       'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
-      //'delta': time === null ? null : (Date.now() - time) / 1000
+      // 'delta': can be derived by consumer: (Date.now() - time)/1000
     };
   },
-  'GST': function (str, gst) {
 
+  'GST': function (str, gst) {
     if (gst.length !== 10) {
       throw new Error('Invalid GST length: ' + str);
     }
@@ -673,9 +507,8 @@ GPS['mod'] = {
     };
   },
 
-  // add HDT
+  // Heading relative to True North
   'HDT': function (str, hdt) {
-
     if (hdt.length !== 4) {
       throw new Error('Invalid HDT length: ' + str);
     }
@@ -699,26 +532,22 @@ GPS['mod'] = {
   },
 
   'GRS': function (str, grs) {
-
     if (grs.length !== 18) {
       throw new Error('Invalid GRS length: ' + str);
     }
-
-    var res = [];
-    for (var i = 3; i <= 14; i++) {
-      var tmp = parseNumber(grs[i]);
-      if (tmp !== null)
-        res.push(tmp);
+    const res = [];
+    for (let i = 3; i <= 14; i++) {
+      const tmp = parseNumber(grs[i]);
+      if (tmp !== null) res.push(tmp);
     }
-
     return {
       'time': parseTime(grs[1]),
       'mode': parseNumber(grs[2]),
       'res': res
     };
   },
-  'GBS': function (str, gbs) {
 
+  'GBS': function (str, gbs) {
     if (gbs.length !== 10 && gbs.length !== 12) {
       throw new Error('Invalid GBS length: ' + str);
     }
@@ -754,12 +583,11 @@ GPS['mod'] = {
       'signalId': gbs.length === 12 ? parseNumber(gbs[10]) : null
     };
   },
-  'GNS': function (str, gns) {
 
+  'GNS': function (str, gns) {
     if (gns.length !== 14 && gns.length !== 15) {
       throw new Error('Invalid GNS length: ' + str);
     }
-
     return {
       'time': parseTime(gns[1]),
       'lat': parseCoord(gns[2], gns[3]),
@@ -776,171 +604,306 @@ GPS['mod'] = {
   }
 };
 
+/* Static parse + geodesy helpers */
+
 GPS['Parse'] = function (line) {
+  if (typeof line !== 'string' || line.length < 6) return false;
+  if (line.charCodeAt(0) !== 36 /* '$' */) return false;
 
-  if (typeof line !== 'string')
-    return false;
+  const star = line.indexOf('*', 1);
+  if (star === -1 || star + 2 >= line.length) return false;
 
-  var nmea = line.split(',');
+  const nmea = [];
+  const firstComma = line.indexOf(',', 1);
+  if (firstComma === -1 || firstComma > star) return false;
 
-  var last = nmea.pop();
+  nmea.push('$' + line.slice(1, firstComma));
 
-  // HDT is 2 items length
-  if (nmea.length < 2 || line.charAt(0) !== '$' || last.indexOf('*') === -1) {
-    return false;
+  // checksum over everything between '$' and '*'
+  let checksum = 0;
+  for (let i = 1; i < star; i++) checksum ^= line.charCodeAt(i);
+
+  // split fields after the first comma
+  let fieldStart = firstComma + 1;
+  for (let i = fieldStart; i < star; i++) {
+    if (line.charCodeAt(i) === 44 /* ',' */) {
+      nmea.push(line.slice(fieldStart, i));
+      fieldStart = i + 1;
+    }
   }
+  nmea.push(line.slice(fieldStart, star));
 
-  last = last.split('*');
-  nmea.push(last[0]);
-  nmea.push(last[1]);
+  const crcStr = line.slice(star + 1).trim();
+  const crc = parseInt(crcStr.slice(0, 2), 16);
+  if (!(crc >= 0 && crc <= 255)) return false;
 
-  // Remove $ character and first two chars from the beginning
   nmea[0] = nmea[0].slice(3);
+  const type = nmea[0];
+  const mod = GPS['mod'][type];
+  if (mod === undefined) return false;
 
-  if (GPS['mod'][nmea[0]] !== undefined) {
-    // set raw data here as well?
-    var data = this['mod'][nmea[0]](line, nmea);
-    data['raw'] = line;
-    data['valid'] = isValid(line, nmea[nmea.length - 1]);
-    data['type'] = nmea[0];
+  nmea.push(crcStr.slice(0, 2));
 
-    return data;
-  }
-  return false;
+  const data = mod(line, nmea);
+  data['raw'] = line;
+  data['valid'] = (checksum === crc);
+  data['type'] = type;
+
+  return data;
 };
 
-// Heading (N=0, E=90, S=189, W=270) from point 1 to point 2
+// Heading (N=0, E=90, S=180, W=270) from point 1 to point 2
 GPS['Heading'] = function (lat1, lon1, lat2, lon2) {
+  const dlon = (lon2 - lon1) * D2R;
+  lat1 *= D2R; lat2 *= D2R;
 
-  var dlon = (lon2 - lon1) * D2R;
+  const sdlon = Math.sin(dlon), cdlon = Math.cos(dlon);
+  const slat1 = Math.sin(lat1), clat1 = Math.cos(lat1);
+  const slat2 = Math.sin(lat2), clat2 = Math.cos(lat2);
 
-  lat1 = lat1 * D2R;
-  lat2 = lat2 * D2R;
+  const y = sdlon * clat2;
+  const x = clat1 * slat2 - slat1 * clat2 * cdlon;
 
-  var sdlon = Math.sin(dlon);
-  var cdlon = Math.cos(dlon);
-
-  var slat1 = Math.sin(lat1);
-  var clat1 = Math.cos(lat1);
-
-  var slat2 = Math.sin(lat2);
-  var clat2 = Math.cos(lat2);
-
-  var y = sdlon * clat2;
-  var x = clat1 * slat2 - slat1 * clat2 * cdlon;
-
-  var head = Math.atan2(y, x) * 180 / Math.PI;
-
+  const head = Math.atan2(y, x) * 180 / Math.PI;
   return (head + 360) % 360;
 };
 
 GPS['Distance'] = function (lat1, lon1, lat2, lon2) {
-
   // Haversine Formula
   // R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159
 
   // Because Earth is no exact sphere, rounding errors may be up to 0.5%.
   // var RADIUS = 6371; // Earth radius average
   // var RADIUS = 6378.137; // Earth radius at equator
-  var RADIUS = 6372.8; // Earth radius in km
+  const RADIUS = 6372.8; // km
+  const hLat = (lat2 - lat1) * D2R * 0.5;
+  const hLon = (lon2 - lon1) * D2R * 0.5;
+  lat1 *= D2R; lat2 *= D2R;
 
-  var hLat = (lat2 - lat1) * D2R * 0.5; // Half of lat difference
-  var hLon = (lon2 - lon1) * D2R * 0.5; // Half of lon difference
+  const shLat = Math.sin(hLat), shLon = Math.sin(hLon);
+  const clat1 = Math.cos(lat1), clat2 = Math.cos(lat2);
 
-  lat1 = lat1 * D2R;
-  lat2 = lat2 * D2R;
-
-  var shLat = Math.sin(hLat);
-  var shLon = Math.sin(hLon);
-  var clat1 = Math.cos(lat1);
-  var clat2 = Math.cos(lat2);
-
-  var tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
-
+  const tmp = shLat * shLat + clat1 * clat2 * shLon * shLon;
   //return RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
   return RADIUS * 2 * Math.asin(Math.sqrt(tmp));
 };
 
 GPS['TotalDistance'] = function (path) {
 
-  if (path.length < 2)
-    return 0;
-
-  var len = 0;
-  for (var i = 0; i < path.length - 1; i++) {
-    var c = path[i];
-    var n = path[i + 1];
+  if (path.length < 2) return 0;
+  let len = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const c = path[i];
+    const n = path[i + 1];
     len += GPS['Distance'](c['lat'], c['lon'], n['lat'], n['lon']);
   }
   return len;
 };
 
-GPS.prototype['update'] = function (line) {
+/* ---------- Instance methods (single prototype assignment) ---------- */
 
-  var parsed = GPS['Parse'](line);
+GPS.prototype = {
+  constructor: GPS,
 
-  this['state']['processed']++;
+  /* Internal: merge parsed packet into state, keep short-term sat caches fresh */
+  '_updateState': function (data) {
+    const state = this['state'];
 
-  if (parsed === false) {
-    this['state']['errors']++;
-    return false;
-  }
+    // TODO: can we really use RMC time here or is it the time of fix?
+    if (data['type'] === 'RMC' || data['type'] === 'GGA' || data['type'] === 'GLL' || data['type'] === 'GNS') {
+      state['time'] = data['time'];
+      state['lat'] = data['lat'];
+      state['lon'] = data['lon'];
+    }
 
-  updateState(this['state'], parsed);
+    if (data['type'] === 'HDT') {
+      state['heading'] = data['heading'];
+      state['trueNorth'] = data['trueNorth'];
+    }
 
-  this['emit']('data', parsed);
-  this['emit'](parsed.type, parsed);
+    if (data['type'] === 'ZDA') {
+      state['time'] = data['time'];
+    }
 
-  return true;
-};
+    if (data['type'] === 'GGA') {
+      state['alt'] = data['alt'];
+    }
 
-GPS.prototype['partial'] = "";
+    if (data['type'] === 'RMC' /* || data['type'] === 'VTG' */) {
+      // TODO: is rmc speed/track really interchangeable with vtg speed/track?
+      state['speed'] = data['speed'];
+      state['track'] = data['track'];
+    }
 
-GPS.prototype['updatePartial'] = function (chunk) {
+    if (data['type'] === 'GSA') {
+      const systemId = data['systemId'];
+      if (systemId != null) this['_collectActiveSats'][systemId] = data['satellites'];
 
-  this['partial'] += chunk;
+      const satsActive = [];
+      const collectActiveSats = this['_collectActiveSats'];
+      for (const s in collectActiveSats) {
+        if (Object.prototype.hasOwnProperty.call(collectActiveSats, s)) {
+          // Concatenate without allocating a new array for each system
+          const arr = collectActiveSats[s];
+          for (let i = 0, L = arr.length; i < L; i++) satsActive.push(arr[i]);
+        }
+      }
 
-  while (true) {
+      state['satsActive'] = satsActive;
+      state['fix'] = data['fix'];
+      state['hdop'] = data['hdop'];
+      state['pdop'] = data['pdop'];
+      state['vdop'] = data['vdop'];
+    }
 
-    var pos = this['partial'].indexOf("\r\n");
+    if (data['type'] === 'GSV') {
+      const now = Date.now();
+      const sats = data['satellites'];
+      const collectSats = this['_collectSats'];
+      const lastSeenSat = this['_lastSeenSat'];
 
-    if (pos === -1)
-      break;
+      for (let i = 0, L = sats.length; i < L; i++) {
+        const key = sats[i]['key'];
+        lastSeenSat[key] = now;
+        collectSats[key] = sats[i];
+      }
 
-    var line = this['partial'].slice(0, pos);
+      // Satellites are considered "visible" for 3 seconds after last seen
+      const ret = [];
+      for (const key in collectSats) {
+        if (Object.prototype.hasOwnProperty.call(collectSats, key)) {
+          if (now - lastSeenSat[key] < 3000) ret.push(collectSats[key]);
+          else {
+            // Optional: clean up stale entries
+            delete collectSats[key];
+            delete lastSeenSat[key];
+          }
+        }
+      }
+      state['satsVisible'] = ret;
+    }
+  },
 
-    if (line.charAt(0) === '$') {
+  /**
+   * Feed one full NMEA line (starting with '$', ending before CRLF).
+   * Emits both 'data' and '<type>' events on success.
+   */
+  'update': function (line) {
+    const parsed = GPS['Parse'](line);
+    this['state']['processed']++;
+
+    if (parsed === false) {
+      this['state']['errors']++;
+      return false;
+    }
+
+    this['_updateState'](parsed);
+
+    this['emit']('data', parsed);
+    this['emit'](parsed['type'], parsed);
+
+    return true;
+  },
+
+  /**
+   * Feed streaming data (chunks, possibly split arbitrarily).
+   * Accepts either "\r\n" or "\n" as line delimiters.
+   */
+  'updatePartial': function (chunk) {
+    if (chunk) this['partial'] += chunk;
+
+    // Process all complete lines
+    for (; ;) {
+      const idxRN = this['partial'].indexOf('\r\n');
+      const idxN = this['partial'].indexOf('\n');
+
+      let pos = -1;
+      if (idxRN !== -1) pos = idxRN;
+      else if (idxN !== -1) pos = idxN;
+
+      if (pos === -1) break;
+
+      const line = this['partial'].slice(0, pos);
+      // Advance buffer past delimiter (2 for CRLF, 1 for LF)
+      this['partial'] = this['partial'].slice(pos + (idxRN === pos ? 2 : 1));
+
+      if (line.charAt(0) !== '$') continue;
+
       try {
         this['update'](line);
       } catch (err) {
-        this['partial'] = "";
-        throw new Error(err);
+        // Keep buffer (don’t drop subsequent lines), but count the error
+        this['state']['errors']++;
+        // Re-throw for caller visibility
+        throw err;
       }
     }
-    this['partial'] = this['partial'].slice(pos + 2);
-  }
-};
+  },
 
-GPS.prototype['on'] = function (ev, cb) {
-
-  if (this['events'][ev] === undefined) {
-    this['events'][ev] = cb;
+  /**
+   * Subscribe to an event. Multiple listeners per event are supported.
+   * @param {string} ev
+   * @param {function()} cb
+   * @returns {GPS} this (chainable)
+   */
+  'on': function (ev, cb) {
+    const cur = this['events'][ev];
+    if (cur === undefined) {
+      this['events'][ev] = [cb];
+    } else if (typeof cur === 'function') {
+      // Backward compatibility with previous single-listener design
+      this['events'][ev] = [cur, cb];
+    } else {
+      this['events'][ev].push(cb);
+    }
     return this;
-  }
-  return null;
-};
+  },
 
-GPS.prototype['off'] = function (ev) {
+  /**
+   * Remove listeners. If cb omitted, remove all for the event.
+   * @param {string} ev
+   * @param {function()} cb
+   * @returns {GPS} this
+   */
+  'off': function (ev, cb) {
+    const cur = this['events'][ev];
+    if (cur === undefined) return this;
 
-  if (this['events'][ev] !== undefined) {
-    this['events'][ev] = undefined;
-  }
-  return this;
-};
+    if (!cb) {
+      delete this['events'][ev];
+      return this;
+    }
 
-GPS.prototype['emit'] = function (ev, data) {
-  if (this['events'][ev] !== undefined) {
-    this['events'][ev].call(this, data);
+    if (typeof cur === 'function') {
+      if (cur === cb) delete this['events'][ev];
+      return this;
+    }
+
+    // Array case
+    for (let i = cur.length - 1; i >= 0; i--) {
+      if (cur[i] === cb) cur.splice(i, 1);
+    }
+    if (cur.length === 0) delete this['events'][ev];
+    return this;
+  },
+
+  /**
+   * Emit an event to all listeners.
+   * @param {string} ev
+   * @param {*} data
+   */
+  'emit': function (ev, data) {
+    const cur = this['events'][ev];
+    if (cur === undefined) return;
+
+    if (typeof cur === 'function') {
+      cur.call(this, data);
+      return;
+    }
+    // Array of listeners
+    for (let i = 0, L = cur.length; i < L; i++) {
+      cur[i].call(this, data);
+    }
   }
 };
 

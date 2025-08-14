@@ -1,462 +1,568 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>Simple Map</title>
-  <meta name="viewport" content="initial-scale=1.0">
-  <meta charset="utf-8">
-
-  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>gps.js — Satellites Dashboard</title>
   <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #161a22;
+      --text: #e6edf3;
+      --muted: #9aa4b2;
+      --line: #2a3142;
+      --accent: #4cc3ff;
+      --active: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+      --red: #ef4444;
+      --blue: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
     body {
-      font-family: 'Oswald', sans-serif;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif
+    }
+
+    .wrap {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 14px;
+      min-height: 100%;
+      padding: 14px
+    }
+
+    @media (max-width:980px) {
+      .wrap {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .25)
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 18px
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 10px
+    }
+
+    .kv .k {
+      color: var(--muted)
+    }
+
+    .kv .v {
+      font-variant-numeric: tabular-nums
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block
+    }
+
+    .ok {
+      background: var(--active)
+    }
+
+    .bad {
+      background: var(--err)
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 999px;
+      background: #1b2130;
+      color: var(--text)
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    /* SVG containers */
+    .svg-box {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center
+    }
+
+    #snr,
+    #sky,
+    #gauge {
+      width: 100%;
+      height: 320px
+    }
+
+    #snr {
+      height: 220px
+    }
+
+    /* table */
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left
     }
 
     th {
-      text-align: right
+      color: var(--muted);
+      font-weight: 500;
+      width: 40%
     }
   </style>
-
 </head>
 
 <body>
+  <div class="wrap">
+    <!-- Left: Charts -->
+    <div class="card">
+      <div class="row">
+        <div class="panel-title">
+          <h1>Satellites</h1>
+          <span class="pill"><span id="conn-dot" class="dot bad"></span><span id="conn">Disconnected</span></span>
+        </div>
+        <div class="small" id="counts">—</div>
+      </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.js"></script>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <h1>Satellites</h1>
+      <div class="grid-2" style="margin-top:8px">
+        <div class="card" style="padding:8px">
+          <h2>Sky View</h2>
+          <div class="svg-box"><svg id="sky" viewBox="0 0 260 260" aria-label="Sky plot"></svg></div>
+        </div>
+        <div class="card" style="padding:8px">
+          <h2>Speed / Heading</h2>
+          <div class="svg-box"><svg id="gauge" viewBox="0 0 180 180" aria-label="Speed & heading"></svg></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:10px;padding:8px">
+        <h2>SNR (signal-to-noise)</h2>
+        <div class="svg-box"><svg id="snr" viewBox="0 0 640 220" preserveAspectRatio="none" aria-label="SNR bars"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: State -->
+    <div class="card">
+      <h1>Information</h1>
+      <div class="kv" style="margin-bottom:8px">
+        <div class="k">Time</div>
+        <div class="v" id="v-time">—</div>
+        <div class="k">Latitude</div>
+        <div class="v" id="v-lat">—</div>
+        <div class="k">Longitude</div>
+        <div class="v" id="v-lon">—</div>
+        <div class="k">Altitude</div>
+        <div class="v" id="v-alt">—</div>
+        <div class="k">Speed</div>
+        <div class="v" id="v-speed">—</div>
+        <div class="k">Track</div>
+        <div class="v" id="v-track">—</div>
+        <div class="k">Bearing</div>
+        <div class="v" id="v-bearing">—</div>
+        <div class="k">Fix</div>
+        <div class="v" id="v-fix">—</div>
+        <div class="k">PDOP</div>
+        <div class="v" id="v-pdop">—</div>
+        <div class="k">VDOP</div>
+        <div class="v" id="v-vdop">—</div>
+        <div class="k">HDOP</div>
+        <div class="v" id="v-hdop">—</div>
+      </div>
+
+      <table>
+        <tr>
+          <th>Satellites in Use</th>
+          <td id="v-active">—</td>
+        </tr>
+        <tr>
+          <th>Satellites in View</th>
+          <td id="v-view">—</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
   <script>
+    'use strict';
 
-    var socket = io();
+    // ---------- helpers ----------
+    const $ = id => document.getElementById(id);
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+    const fmt = (n, d = 5) => (n == null ? '—' : Number(n).toFixed(d));
+    const fmt0 = n => (n == null ? '—' : Number(n).toFixed(0));
+    const fmt1 = n => (n == null ? '—' : Number(n).toFixed(1));
 
-    socket.on('state', function (state) {
-      updateSpeed(state);
-      updateSatellite(state);
-      updateTable(state);
-      updateSkyView(state);
-    });
-
-
-    //Width and height
-    var width = 500;
-    var barHeight = 100;
-    var padding = 1;
-
-    var dataset = [];
-
-    //Create SVG elements
-
-    var svgSky = d3.select("body")
-      .append("svg")
-      .attr("width", 250)
-      .attr("height", 250);
-
-    var svgSat = d3.select("body")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", barHeight + 50)
-      .append("g");
-
-    var svgSpeed = d3.select("body")
-      .append("svg")
-      .style("position", "fixed")
-      .style("right", "10px")
-      .style("bottom", "10px")
-      .attr("width", 160)
-      .attr("height", 160)
-      .append("g");
-
-    var centerX = 80;
-    var centerY = 80;
-    var path1 = [];
-    var path2 = [];
-
-    var start = 270; // °
-    var end = -10; // °
-    var startH = 0;
-    var endH = 45;
-    var stepH = 5;
-    var n = endH - startH;
-
-    function speedAngle(i) {
-      return end + (Math.min(i, endH) - endH) / (startH - endH) * (start - end);
+    // ---------- WebSocket ----------
+    let ws, reconnect = 500;
+    function connect() {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(`${proto}://${location.host}/ws`);
+      ws.onopen = () => { reconnect = 500; $('conn').textContent = 'Live'; $('conn-dot').className = 'dot ok'; };
+      ws.onmessage = ev => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'state') queueUpdate(msg.payload);
+        } catch { }
+      };
+      ws.onclose = ws.onerror = () => {
+        $('conn').textContent = 'Disconnected'; $('conn-dot').className = 'dot bad';
+        setTimeout(connect, reconnect); reconnect = Math.min(8000, reconnect * 1.8);
+      };
     }
+    connect();
 
-    for (var i = 0; i <= n; i++) {
+    // create basic SVG elements
+    function svgEl(tag) { return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+    const line = (x1, y1, x2, y2) => { const e = svgEl('line'); e.setAttribute('x1', x1); e.setAttribute('y1', y1); e.setAttribute('x2', x2); e.setAttribute('y2', y2); return e; };
+    const circle = (cx, cy, r) => { const e = svgEl('circle'); e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r); return e; };
+    const text = (x, y, s) => { const e = svgEl('text'); e.setAttribute('x', x); e.setAttribute('y', y); e.textContent = s; return e; };
+    const g = () => svgEl('g');
+    const rect = () => svgEl('rect');
+    const path = d => { const e = svgEl('path'); if (d) e.setAttribute('d', d); return e; };
 
-      var alpha = (end + start - speedAngle(i)) / 180 * Math.PI;
-      var path = path2;
-      var r = 4;
 
-      if (i % 5 === 0) {
+    // ---------- Sky plot ----------
+    (function initSky() {
+      const svg = $('sky');
+      const cx = 130, cy = 130;
+      const R = 110; // outer radius (horizon)
+      // rings (0°,30°,60°): 0->R, 90->0
+      const ring = deg => (1 - deg / 90) * R;
+      // rings
+      [0, 30, 60].forEach(d => {
+        const c = circle(cx, cy, ring(d));
+        c.setAttribute('fill', 'none'); c.setAttribute('stroke', 'rgba(255,255,255,.25)');
+        svg.appendChild(c);
+        if (d !== 0) {
+          const t = text(cx + ring(d) - 4, cy + 10, `${90 - d}°`);
+          t.setAttribute('font-size', '9'); t.setAttribute('fill', '#9aa4b2');
+          svg.appendChild(t);
+        }
+      });
+      // crosshair (N/E/S/W)
+      const cross = [0, 90, 180, 270].map(a => {
+        const rad = a * Math.PI / 180;
+        const x1 = cx + Math.cos(rad) * ring(60);
+        const y1 = cy + Math.sin(rad) * ring(60);
+        const x2 = cx + Math.cos(rad) * ring(0);
+        const y2 = cy + Math.sin(rad) * ring(0);
+        const l = line(x1, y1, x2, y2); l.setAttribute('stroke', 'rgba(255,255,255,.25)'); svg.appendChild(l);
+      });
 
-        path = path1;
-        r = 7;
-
-        svgSpeed.append("text")
-          .attr("x", centerX + Math.cos(alpha) * 60 - 5)
-          .attr("y", centerY - Math.sin(alpha) * 60 + 5)
-          .attr("font-weight", "bold")
-          .attr("font-size", "10px")
-          .text(endH - i);
+      // ticks every 10°
+      for (let i = 0; i < 36; i++) {
+        const ang = (i * 10 - 90) * Math.PI / 180;
+        const L = (i % 3 === 0) ? 12 : 6;
+        const x1 = cx + Math.cos(ang) * R;
+        const y1 = cy + Math.sin(ang) * R;
+        const x2 = cx + Math.cos(ang) * (R - L);
+        const y2 = cy + Math.sin(ang) * (R - L);
+        const l = line(x1, y1, x2, y2); l.setAttribute('stroke', 'rgba(255,255,255,.25)'); svg.appendChild(l);
+        if (i % 3 === 0) {
+          const tx = cx + Math.cos(ang) * (R - 18);
+          const ty = cy + Math.sin(ang) * (R - 18) + 4;
+          const t = text(tx, ty, `${(i * 10 + 90) % 360}°`); t.setAttribute('font-size', '9'); t.setAttribute('fill', '#9aa4b2'); t.setAttribute('text-anchor', 'middle');
+          svg.appendChild(t);
+        }
       }
 
-      path.push("M");
-      path.push(centerX + Math.cos(alpha) * (r + 70));
-      path.push(centerY - Math.sin(alpha) * (r + 70));
-      path.push("L");
-      path.push(centerX + Math.cos(alpha) * 70);
-      path.push(centerY - Math.sin(alpha) * 70);
+      // satellites layer
+      const group = g(); svg.appendChild(group);
+      window.__sky__ = { svg, group, cx, cy, R, ring };
+    })();
+
+    function updateSky(state) {
+      const { group, cx, cy, R, ring } = window.__sky__;
+      const sats = Array.isArray(state.satsVisible) ? state.satsVisible : [];
+      const act = new Set(Array.isArray(state.satsActive) ? state.satsActive : []);
+      const byKey = new Map();
+      for (const child of group.children) { byKey.set(child.dataset.key, child); }
+
+      const seen = new Set();
+      for (const s of sats) {
+        const key = s.key || String(s.prn);
+        seen.add(key);
+        const az = (+s.azimuth || 0) * Math.PI / 180 - Math.PI / 2; // 0° = North
+        const el = +s.elevation || 0;
+        const r = ring(el);
+        const x = cx + Math.cos(az) * r;
+        const y = cy + Math.sin(az) * r;
+
+        let node = byKey.get(key);
+        if (!node) {
+          node = circle(x, y, 5);
+          node.dataset.key = key;
+          node.appendChild(titleEl(`${s.system || ''} ${s.prn ?? ''}`));
+          group.appendChild(node);
+        }
+        node.setAttribute('cx', x);
+        node.setAttribute('cy', y);
+
+        const v = s.snr ?? 0;
+        const c = clamp(v, 0, 60) / 60; // normalize
+        const isActive = act.has(s.prn);
+        // active → blue-ish; in view → red-ish; add intensity by snr
+        const rC = Math.round((isActive ? 50 : 255) * (1 - c));
+        const gC = 0;
+        const bC = Math.round((isActive ? 255 : 50) * c);
+        node.setAttribute('fill', `rgb(${rC},${gC},${bC})`);
+        node.setAttribute('stroke', 'rgba(255,255,255,.7)');
+        node.setAttribute('stroke-width', '1');
+      }
+
+      // remove stale
+      for (const [key, node] of byKey) {
+        if (!seen.has(key)) node.remove();
+      }
+    }
+    function titleEl(txt) { const t = svgEl('title'); t.textContent = txt; return t; }
+
+    // ---------- SNR bars ----------
+    (function initSNR() {
+      const svg = $('snr');
+      const margin = { l: 28, r: 10, t: 12, b: 24 };
+      const W = 640, H = 220;
+      // axes
+      const axis = g();
+      // grid for SNR (0..60)
+      for (let s = 0; s <= 60; s += 10) {
+        const y = H - margin.b - (s / 60) * (H - margin.t - margin.b);
+        const l = line(margin.l, y, W - margin.r, y);
+        l.setAttribute('stroke', 'rgba(255,255,255,.12)');
+        axis.appendChild(l);
+        const label = text(4, y + 4, s.toString());
+        label.setAttribute('fill', '#9aa4b2'); label.setAttribute('font-size', '10');
+        svg.appendChild(label);
+      }
+      svg.appendChild(axis);
+      // bars group + labels group
+      const bars = g(); const labels = g();
+      svg.appendChild(bars); svg.appendChild(labels);
+      window.__snr__ = { svg, W, H, margin, bars, labels };
+    })();
+
+    function updateSNR(state) {
+      const { svg, W, H, margin, bars, labels } = window.__snr__;
+      const sats = Array.isArray(state.satsVisible) ? state.satsVisible : [];
+      const act = new Set(Array.isArray(state.satsActive) ? state.satsActive : []);
+      // clear current bars/labels
+      bars.innerHTML = ''; labels.innerHTML = '';
+
+      const n = Math.max(1, sats.length);
+      const innerW = W - margin.l - margin.r;
+      const innerH = H - margin.t - margin.b;
+      const bw = innerW / n;
+
+      sats.forEach((s, i) => {
+        const snr = clamp(s.snr ?? 0, 0, 60);
+        const h = innerH * (snr / 60);
+        const x = margin.l + i * bw + 1;
+        const y = H - margin.b - h;
+        const r = rect();
+        r.setAttribute('x', x);
+        r.setAttribute('y', y);
+        r.setAttribute('width', Math.max(1, bw - 2));
+        r.setAttribute('height', h);
+        const c = Math.round(255 * (snr / 60));
+        const active = act.has(s.prn);
+        r.setAttribute('fill', active ? `rgb(0,0,${c})` : `rgb(${c},0,0)`);
+        r.setAttribute('opacity', '0.9');
+        bars.appendChild(r);
+
+        const t = text(margin.l + i * bw + bw * 0.5, H - 6, String(s.prn ?? ''));
+        t.setAttribute('fill', '#9aa4b2'); t.setAttribute('font-size', '10'); t.setAttribute('text-anchor', 'middle');
+        labels.appendChild(t);
+      });
     }
 
-    function arc(x, y, radius, startAngle, endAngle) {
+    // ---------- Gauge (speed + heading) ----------
+    (function initGauge() {
+      const svg = $('gauge');
+      const cx = 90, cy = 90, R = 72;
+      const startDeg = 270, endDeg = -10; // same semantics as original
+      const maxSpeed = +(new URLSearchParams(location.search).get('maxSpeed') || 45);
 
-      var start = {
-        x: x + (radius * Math.cos(endAngle * Math.PI / 180)),
-        y: y - (radius * Math.sin(endAngle * Math.PI / 180))
-      };
+      // scale ticks
+      const path1 = [];
+      const path2 = [];
+      for (let i = 0; i <= maxSpeed; i++) {
+        const deg = speedAngle(i, maxSpeed, startDeg, endDeg);
+        const a = (endDeg + startDeg - deg) * Math.PI / 180;
+        const long = i % 5 === 0; const r = long ? 7 : 4;
+        const x1 = cx + Math.cos(a) * (r + 70);
+        const y1 = cy - Math.sin(a) * (r + 70);
+        const x2 = cx + Math.cos(a) * 70;
+        const y2 = cy - Math.sin(a) * 70;
+        (long ? path1 : path2).push(`M${x1},${y1}L${x2},${y2}`);
+        if (long) {
+          const tx = cx + Math.cos(a) * 60 - 5;
+          const ty = cy - Math.sin(a) * 60 + 5;
+          const label = text(tx, ty, String(maxSpeed - i));
+          label.setAttribute('font-size', '10'); label.setAttribute('font-weight', '600');
+          label.setAttribute('fill', '#9aa4b2');
+          svg.appendChild(label);
+        }
+      }
+      const ticks1 = path(path1.join('')); ticks1.setAttribute('stroke', '#ffffff'); ticks1.setAttribute('stroke-opacity', '.6'); ticks1.setAttribute('fill', 'none'); ticks1.setAttribute('stroke-width', '2');
+      const ticks2 = path(path2.join('')); ticks2.setAttribute('stroke', '#ffffff'); ticks2.setAttribute('stroke-opacity', '.6'); ticks2.setAttribute('fill', 'none'); ticks2.setAttribute('stroke-width', '1');
+      svg.appendChild(ticks1); svg.appendChild(ticks2);
 
-      var end = {
-        x: x + (radius * Math.cos(startAngle * Math.PI / 180)),
-        y: y - (radius * Math.sin(startAngle * Math.PI / 180))
-      };
+      // arc highlight
+      const arc = path(); arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', '#4cc3ff'); arc.setAttribute('stroke-width', '3'); arc.setAttribute('stroke-opacity', '0'); svg.appendChild(arc);
 
-      var a = startAngle - endAngle > 180 ? 1 : 0;
-      return [
-        "M", start.x, start.y,
-        "A", radius, radius, 0, a, 0, end.x, end.y
-      ].join(" ");
+      // arrow for heading
+      const arrow = path(`M ${-5},0 L ${-15},-15 L 0,-20 L 15,-15 Z`);
+      arrow.setAttribute('fill', '#ef4444'); arrow.setAttribute('stroke', 'none');
+      arrow.setAttribute('transform', `translate(${cx},${cy}) rotate(0)`);
+      svg.appendChild(arrow);
+
+      // speed dot
+      const dot = circle(cx, cy, 4); dot.setAttribute('fill', '#fff'); dot.setAttribute('stroke', '#000'); dot.setAttribute('stroke-width', '2'); svg.appendChild(dot);
+
+      // labels N/E/S/W
+      const labs = [['W', -30, 4], ['E', 30, 4], ['N', -4, -30], ['S', -4, 38]];
+      labs.forEach(([t, x, y]) => { const l = text(cx + x, cy + y, t); l.setAttribute('font-weight', '600'); l.setAttribute('fill', '#9aa4b2'); svg.appendChild(l); });
+
+      // speed big number
+      const spd = text(90, 140, '0'); spd.setAttribute('font-size', '30'); spd.setAttribute('font-weight', '700'); spd.setAttribute('text-anchor', 'middle'); svg.appendChild(spd);
+      const unit = text(90, 156, 'km/h'); unit.setAttribute('font-size', '12'); unit.setAttribute('fill', '#9aa4b2'); unit.setAttribute('text-anchor', 'middle'); svg.appendChild(unit);
+
+      window.__gauge__ = { svg, cx, cy, R, startDeg, endDeg, maxSpeed, arc, arrow, dot, spd };
+    })();
+
+    function speedAngle(v, max, startDeg, endDeg) {
+      // original mapping: end..start over range [0..max], clamped
+      const s = clamp(v, 0, max);
+      return endDeg + (s - max) / (0 - max) * (startDeg - endDeg);
+    }
+    function arcPath(cx, cy, r, a1, a2) {
+      const toXY = (deg) => [cx + r * Math.cos((90 - deg) * Math.PI / 180), cy - r * Math.sin((90 - deg) * Math.PI / 180)];
+      const [x1, y1] = toXY(a1), [x2, y2] = toXY(a2);
+      const large = (Math.abs(a2 - a1) % 360) > 180 ? 1 : 0;
+      return `M${x1},${y1} A ${r},${r} 0 ${large} ${a2 > a1 ? 0 : 1} ${x2},${y2}`;
+    }
+    function updateGauge(state) {
+      const { cx, cy, R, startDeg, endDeg, maxSpeed, arc, arrow, dot, spd } = window.__gauge__;
+      const speed = +state.speed || 0;
+      const bearing = +state.bearing || 0;
+      spd.textContent = fmt0(speed);
+
+      const ang = speedAngle(speed, maxSpeed, startDeg, endDeg);
+      const px = cx + Math.cos(ang * Math.PI / 180) * R;
+      const py = cy - Math.sin(ang * Math.PI / 180) * R;
+      dot.setAttribute('cx', px); dot.setAttribute('cy', py);
+
+      // glow proportional to speed
+      const alpha = clamp(speed / maxSpeed, 0, 1);
+      arc.setAttribute('d', arcPath(cx, cy, R, startDeg, ang));
+      arc.setAttribute('stroke-opacity', String(alpha));
+
+      arrow.setAttribute('transform', `translate(${cx},${cy}) rotate(${bearing})`);
     }
 
-    var speed = 0;
+    // ---------- State table ----------
+    function updateStateTable(s) {
+      $('v-time').textContent = s.time ? new Date(s.time).toISOString() : '—';
+      $('v-lat').textContent = fmt(s.lat, 6);
+      $('v-lon').textContent = fmt(s.lon, 6);
+      $('v-alt').textContent = s.alt != null ? `${fmt1(s.alt)} m` : '—';
+      $('v-speed').textContent = s.speed != null ? `${fmt1(s.speed)} km/h` : '—';
+      $('v-track').textContent = s.track != null ? `${fmt0(s.track)}°` : '—';
+      $('v-bearing').textContent = s.bearing != null ? `${fmt0(s.bearing)}°` : '—';
+      $('v-fix').textContent = s.fix || '—';
+      $('v-pdop').textContent = s.pdop != null ? fmt1(s.pdop) : '—';
+      $('v-vdop').textContent = s.vdop != null ? fmt1(s.vdop) : '—';
+      $('v-hdop').textContent = s.hdop != null ? fmt1(s.hdop) : '—';
 
-    var shadowSpeed = svgSpeed.append("path")
-      .attr("d", arc(centerX, centerY, 72, start, speedAngle(speed)))
-      .attr("fill", "none")
-      .style("stroke-width", "3")
-      .attr("stroke", "rgba(0, 220, 255, 0)");
-
-    svgSpeed.append("path")
-      .attr("d", path1.join(" "))
-      .attr("fill", "none")
-      .style("stroke-width", "2")
-      .attr("stroke", "black");
-
-    svgSpeed.append("path")
-      .attr("d", path2.join(" "))
-      .attr("fill", "none")
-      .attr("stroke", "black");
-
-    var direction = svgSpeed.append("path")
-      .attr("d", [
-        "M", Math.cos(Math.PI / 2 + Math.PI) * 5, -Math.sin(Math.PI / 2 + Math.PI) * 5,
-        "L", Math.cos(Math.PI / 4 + Math.PI) * 15, -Math.sin(Math.PI / 4 + Math.PI) * 15,
-        "L", Math.cos(Math.PI / 2) * 20, -Math.sin(Math.PI / 2) * 20,
-        "L", Math.cos(-Math.PI / 4) * 15, -Math.sin(-Math.PI / 4) * 15,
-        "Z"
-      ].join(" "))
-      .style("transform", "translate(" + centerX + "px," + centerY + "px)")
-      .attr("fill", "#c00")
-      .attr("stroke", "none");
-
-    var circleSpeed = svgSpeed.append("circle")
-      .attr("r", 4)
-      .attr("cx", centerX + Math.cos(speedAngle(speed) / 180 * Math.PI) * 72)
-      .attr("cy", centerY - Math.sin(speedAngle(speed) / 180 * Math.PI) * 72)
-      .attr("fill", "white")
-      .style("stroke-width", 2)
-      .attr("stroke", "black");
-
-    var textSpeed = svgSpeed.append("text")
-      .attr("x", 90)
-      .attr("y", 140)
-      .attr("font-weight", "bold")
-      .attr("font-size", "30px")
-      .attr("fill", "black")
-      .text(speed);
-
-    svgSpeed.append("text")
-      .attr("x", 95)
-      .attr("y", 155)
-      .attr("font-weight", "bold")
-      .attr("font-size", "13px")
-      .attr("fill", "black")
-      .text("kph");
-
-    svgSpeed.append("text")
-      .attr("x", centerX - 30 - 4)
-      .attr("y", centerY + 4)
-      .attr("font-weight", "bold")
-      .attr("font-size", "13px")
-      .attr("fill", "black")
-      .text("W");
-
-    svgSpeed.append("text")
-      .attr("x", centerX + 30 - 4)
-      .attr("y", centerY + 4)
-      .attr("font-weight", "bold")
-      .attr("font-size", "13px")
-      .attr("fill", "black")
-      .text("E");
-
-    svgSpeed.append("text")
-      .attr("x", centerX - 4)
-      .attr("y", centerY - 30 + 3)
-      .attr("font-weight", "bold")
-      .attr("font-size", "13px")
-      .attr("fill", "black")
-      .text("N");
-
-    svgSpeed.append("text")
-      .attr("x", centerX - 4)
-      .attr("y", centerY + 30 + 7)
-      .attr("font-weight", "bold")
-      .attr("font-size", "13px")
-      .attr("fill", "black")
-      .text("S");
-
-
-    function elevationToRadius(e) {
-      // Degrees:
-      // 0° has radius of 110
-      // 90° has radius of 0
-
-      return 110 * (1 - e / 90);
+      const inUse = Array.isArray(s.satsActive) ? s.satsActive.length : (s.satsUsed ?? 0);
+      const inView = Array.isArray(s.satsVisible) ? s.satsVisible.length : 0;
+      $('v-active').textContent = inUse;
+      $('v-view').textContent = inView;
+      $('counts').textContent = `in use: ${inUse} • in view: ${inView}`;
     }
 
-    for (var i = 0; i < 90; i += 30) {
-
-      svgSky.append("circle")
-        .attr("cx", 125)
-        .attr("cy", 125)
-        .attr("r", elevationToRadius(i))
-        .attr("fill", "none")
-        .attr("stroke", "black");
-
-      svgSky.append("text")
-        .attr("x", elevationToRadius(i + 30) + 123)
-        .attr("y", 125 + 9)
-        .attr("fill", "black")
-        .attr("text-anchor", "end")
-        .attr("font-size", "8")
-        .text((30 + i) + "°");
-    }
-
-    svgSky.append("line")
-      .attr("x1", 125)
-      .attr("y1", 125 - elevationToRadius(30))
-      .attr("x2", 125)
-      .attr("y2", 125 + elevationToRadius(30))
-      .attr("stroke", "black");
-
-    svgSky.append("line")
-      .attr("x1", 125 - elevationToRadius(30))
-      .attr("y1", 125)
-      .attr("x2", 125 + elevationToRadius(30))
-      .attr("y2", 125)
-      .attr("stroke", "black");
-
-    var steps = 36;
-
-    for (var i = 0; i < steps; i++) {
-
-      var alpha = (i / steps - 90 / 360) * Math.PI * 2;
-
-      var L = i % 3 === 0 ? 15 : 5;
-
-      svgSky.append("line")
-        .attr("x1", Math.cos(alpha) * 110 + 125)
-        .attr("y1", Math.sin(alpha) * 110 + 125)
-        .attr("x2", Math.cos(alpha) * (110 - L) + 125)
-        .attr("y2", Math.sin(alpha) * (110 - L) + 125)
-        .attr("stroke", "black");
-
-      if (i % 3 == 0)
-        svgSky.append("text")
-          .attr("x", Math.cos(alpha) * 118 + 125)
-          .attr("y", Math.sin(alpha) * 118 + 125 + 4)
-          .attr("fill", "black")
-          .attr("text-anchor", "middle")
-          .attr("font-size", "8")
-          .text(Math.round(90 + alpha / Math.PI * 180) + "°");
-    }
-
-    var satsGroup = svgSky.append("g");
-
-    function updateSpeed(data) {
-
-      var speed = data.speed;
-
-      textSpeed.text(speed);
-
-      direction
-        .style("transform", "translate(" + centerX + "px," + centerY + "px)rotate(" + data.bearing + "deg)");
-
-      circleSpeed
-        .attr("cx", centerX + Math.cos(speedAngle(speed) / 180 * Math.PI) * 72)
-        .attr("cy", centerY - Math.sin(speedAngle(speed) / 180 * Math.PI) * 72);
-
-      shadowSpeed
-        .attr("d", arc(centerX, centerY, 72, start, speedAngle(speed)))
-        .attr("stroke", "rgba(0, 220, 255, " + (speed / (endH - startH)) + ")");
-    }
-
-    function updateSatellite(data) {
-
-      var rect = svgSat.selectAll("rect")
-        .data(data.satsVisible);
-
-      var text = svgSat.selectAll("text")
-        .data(data.satsVisible);
-
-      rect
-        .enter()
-        .append("rect");
-
-      rect
-        .enter()
-        .append("text");
-
-      rect
-        .attr("x", function (d, i) {
-          return i * (width / data.satsVisible.length);
-        })
-        .attr("y", function (d) {
-          var v = d.snr || 0;
-          return barHeight - (v * 4);
-        })
-        .attr("width", width / data.satsVisible.length - padding)
-        .attr("height", function (d) {
-          var v = d.snr || 0;
-          return v * 4;
-        })
-        .attr("fill", function (d) {
-          var v = d.snr || 0;
-          if (-1 !== data.satsActive.indexOf(d.prn)) {
-            return "rgb(0, 0, " + (v * 10 | 0) + ")";
-          }
-          return "rgb(" + (v * 10 | 0) + ", 0, 0)";
+    // ---------- Frame-coalesced updates ----------
+    let pending = null;
+    function queueUpdate(state) {
+      pending = state;
+      if (!window.__rafScheduled) {
+        window.__rafScheduled = true;
+        requestAnimationFrame(() => {
+          window.__rafScheduled = false;
+          if (!pending) return;
+          updateSky(pending);
+          updateSNR(pending);
+          updateGauge(pending);
+          updateStateTable(pending);
+          pending = null;
         });
-
-      text
-        .attr("x", function (d, i) {
-          return 15 + i * (width / data.satsVisible.length);
-        })
-        .attr("y", barHeight + 20)
-        .text(function (d) {
-          return d.prn;
-        })
-        .attr("fill", "black");
-
-      rect
-        .exit()
-        .remove();
-
-      text
-        .exit()
-        .remove();
-
+      }
     }
-
-    function updateSkyView(data) {
-
-      satsGroup.selectAll("circle")
-        .data(data.satsVisible)
-
-        .enter()
-        .append("circle")
-
-        .attr("cx", function (d, i) {
-          return 125 + Math.cos(d.azimuth / 180 * Math.PI - Math.PI / 2) * elevationToRadius(d.elevation);
-        })
-        .attr("cy", function (d, i) {
-          return 125 + Math.sin(d.azimuth / 180 * Math.PI - Math.PI / 2) * elevationToRadius(d.elevation);
-        })
-        .attr("r", 5)
-        .attr("fill", function (d) {
-          var v = d.snr || 0;
-          if (-1 !== data.satsActive.indexOf(d.prn)) {
-            return "rgb(0, 0, " + (v * 10 | 0) + ")";
-          }
-          return "rgb(" + (v * 10 | 0) + ", 0, 0)";
-        })
-
-        .append("title")
-        .text(function (d, i) {
-          return d.prn;
-        });
-    }
-
-    function updateTable(state) {
-
-      $("#date").text(state.time);
-      $("#lat").text(state.lat);
-      $("#lon").text(state.lon);
-      $("#alt").text(state.alt);
-      $("#speed").text(state.speed);
-      $("#status").text(state.fix);
-      $("#pdop").text(state.pdop);
-      $("#vdop").text(state.vdop);
-      $("#hdop").text(state.hdop);
-
-      $("#active").text(state.satsActive.length);
-      $("#view").text(state.satsVisible.length);
-    }
-
   </script>
-  <h1>Information</h1>
-  <table>
-    <tr>
-      <th>Date</th>
-      <td id="date"></td>
-    </tr>
-    <tr>
-      <th>Latitude</th>
-      <td id="lat"></td>
-    </tr>
-    <tr>
-      <th>Longitude</th>
-      <td id="lon"></td>
-    </tr>
-
-    <tr>
-      <th>Altitude</th>
-      <td id="alt"></td>
-    </tr>
-    <tr>
-      <th>Speed</th>
-      <td id="speed"></td>
-    </tr>
-    <tr>
-      <th>Status</th>
-      <td id="status"></td>
-    </tr>
-
-    <tr>
-      <th>PDOP</th>
-      <td id="pdop"></td>
-    </tr>
-    <tr>
-      <th>VDOP</th>
-      <td id="vdop"></td>
-    </tr>
-    <tr>
-      <th>HDOP</th>
-      <td id="hdop"></td>
-    </tr>
-    <tr>
-      <th>Satellites in Use</th>
-      <td id="active"></td>
-    </tr>
-    <tr>
-      <th>Satellites in View</th>
-      <td id="view"></td>
-    </tr>
-
-
-  </table>
-
 </body>
 
 </html>

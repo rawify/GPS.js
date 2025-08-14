@@ -1,4 +1,4 @@
-![GPS.js](https://github.com/infusion/GPS.js/blob/main/res/logo.png?raw=true "Javascript GPS Parser")
+![GPS.js](https://github.com/rawify/GPS.js/blob/main/res/logo.png?raw=true "Javascript GPS Parser")
 
 [![NPM Package](https://img.shields.io/npm/v/gps.svg?style=flat)](https://npmjs.org/package/gps "View this project on npm")
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
@@ -39,16 +39,60 @@ gps.on('data', () => {
 
 ## Installation
 
-Installing GPS.js is as easy as cloning this repo or use the following command:
+You can install `GPS.js` via npm:
 
-```
+```bash
 npm install gps
+```
+
+Or with yarn:
+
+```bash
+yarn add gps
+```
+
+Alternatively, download or clone the repository:
+
+```bash
+git clone https://github.com/rawify/GPS.js
+```
+
+## Usage
+
+Include the `gps.min.js` file in your project:
+
+```html
+<script src="gps.min.js"></script>
+```
+
+Or in a Node.js project:
+
+```javascript
+const GPS = require('gps');
+```
+
+or
+
+```javascript
+import GPS from 'gps';
 ```
 
 ## Find the serial device
 
 
 On Linux serial devices typically have names like `/dev/ttyS1`, on OSX `/dev/tty.usbmodem1411` after installing a USB to serial driver and on Windows, you're probably fine by using the highest COM device you can find in the device manager. Please note that if you have multiple USB ports on your computer and use them randomly, you have to lookup the path/device again.
+
+Register device on a BeagleBone
+---
+
+If you find yourself on a BeagleBone, the serial device must be registered manually. Luckily, this can be done within node quite easily using [octalbonescript](https://www.npmjs.com/package/octalbonescript):
+
+```javascript
+const obs = require('octalbonescript');
+obs.serial.enable('/dev/ttyS1', () => {  
+    console.log('serial device activated');
+});
+```
 
 ## Examples
 
@@ -90,7 +134,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000. The result should look like the following, which in principle is just a visualization of the state object `gps.state`
 
-![GPS TU Dresden](https://github.com/infusion/GPS.js/blob/main/res/dashboard.png?raw=true)
+![GPS TU Dresden](https://github.com/rawify/GPS.js/blob/main/res/dashboard.png?raw=true)
 
 Google Maps
 ---
@@ -102,7 +146,7 @@ node server
 
 After that you can open the browser and go to http://localhost:3000 The result should look like
 
-![GPS Google Maps Dresden](https://github.com/infusion/GPS.js/blob/main/res/maps.png?raw=true)
+![GPS Google Maps Dresden](https://github.com/rawify/GPS.js/blob/main/res/maps.png?raw=true)
 
 Confluence
 ---
@@ -312,7 +356,7 @@ Calculates the length of a traveled route, given as an array of {lat: x, lon: y}
 
 GPS.Heading(latFrom, lonFrom, latTo, lonTo)
 ---
-Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270). The result can be used as the argument of [angles](https://github.com/infusion/Angles.js) `compass()` method:
+Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270). The result can be used as the argument of [angles](https://github.com/rawify/Angles.js) `compass()` method:
 
 ```javascript
 const angles = require('angles');

@@ -1,53 +1,42 @@
 export as namespace gps;
-
 export = GPS;
 
 declare class GPS {
+    /** Mutable parser state aggregated from recent sentences */
     state: GPS.GPSState;
 
     /**
-     * The update method is the most important export function, it parses a NMEA sentence and forces the callbacks to trigger
-     * @param line NMEA string
-     * @returns is valid
+     * Parse a full NMEA sentence and emit events.
+     * @param line NMEA string (must start with '$' and contain '*xx' checksum)
+     * @returns true if parsed (even if checksum invalid), false if sentence structure was rejected
      */
     update(line: string): boolean;
 
     /**
-     * Will call update() when a full NMEA sentence has been arrived
-     * @param chunk Partial NMEA string
+     * Feed streaming chunks; calls update() whenever a full line is assembled.
+     * Accepts both CRLF and LF as delimiters.
      */
     updatePartial(chunk: string): void;
 
     /**
-     * Adds an event listener for a protocol to occur (see implemented protocols, simply use the name - upper case) or for all sentences with data.
-     * Because GPS.js should be more general, it doesn't inherit EventEmitter, but simply invokes the callback.
-     * @param event Event type
-     * @param callback Callback with data
-     * @returns GPS instance
+     * Subscribe to an event ('data' for all sentences or a concrete type like 'GGA', 'RMC', ...).
+     * Multiple listeners per event are supported.
      */
     on(event: string, callback: (data: any) => void): GPS;
 
     /**
-     * Removes an event listener
-     * @param event Event type
-     * @returns GPS instance
+     * Remove listeners. If callback omitted, removes all listeners for the event.
      */
-    off(event: string): GPS;
+    off(event: string, callback?: (data: any) => void): GPS;
 
     /**
-     * Parses a single line and returns the resulting object, in case the callback system isn't needed/wanted
-     * @param line NMEA string
-     * @returns NMEA object or False
+     * Parse a single line without using the event system.
+     * Returns the typed NMEA object (with `.raw`, `.valid`, `.type`) or false if unrecognized/invalid structure.
      */
-    static Parse<T = any>(line: string): false | T;
+    static Parse(line: string): false | GPS.NMEA;
 
     /**
-     * Calculates the distance between two geo-coordinates using Haversine formula
-     * @param latFrom
-     * @param lonFrom
-     * @param latTo
-     * @param lonTo
-     * @returns Distance in km
+     * Haversine distance in kilometers
      */
     static Distance(
         latFrom: number,
@@ -57,19 +46,12 @@ declare class GPS {
     ): number;
 
     /**
-     * Calculates the length of a traveled route, given as an array of {lat: x, lon: y} point objects
-     * @param points Array of {lat: x, lon: y}
-     * @returns Distance in km
+     * Sum of pairwise distances along a path
      */
     static TotalDistance(points: GPS.LatLon[]): number;
 
     /**
-     * Calculates the angle from one coordinate to another. Heading is represented as windrose coordinates (N=0, E=90, S=189, W=270)
-     * @param latFrom
-     * @param lonFrom
-     * @param latTo
-     * @param lonTo
-     * @returns Heading in degrees
+     * Initial bearing (windrose: N=0, E=90, S=180, W=270)
      */
     static Heading(
         latFrom: number,
@@ -81,37 +63,56 @@ declare class GPS {
 
 declare namespace GPS {
 
+    /* ---------- Shared ---------- */
+
     export interface LatLon {
         lat: number;
         lon: number;
     }
 
+    /** Aggregated state built from recent sentences. All optional fields may be absent or null until observed. */
     export interface GPSState {
         [key: string]: any;
         processed: number;
         errors: number;
 
-        time?: Date;
-        lat?: number;
-        lon?: number;
-        alt?: number;
-        speed?: number;
-        track?: number;
-        satsActive?: number[];
-        satsVisible?: Satellite[];
+        time?: Date | null;
+        lat?: number | null;
+        lon?: number | null;
+        alt?: number | null;
+
+        speed?: number | null;
+        track?: number | null;
+
+        heading?: number | null;       // from HDT
+        trueNorth?: boolean | null;     // from HDT
+
+        // Fix quality from GSA
+        fix?: '2D' | '3D' | null;
+        hdop?: number | null;
+        pdop?: number | null;
+        vdop?: number | null;
+
+        satsActive?: number[] | null;   // PRNs used in fix (across systems)
+        satsVisible?: Satellite[] | null; // deduped & time-windowed set
+
+        // Additional fields (not exhaustive): may appear depending on sentences seen
+        geoidal?: number | null;
     }
 
+    /* ---------- Sentence payloads (all include raw/valid/type) ---------- */
+
     export interface GGA {
-        time: Date;
-        lat: number;
-        lon: number;
-        alt: number;
-        quality?: GGAQuality;
-        satellites: number;
-        hdop: number;
-        geoidal: number;
-        age: number;
-        stationID: number;
+        time: Date | null;
+        lat: number | null;
+        lon: number | null;
+        alt: number | null;
+        quality?: GGAQuality | null;
+        satellites: number | null;
+        hdop: number | null;
+        geoidal: number | null;
+        age: number | null;
+        stationID: number | null;
         raw: string;
         valid: boolean;
         type: 'GGA';
@@ -129,104 +130,176 @@ declare namespace GPS {
     }
 
     export interface GSA {
-        mode?: 'manual'|'automatic';
-        fix?: '2D'|'3D';
-        satellites: number[];
-        pdop: number;
-        hdop: number;
-        vdop: number;
+        mode?: 'manual' | 'automatic' | null;
+        fix?: '2D' | '3D' | null;
+        satellites: number[];              // PRNs
+        pdop: number | null;
+        hdop: number | null;
+        vdop: number | null;
+        systemId?: number | null;          // NMEA 4.10
+        system?: string;                   // 'GPS' | 'GLONASS' | ...
         raw: string;
         valid: boolean;
         type: 'GSA';
     }
 
     export interface RMC {
-        time: Date;
-        status?: 'active'|'void';
-        lat: number;
-        lon: number;
-        speed: number;
-        track: number;
-        variation: number;
-        faa: FAA;
+        time: Date | null;
+        status?: 'active' | 'void' | null;
+        lat: number | null;
+        lon: number | null;
+        speed: number | null;              // km/h
+        track: number | null;              // degrees true
+        variation: number | null;          // signed, E/W applied
+        faa?: FAAMode | null;
+        navStatus?: string | null;         // NMEA 4.10
         raw: string;
         valid: boolean;
         type: 'RMC';
     }
 
     export interface VTG {
-        track: number;
-        trackMagnetic: number;
-        speed: number;
-        faa: FAA;
+        track: number | null;              // degrees true
+        trackMagnetic: number | null;
+        speed: number | null;              // km/h
+        faa: FAAMode | null;
         raw: string;
         valid: boolean;
         type: 'VTG';
     }
 
-    export enum FAA {
-        'autonomous'    = 'A',
-        'differential'  = 'D',
-        'estimated'     = 'E',
-        'manual input'  = 'M',
-        'simulated'     = 'S',
-        'not valid'     = 'N',
-        'precise'       = 'P'
-    }
+    /** FAA mode (decoded human-readable strings) */
+    export type FAAMode =
+        | 'autonomous'
+        | 'differential'
+        | 'estimated'
+        | 'manual input'
+        | 'simulated'
+        | 'not valid'
+        | 'precise'
+        | 'rtk'
+        | 'rtk-float';
 
     export interface GSV {
-        msgNumber: number;
-        msgsTotal: number;
+        msgNumber: number | null;
+        msgsTotal: number | null;
+        satsInView: number | null;
         satellites: Satellite[];
+        signalId?: number | null;          // NMEA 4.10
+        system?: string;                   // talker-derived ('GPS', 'GLONASS', ...)
         raw: string;
         valid: boolean;
         type: 'GSV';
     }
 
     export interface Satellite {
-        prn: number;
-        elevation: number;
-        azimuth: number;
-        snr: number;
-        status: string;
+        prn: number | null;
+        elevation: number | null;
+        azimuth: number | null;
+        snr: number | null;
+        /** 'tracking' | 'in view' | null */
+        status: string | null;
+        /** System derived from talker (e.g., 'GPS', 'GLONASS', 'Galileo', 'BeiDou', 'QZSS') */
+        system: string;
+        /** Unique key like "GP12" used internally for visibility tracking */
+        key: string;
     }
 
     export interface GLL {
-        time: Date;
-        status?: 'active'|'void';
-        lat: number;
-        lon: number;
+        time: Date | null;
+        status?: 'active' | 'void' | null;
+        lat: number | null;
+        lon: number | null;
+        faa?: FAAMode | null;
         raw: string;
         valid: boolean;
         type: 'GLL';
     }
 
     export interface ZDA {
-        time: Date;
+        time: Date | null;
         raw: string;
         valid: boolean;
         type: 'ZDA';
     }
 
     export interface GST {
-        time: Date;
-        rms: number;
-        ellipseMajor: number;
-        ellipseMinor: number;
-        ellipseOrientation: number;
-        latitudeError: number;
-        longitudeError: number;
-        heightError: number;
+        time: Date | null;
+        rms: number | null;
+        ellipseMajor: number | null;
+        ellipseMinor: number | null;
+        ellipseOrientation: number | null;
+        latitudeError: number | null;
+        longitudeError: number | null;
+        heightError: number | null;
         raw: string;
         valid: boolean;
         type: 'GST';
     }
 
     export interface HDT {
-        heading: number;
-        trueNorth: boolean;
+        heading: number;       // parsed as number; sentence requires a value
+        trueNorth: boolean;    // 'T'
         raw: string;
         valid: boolean;
         type: 'HDT';
     }
+
+    export interface GRS {
+        time: Date | null;
+        mode: number | null;
+        /** residuals present in fields 3..14 (filtered to numeric) */
+        res: number[];
+        raw: string;
+        valid: boolean;
+        type: 'GRS';
+    }
+
+    export interface GBS {
+        time: Date | null;
+        errLat: number | null;
+        errLon: number | null;
+        errAlt: number | null;
+        failedSat: number | null;
+        probFailedSat: number | null;
+        biasFailedSat: number | null;
+        stdFailedSat: number | null;
+        systemId?: number | null;          // NMEA 4.10
+        signalId?: number | null;          // NMEA 4.10
+        raw: string;
+        valid: boolean;
+        type: 'GBS';
+    }
+
+    export interface GNS {
+        time: Date | null;
+        lat: number | null;
+        lon: number | null;
+        mode: string | null;               // multi-constellation mode chars (as-is)
+        satsUsed: number | null;
+        hdop: number | null;
+        alt: number | null;
+        sep: number | null;
+        diffAge: number | null;
+        diffStation: number | null;
+        navStatus?: string | null;         // NMEA 4.10
+        raw: string;
+        valid: boolean;
+        type: 'GNS';
+    }
+
+    /** Union of all sentence payloads produced by GPS.Parse / events */
+    export type NMEA =
+        | GGA
+        | GSA
+        | RMC
+        | VTG
+        | GSV
+        | GLL
+        | ZDA
+        | GST
+        | HDT
+        | GRS
+        | GBS
+        | GNS;
 }

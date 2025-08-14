@@ -1,130 +1,310 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>Simple Map</title>
-  <meta name="viewport" content="initial-scale=1.0">
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>gps.js — Live Position</title>
   <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #161a22;
+      --text: #e6edf3;
+      --muted: #9aa4b2;
+      --accent: #4cc3ff;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       height: 100%;
       margin: 0;
-      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif;
     }
 
     #map {
-      height: 100%;
+      position: absolute;
+      inset: 0;
+    }
+
+    .hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: grid;
+      gap: 8px;
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      padding: 12px 14px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(6px);
+      max-width: min(92vw, 380px);
+    }
+
+    .hud h1 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 6px 10px;
+      align-items: baseline;
+    }
+
+    .kv .k {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .kv .v {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button,
+    .pill {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #1b2130;
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    button:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .pill {
+      cursor: default;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    .ok {
+      background: var(--ok);
+    }
+
+    .warn {
+      background: var(--warn);
+    }
+
+    .err {
+      background: var(--err);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(6px);
     }
   </style>
 </head>
 
 <body>
-  <div id="map"></div>
+  <div id="map" aria-label="Map"></div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <div class="hud" role="region" aria-label="Live GPS HUD">
+    <h1>gps.js — Live Position</h1>
+    <div class="row">
+      <div class="kv">
+        <div class="k">Lat</div>
+        <div class="v" id="kv-lat">–</div>
+        <div class="k">Lon</div>
+        <div class="v" id="kv-lon">–</div>
+        <div class="k">Alt</div>
+        <div class="v" id="kv-alt">–</div>
+        <div class="k">Speed</div>
+        <div class="v" id="kv-speed">–</div>
+        <div class="k">Track</div>
+        <div class="v" id="kv-track">–</div>
+        <div class="k">HDOP</div>
+        <div class="v" id="kv-hdop">–</div>
+        <div class="k">Sats used</div>
+        <div class="v" id="kv-sats">–</div>
+      </div>
+      <div class="controls">
+        <button id="btn-follow" aria-pressed="true">Follow: On</button>
+        <span class="pill"><span class="dot err" id="dot"></span><span id="ws-status">Disconnected</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by <a href="https://raw.org/" target="_blank">raw.org</a></div>
 
   <script>
 
-    var socket = io();
+    // --- Utilities ---
+    const fmt = (n, d = 5) => (n == null ? '–' : Number(n).toFixed(d));
+    const fmt0 = (n) => (n == null ? '–' : Number(n).toFixed(0));
 
-    // https://raw.org/math/how-to-plot-a-covariance-error-ellipse/
-    function getErrorEllipse(mu, Sigma, p) {
+    // Stable 2×2 covariance ellipse at confidence p (default 0.95).
+    // Returns array of {lat, lng} suitable for Google Maps Polygon path.
+    function errorEllipse(mu, Sigma, p = 0.95, segments = 64) {
+      // Sigma = [[a, b],[c, d]]. Assume symmetric; use average for off-diagonal.
+      const a = +Sigma[0][0], b = 0.5 * (+Sigma[0][1] + +Sigma[1][0]), d = +Sigma[1][1];
+      // Chi-square inverse for 2 DOF: s = -2 ln(1-p)
+      const s = -2 * Math.log(1 - p);
 
-      p = p || 0.95;
+      // Eigenvalues
+      const T = a + d;
+      const D = a * d - b * b;
+      const disc = Math.sqrt(Math.max(0, T * T / 4 - D));
+      const l1 = T / 2 + disc; // major
+      const l2 = T / 2 - disc; // minor
 
-      var s = -2 * Math.log(1 - p);
-
-      var a = Sigma[0][0] + 0.0000000000001;
-      var b = Sigma[0][1] + 0.0000000000001;
-      var c = Sigma[1][0] + 0.0000000000001;
-      var d = Sigma[1][1] + 0.0000000000001;
-
-      var tmp = Math.sqrt((a - d) * (a - d) + 4 * b * c);
-      var V = [
-        [-(tmp - a + d) / (2 * c), (tmp + a - d) / (2 * c)],
-        [1, 1]
-      ];
-      var sqrtD = [
-        Math.sqrt(s * (a + d - tmp) / 2),
-        Math.sqrt(s * (a + d + tmp) / 2)
-      ];
-
-      var norm1 = Math.hypot(V[0][0], 1);
-      var norm2 = Math.hypot(V[0][1], 1);
-      V[0][0] /= norm1;
-      V[1][0] /= norm1;
-      V[0][1] /= norm2;
-      V[1][1] /= norm2;
-
-      var ndx = sqrtD[0] < sqrtD[1] ? 1 : 0;
-
-      var x1 = mu[0] + V[0][ndx] * sqrtD[ndx];
-      var y1 = mu[1] + V[1][ndx] * sqrtD[ndx];
-
-      var x2 = mu[0] + V[0][1 - ndx] * sqrtD[1 - ndx];
-      var y2 = mu[1] + V[1][1 - ndx] * sqrtD[1 - ndx];
-
-
-      var x = mu[0];
-      var y = mu[1];
-      var radiusX = Math.hypot(x1 - mu[0], y1 - mu[1]);
-      var radiusY = Math.hypot(x2 - mu[0], y2 - mu[1]);
-      var rotation = Math.atan2(y1 - mu[1], x1 - mu[0]);
-
-      var pts = [];
-      for (var i = 0; i <= 50; i++) {
-        var a = i / 50 * Math.PI * 2 + Math.random();
-        pts.push({
-          lat: x + radiusX * Math.cos(a + rotation),
-          lng: y + radiusY * Math.sin(a)
-        });
+      // Eigenvector for l1: (b, l1 - a) with fallbacks
+      let vx = b, vy = l1 - a;
+      if (Math.abs(vx) + Math.abs(vy) < 1e-12) { // nearly diagonal
+        if (a >= d) { vx = 1; vy = 0; } else { vx = 0; vy = 1; }
       }
-      return pts;
+      const nrm = Math.hypot(vx, vy) || 1;
+      vx /= nrm; vy /= nrm;
+
+      const rx = Math.sqrt(Math.max(0, s * l1));
+      const ry = Math.sqrt(Math.max(0, s * l2));
+      const cos = Math.cos, sin = Math.sin;
+
+      const out = new Array(segments + 1);
+      const [lat0, lon0] = [+mu[0], +mu[1]];
+      for (let i = 0; i <= segments; i++) {
+        const t = (i / segments) * Math.PI * 2;
+        // ellipse param in eigen basis, rotate by [vx,vy]
+        const ex = rx * cos(t), ey = ry * sin(t);
+        const dx = vx * ex - vy * ey;
+        const dy = vy * ex + vx * ey;
+        out[i] = { lat: lat0 + dx, lng: lon0 + dy };
+      }
+      return out;
     }
 
+    // --- Google Maps setup ---
+    let map, marker, ellipse, follow = true, firstFix = true;
 
     function initMap() {
-
-      var gstate = {
-        lat: 0,
-        lng: 0
-      };
-
-      var map = new google.maps.Map(document.getElementById('map'), {
-        center: gstate,
-        zoom: 15
+      const center = { lat: 0, lng: 0 };
+      map = new google.maps.Map(document.getElementById('map'), {
+        center, zoom: 15, mapId: 'f2a2d2b9c5d2b1a1', // custom map style id optional
+        clickableIcons: false, streetViewControl: false, mapTypeControl: false, fullscreenControl: false,
+        gestureHandling: 'greedy'
       });
 
-      var marker = new google.maps.Marker({
-        position: gstate,
-        map: map,
-        title: 'Your Position'
+      marker = new google.maps.Marker({ position: center, map, title: 'Position' });
+
+      ellipse = new google.maps.Polygon({
+        paths: [], strokeColor: '#ffffff', strokeOpacity: 0.7, strokeWeight: 1,
+        fillColor: '#4cc3ff', fillOpacity: 0.25, map
       });
 
-      var ellipse = new google.maps.Polygon({
-        paths: [],
-        strokeColor: 'black',
-        strokeOpacity: 0.9,
-        strokeWeight: 1,
-        fillColor: 'red',
-        fillOpacity: 0.3,
-        map: map
+      document.getElementById('btn-follow').addEventListener('click', () => {
+        follow = !follow;
+        document.getElementById('btn-follow').textContent = `Follow: ${follow ? 'On' : 'Off'}`;
+        document.getElementById('btn-follow').setAttribute('aria-pressed', String(follow));
       });
 
-      socket.on('position', function (state) {
-
-        gstate.lat = state.position.pos[0];
-        gstate.lng = state.position.pos[1];
-
-        var path = getErrorEllipse(state.position.pos, state.position.cov);
-
-        ellipse.setPaths(path);
-        map.setCenter(gstate);
-        marker.setPosition(gstate);
-      });
+      startWS();
     }
 
+    // --- WebSocket with simple reconnect ---
+    let ws, reconnectDelay = 500;
+
+    function startWS() {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+      ws.onopen = () => {
+        reconnectDelay = 500;
+        document.getElementById('ws-status').textContent = 'Live';
+        document.getElementById('dot').className = 'dot ok';
+      };
+
+      ws.onmessage = (ev) => {
+        let msg;
+        try { msg = JSON.parse(ev.data); } catch { return; }
+        if (msg.type === 'position') updateUI(msg.payload);
+      };
+
+      ws.onclose = ws.onerror = () => {
+        document.getElementById('ws-status').textContent = 'Disconnected';
+        document.getElementById('dot').className = 'dot err';
+        setTimeout(startWS, reconnectDelay);
+        reconnectDelay = Math.min(8000, reconnectDelay * 1.8);
+      };
+    }
+
+    // --- UI update ---
+    function updateUI(state) {
+      const pos = state.position;
+      if (!pos || !pos.pos) return;
+
+      const lat = +pos.pos[0], lon = +pos.pos[1];
+      marker.setPosition({ lat, lng: lon });
+
+      const cov = pos.cov && pos.cov.length === 2 ? pos.cov : [[0, 0], [0, 0]];
+      const path = errorEllipse([lat, lon], cov, 0.95, 64);
+      ellipse.setPaths(path);
+
+      if (firstFix || follow) {
+        firstFix = false;
+        map.setCenter({ lat, lng: lon });
+      }
+
+      document.getElementById('kv-lat').textContent = fmt(lat, 6);
+      document.getElementById('kv-lon').textContent = fmt(lon, 6);
+      document.getElementById('kv-alt').textContent = state.alt != null ? `${fmt(state.alt, 1)} m` : '–';
+      document.getElementById('kv-speed').textContent = state.speed != null ? `${fmt(state.speed, 1)} km/h` : '–';
+      document.getElementById('kv-track').textContent = state.track != null ? `${fmt(state.track, 0)}°` : '–';
+      document.getElementById('kv-hdop').textContent = state.hdop != null ? fmt(state.hdop, 2) : '–';
+
+      const sats = Array.isArray(state.satsActive) ? state.satsActive.length : (state.satsUsed ?? '–');
+      document.getElementById('kv-sats').textContent = sats;
+    }
   </script>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADf2Ss5DEZdZMFEJ0f8fmi1KcYRZMYLZI&callback=initMap"
