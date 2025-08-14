@@ -1,7 +1,7 @@
 {
     "name": "gps",
     "title": "GPS.js",
-    "version": "0.7.5",
+    "version": "0.8.0",
     "homepage": "https://raw.org/article/using-gps-with-node-js-and-javascript/",
     "bugs": "https://github.com/rawify/GPS.js/issues",
     "description": "The RAW GPS NMEA parser library",

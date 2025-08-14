@@ -160,6 +160,7 @@ const tests = {
   '$GPZDA,201530.00,04,07,2002,00,00*60': {
     'raw': '$GPZDA,201530.00,04,07,2002,00,00*60',
     'time': new Date('2002-07-04T20:15:30.000Z'),
+    'offsetMin': 0,
     'type': 'ZDA',
     'valid': true
   },
@@ -1151,6 +1152,95 @@ const tests = {
     "system": "BD",
     "signalId": null,
     "type": "GSV",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,PF=3FF*4B': {
+    "completed": true,
+    "id": 2,
+    "index": 1,
+    "message": "PF=3FF",
+    "part": 'PF=3FF',
+    "raw": "$GNTXT,01,01,02,PF=3FF*4B",
+    "rawMessages": [
+      "PF=3FF",
+    ],
+    system: 'GN',
+    "total": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,ANTSTATUS=OK*25': {
+    "completed": true,
+    "id": 2,
+    "index": 1,
+    "message": "ANTSTATUS=OK",
+    "part": 'ANTSTATUS=OK',
+    "raw": "$GNTXT,01,01,02,ANTSTATUS=OK*25",
+    "rawMessages": [
+      "ANTSTATUS=OK",
+    ],
+    "system": 'GN',
+    "total": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD*2F': {
+    "completed": true,
+    "id": 2,
+    "index": 1,
+    "message": "LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD",
+    "part": 'LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD',
+    "raw": "$GNTXT,01,01,02,LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD*2F",
+    "rawMessages": [
+      "LLC=FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFF-FFFFFFFD",
+    ],
+    "system": 'GN',
+    "total": 1,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,01,01,02,some escape chars: ^21*2F': {
+    "completed": true,
+    "id": 2,
+    "index": 1,
+    "message": "some escape chars: !",
+    "part": "some escape chars: !",
+    "raw": "$GNTXT,01,01,02,some escape chars: ^21*2F",
+    "rawMessages": [
+      "some escape chars: !",
+    ],
+    "system": 'GN',
+    "total": 1,
+    "type": "TXT",
+    "valid": false
+  },
+  '$GNTXT,02,01,02,a multipart message^2C this is part 1^0D^0A*34': {
+    "completed": false,
+    "id": 2,
+    "index": 1,
+    "message": null,
+    "part": "a multipart message, this is part 1\r\n",
+    "raw": "$GNTXT,02,01,02,a multipart message^2C this is part 1^0D^0A*34",
+    "rawMessages": [],
+    "system": 'GN',
+    "total": 2,
+    "type": "TXT",
+    "valid": true
+  },
+  '$GNTXT,02,02,02,a multipart message^2C this is part 2^0D^0A*34': {
+    "completed": true,
+    "id": 2,
+    "index": 2,
+    "message": "a multipart message, this is part 1\r\na multipart message, this is part 2\r\n",
+    "part": 'a multipart message, this is part 2\r\n',
+    "raw": "$GNTXT,02,02,02,a multipart message^2C this is part 2^0D^0A*34",
+    "rawMessages": [
+      "a multipart message, this is part 1\r\n",
+      "a multipart message, this is part 2\r\n",
+    ],
+    "system": 'GN',
+    "total": 2,
+    "type": "TXT",
     "valid": true
   }
 };

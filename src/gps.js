@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.7.5 8/14/2025
+ * @license GPS.js v0.8.0 8/14/2025
  * https://raw.org/article/using-gps-with-node-js-and-javascript/
  *
  * Copyright (c) 2025, Robert Eisele (https://raw.org/)
@@ -55,15 +55,8 @@ function parseCoord(coord, dir) {
   // NMEA lat: DDMM.mmmm; lon: DDDMM.mmmm; dir in {N,S,E,W}
   // Latitude can go from 0 to 90; longitude can go from -180 to 180.
   if (coord === '') return null;
-
-  let n, sgn = 1;
-  switch (dir) {
-    case 'S': sgn = -1;
-    case 'N': n = 2; break;
-    case 'W': sgn = -1;
-    case 'E': n = 3; break;
-    default: return null; // Unknown direction
-  }
+  const sgn = (dir === 'S' || dir === 'W') ? -1 : 1;
+  const n = (dir === 'N' || dir === 'S') ? 2 : 3;
   return sgn * (parseFloat(coord.slice(0, n)) + parseFloat(coord.slice(n)) / 60);
 }
 
@@ -170,6 +163,44 @@ function parseDist(num, unit) {
 }
 
 /**
+ * Decode TXT caret-escapes and reject invalid chars.
+ * Spec: NMEA0183-2 §5.1.3 (escapes) and §6.1 Table 1 (invalid chars)
+ *
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeString(str) {
+  if (str == null) return '';
+
+  // invalid characters per spec (excluding '^' which introduces escapes)
+  var invalid = ["\r", "\n", "$", "*", ",", "!", "\\", "~", "\u007F" /* DEL */];
+  for (var i = 0; i < invalid.length; i++) {
+    if (str.indexOf(invalid[i]) !== -1) {
+      throw new Error("Message may not contain invalid character '" + invalid[i] + "'");
+    }
+  }
+
+  // caret escapes: ^HH (hex byte) or ^^ (literal caret)
+  var out = '';
+  for (var j = 0; j < str.length; j++) {
+    var ch = str.charCodeAt(j);
+    if (ch !== 94 /* '^' */) { out += str[j]; continue; }
+    var n1 = str[j + 1], n2 = str[j + 2];
+    if (n1 === '^') { out += '^'; j += 1; continue; }
+    if (n1 && n2 &&
+      ((n1 >= '0' && n1 <= '9') || (n1 >= 'A' && n1 <= 'F') || (n1 >= 'a' && n1 <= 'f')) &&
+      ((n2 >= '0' && n2 <= '9') || (n2 >= 'A' && n2 <= 'F') || (n2 >= 'a' && n2 <= 'f'))) {
+      out += String.fromCharCode(parseInt(n1 + n2, 16));
+      j += 2;
+    } else {
+      // unknown escape → keep caret literally
+      out += '^';
+    }
+  }
+  return out;
+}
+
+/**
  *
  * @constructor
  */
@@ -178,7 +209,7 @@ function GPS() {
 
   // Public fields
   this['events'] = Object.create(null);
-  this['state'] = { 'errors': 0, 'processed': 0 };
+  this['state'] = { 'errors': 0, 'processed': 0, 'txtBuffer': {} };
 
   // Internal, per-instance collectors (avoid cross-stream state bleed)
   this['_collectSats'] = Object.create(null);
@@ -190,7 +221,7 @@ function GPS() {
 }
 
 /* Static fields (explicit for speed and minification) */
-GPS['mod'] = {
+GPS['parsers'] = {
   // Global Positioning System Fix Data
   'GGA': function (str, gga) {
     if (gga.length !== 16 && gga.length !== 14) {
@@ -475,12 +506,12 @@ GPS['mod'] = {
      6    = xx = Local zone minutes description (same sign as hours)
      */
 
-    // TODO: incorporate local zone information
-
     // (No strict length guard; some receivers omit trailing fields)
     return {
-      'time': parseTime(zda[1], zda[2] + zda[3] + zda[4])
+      'time': parseTime(zda[1], zda[2] + zda[3] + zda[4]),
       // 'delta': can be derived by consumer: (Date.now() - time)/1000
+      'offsetMin': (zda[5] === '' || zda[6] === '') ? null
+        : (parseInt(zda[5], 10) * 60 + parseInt(zda[6], 10))
     };
   },
 
@@ -607,6 +638,43 @@ GPS['mod'] = {
       'diffStation': parseNumber(gns[12]),
       'navStatus': gns.length === 15 ? gns[13] : null  // NMEA 4.10
     };
+  },
+
+  // Text Transmission (TXT)
+  // NMEA0183-2 §6.3  ($--TXT,xx,xx,xx,c...c*hh)
+  'TXT': function (str, txt) {
+
+    // After talker removal, txt expected: ['TXT', total, index, id, payload, checksum]
+    if (txt.length !== 6) {
+      throw new Error('Invalid TXT length: ' + str);
+    }
+
+    var total = parseInt(txt[1], 10);
+    var index = parseInt(txt[2], 10);
+    var textId = parseInt(txt[3], 10);
+    var rawPart = txt[4] || '';
+
+    if (!(total >= 1 && total <= 99)) throw new Error('Invalid TXT total: ' + txt[1]);
+    if (!(index >= 1 && index <= total)) throw new Error('Invalid TXT index: ' + txt[2]);
+    if (!(textId >= 0 && textId <= 99)) throw new Error('Invalid TXT id: ' + txt[3]);
+    if (rawPart.length > 61) throw new Error('Invalid TXT message length: ' + rawPart.length);
+
+    var part = escapeString(rawPart);
+    if (part === '') throw new Error('Invalid empty TXT message');
+
+    // For single-part messages, we can return a completed object right away.
+    // Multi-part completion is handled in instance _assembleTXT (see below).
+    return {
+      // assembly fields:
+      'total': total,
+      'index': index,
+      'id': textId,
+      'part': part,                      // decoded segment
+      'message': (total === 1) ? part : null,
+      'completed': (total === 1),
+      'rawMessages': (total === 1) ? [part] : [],
+      'system': parseSystem(str)         // e.g. 'GPS', 'GLONASS', ...
+    };
   }
 };
 
@@ -645,7 +713,7 @@ GPS['Parse'] = function (line) {
 
   nmea[0] = nmea[0].slice(3);
   const type = nmea[0];
-  const mod = GPS['mod'][type];
+  const mod = GPS['parsers'][type];
   if (mod === undefined) return false;
 
   nmea.push(crcStr.slice(0, 2));
@@ -735,10 +803,9 @@ GPS.prototype = {
       state['alt'] = data['alt'];
     }
 
-    if (data['type'] === 'RMC' /* || data['type'] === 'VTG' */) {
-      // TODO: is rmc speed/track really interchangeable with vtg speed/track?
-      state['speed'] = data['speed'];
-      state['track'] = data['track'];
+    if (data['type'] === 'RMC' || data['type'] === 'VTG') {
+      if (data['speed'] != null) state['speed'] = data['speed'];
+      if (data['track'] != null) state['track'] = data['track'];
     }
 
     if (data['type'] === 'GSA') {
@@ -790,6 +857,51 @@ GPS.prototype = {
     }
   },
 
+  '_assembleTXT': function (data) {
+    // Single-part already complete (parser set message)
+    if (data['total'] === 1) return data;
+
+    const key = (data['system'] || '') + '#' + data['id'];
+
+    let buf = this['state']['txtBuffer'][key];
+    if (!buf) {
+      buf = this['state']['txtBuffer'][key] = {
+        'total': data['total'],
+        'parts': new Array(data['total']).fill(null),
+        'received': 0,
+        'timer': null
+      };
+      // 10s timeout to avoid leaks
+      const self = this;
+      buf['timer'] = setTimeout(function () {
+        self['state']['errors']++;
+        delete self['state']['txtBuffer'][key];
+      }, 10000);
+    }
+
+    // store part (index is 1-based)
+    const idx = data['index'] - 1;
+    if (0 <= idx && idx < buf['total']) {
+      buf['parts'][idx] = data['part'];
+      buf['received']++;
+    }
+
+    // check completion
+    if (buf['received'] === buf['total']) {
+      clearTimeout(buf['timer']);
+      delete this['state']['txtBuffer'][key];
+      data['message'] = buf['parts'].join('');
+      data['completed'] = true;
+      data['rawMessages'] = buf['parts'];
+
+    } else {
+      data['message'] = null;
+      data['completed'] = false;
+      data['rawMessages'] = [];
+    }
+    return data;
+  },
+
   /**
    * Feed one full NMEA line (starting with '$', ending before CRLF).
    * Emits both 'data' and '<type>' events on success.
@@ -801,6 +913,11 @@ GPS.prototype = {
     if (parsed === false) {
       this['state']['errors']++;
       return false;
+    }
+
+    // Assemble TXT multi-part here
+    if (parsed['type'] === 'TXT') {
+      this['_assembleTXT'](parsed);
     }
 
     this['_updateState'](parsed);

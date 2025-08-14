@@ -168,6 +168,20 @@ declare namespace GPS {
         type: 'VTG';
     }
 
+    export interface TXT {
+        total: number;
+        index: number;
+        id: number;
+        part: string;                 // decoded segment
+        message: string | null;       // full text when completed
+        completed: boolean;
+        rawMessages: string[];        // all parts when completed
+        system?: string;
+        raw: string;
+        valid: boolean;
+        type: 'TXT';
+    }
+
     /** FAA mode (decoded human-readable strings) */
     export type FAAMode =
         | 'autonomous'
@@ -218,6 +232,7 @@ declare namespace GPS {
 
     export interface ZDA {
         time: Date | null;
+        offsetMin: number | null;
         raw: string;
         valid: boolean;
         type: 'ZDA';
@@ -301,5 +316,6 @@ declare namespace GPS {
         | HDT
         | GRS
         | GBS
-        | GNS;
+        | GNS
+        | TXT;
 }
