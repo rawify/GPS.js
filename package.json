@@ -1,10 +1,10 @@
 {
     "name": "gps",
     "title": "GPS.js",
-    "version": "0.8.0",
+    "version": "0.8.1",
+    "description": "The RAW GPS NMEA parser library",
     "homepage": "https://raw.org/article/using-gps-with-node-js-and-javascript/",
     "bugs": "https://github.com/rawify/GPS.js/issues",
-    "description": "The RAW GPS NMEA parser library",
     "keywords": [
         "nmea",
         "gps",
@@ -26,20 +26,41 @@
     "private": false,
     "main": "./dist/gps.js",
     "module": "./dist/gps.mjs",
-    "types": "./gps.d.ts",
     "browser": "./dist/gps.min.js",
     "unpkg": "./dist/gps.min.js",
-    "readmeFilename": "README.md",
+    "types": "./gps.d.ts",
     "exports": {
         ".": {
-            "types": "./gps.d.ts",
-            "require": "./dist/gps.js",
-            "import": "./dist/gps.mjs"
+            "import": {
+                "types": "./gps.d.mts",
+                "default": "./dist/gps.mjs"
+            },
+            "require": {
+                "types": "./gps.d.ts",
+                "default": "./dist/gps.js"
+            },
+            "browser": {
+                "types": "./gps.d.ts",
+                "default": "./dist/gps.min.js"
+            },
+            "default": {
+                "types": "./gps.d.ts",
+                "default": "./dist/gps.js"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "typesVersions": {
+        "<4.7": {
+            "*": [
+                "gps.d.ts"
+            ]
         }
     },
+    "sideEffects": false,
     "repository": {
         "type": "git",
-        "url": "git@github.com:rawify/GPS.js.git"
+        "url": "git+ssh://git@github.com/rawify/GPS.js.git"
     },
     "funding": {
         "type": "github",
@@ -63,7 +84,7 @@
         "test": "mocha tests/*.js"
     },
     "devDependencies": {
-        "angles": "^0.4.1",
+        "angles": "^0.5.0",
         "byline": "^5.0.0",
         "crude-build": "^0.1.2",
         "express": "^5.1.0",

@@ -318,4 +318,8 @@ declare namespace GPS {
         | TXT;
 }
 
-export = GPS;
+export default GPS;
+
+export type LatLon = GPS.LatLon;
+export type GPSState = GPS.GPSState;
+export type NMEA = GPS.NMEA;
