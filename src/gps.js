@@ -1,5 +1,5 @@
 /**
- * @license GPS.js v0.8.1 8/16/2025
+ * @license GPS.js v0.8.1 11/14/2025
  * https://raw.org/article/using-gps-with-node-js-and-javascript/
  *
  * Copyright (c) 2025, Robert Eisele (https://raw.org/)
@@ -97,7 +97,8 @@ function parseGSAMode(mode) {
     case 'A': return 'automatic';
     case '': return null;
   }
-  throw new Error('INVALID GSA MODE: ' + mode);
+  //throw new Error('INVALID GSA MODE: ' + mode);
+  this.error(new Error('INVALID GSA MODE: ' + mode))
 }
 
 function parseGGAFix(fix) {
@@ -113,7 +114,7 @@ function parseGGAFix(fix) {
     case 7: return 'manual';
     case 8: return 'simulated';
   }
-  throw new Error('INVALID GGA FIX: ' + fix);
+  this.error(new Error('INVALID GGA FIX: ' + fix))
 }
 
 function parseGSAFix(fix) {
@@ -123,7 +124,7 @@ function parseGSAFix(fix) {
     case 2: return '2D';
     case 3: return '3D';
   }
-  throw new Error('INVALID GSA FIX: ' + fix);
+  this.error(new Error('INVALID GSA FIX: ' + fix))
 }
 
 function parseRMC_GLLStatus(status) {
@@ -132,7 +133,7 @@ function parseRMC_GLLStatus(status) {
     case 'A': return 'active';
     case 'V': return 'void';
   }
-  throw new Error('INVALID RMC/GLL STATUS: ' + status);
+  this.error(new Error('INVALID RMC/GLL STATUS: ' + status))
 }
 
 function parseFAA(faa) {
@@ -149,7 +150,7 @@ function parseFAA(faa) {
     case 'R': return 'rtk';
     case 'F': return 'rtk-float';
   }
-  throw new Error('INVALID FAA MODE: ' + faa);
+  this.error(new Error('INVALID FAA MODE: ' + faa))
 }
 
 function parseRMCVariation(vari, dir) {
@@ -159,7 +160,7 @@ function parseRMCVariation(vari, dir) {
 
 function parseDist(num, unit) {
   if (unit === 'M' || unit === '') return parseNumber(num);
-  throw new Error('Unknown unit: ' + unit);
+  this.error(new Error('Unknown unit: ' + unit))
 }
 
 /**
@@ -176,7 +177,7 @@ function escapeString(str) {
   var invalid = ["\r", "\n", "$", "*", ",", "!", "\\", "~", "\u007F" /* DEL */];
   for (var i = 0; i < invalid.length; i++) {
     if (str.indexOf(invalid[i]) !== -1) {
-      throw new Error("Message may not contain invalid character '" + invalid[i] + "'");
+      this.error(new Error("Message may not contain invalid character '" + invalid[i] + "'"))
     }
   }
 
@@ -225,7 +226,7 @@ GPS['parsers'] = {
   // Global Positioning System Fix Data
   'GGA': function (str, gga) {
     if (gga.length !== 16 && gga.length !== 14) {
-      throw new Error('Invalid GGA length: ' + str);
+      this.error(new Error('Invalid GGA length: ' + str))
     }
 
     /*
@@ -272,7 +273,7 @@ GPS['parsers'] = {
   'GSA': function (str, gsa) {
 
     if (gsa.length !== 19 && gsa.length !== 20) {
-      throw new Error('Invalid GSA length: ' + str);
+      this.error(new Error('Invalid GSA length: ' + str))
     }
 
     /*
@@ -315,7 +316,7 @@ GPS['parsers'] = {
   // Recommended Minimum data for GPS
   'RMC': function (str, rmc) {
     if (rmc.length !== 13 && rmc.length !== 14 && rmc.length !== 15) {
-      throw new Error('Invalid RMC length: ' + str);
+      this.error(new Error('Invalid RMC length: ' + str))
     }
 
     /*
@@ -354,7 +355,7 @@ GPS['parsers'] = {
   // Track info
   'VTG': function (str, vtg) {
     if (vtg.length !== 10 && vtg.length !== 11) {
-      throw new Error('Invalid VTG length: ' + str);
+      this.error(new Error('Invalid VTG length: ' + str))
     }
 
     /*
@@ -387,10 +388,10 @@ GPS['parsers'] = {
     }
 
     if (vtg[2] !== 'T') {
-      throw new Error('Invalid VTG track mode: ' + str);
+      this.error(new Error('Invalid VTG track mode: ' + str))
     }
     if (vtg[8] !== 'K' || vtg[6] !== 'N') {
-      throw new Error('Invalid VTG speed tag: ' + str);
+      this.error(new Error('Invalid VTG speed tag: ' + str))
     }
 
     return {
@@ -409,7 +410,7 @@ GPS['parsers'] = {
       // = 1 -> normal package
       // = 2 -> NMEA 4.10 extension
       // = 3 -> BeiDou extension?
-      throw new Error('Invalid GSV length: ' + str);
+      this.error(new Error('Invalid GSV length: ' + str))
     }
 
     /*
@@ -465,7 +466,7 @@ GPS['parsers'] = {
   // Geographic Position - Latitude/Longitude
   'GLL': function (str, gll) {
     if (gll.length !== 9 && gll.length !== 8) {
-      throw new Error('Invalid GLL length: ' + str);
+      this.error(new Error('Invalid GLL length: ' + str))
     }
 
     /*
@@ -517,7 +518,7 @@ GPS['parsers'] = {
 
   'GST': function (str, gst) {
     if (gst.length !== 10) {
-      throw new Error('Invalid GST length: ' + str);
+      this.error(new Error('Invalid GST length: ' + str))
     }
 
     /*
@@ -547,7 +548,7 @@ GPS['parsers'] = {
   // Heading relative to True North
   'HDT': function (str, hdt) {
     if (hdt.length !== 4) {
-      throw new Error('Invalid HDT length: ' + str);
+      this.error(new Error('Invalid HDT length: ' + str))
     }
 
     /*
@@ -570,7 +571,7 @@ GPS['parsers'] = {
 
   'GRS': function (str, grs) {
     if (grs.length !== 18) {
-      throw new Error('Invalid GRS length: ' + str);
+      this.error(new Error('Invalid GRS length: ' + str))
     }
     const res = [];
     for (let i = 3; i <= 14; i++) {
@@ -586,7 +587,7 @@ GPS['parsers'] = {
 
   'GBS': function (str, gbs) {
     if (gbs.length !== 10 && gbs.length !== 12) {
-      throw new Error('Invalid GBS length: ' + str);
+      this.error(new Error('Invalid GBS length: ' + str))
     }
 
     /*
@@ -623,7 +624,7 @@ GPS['parsers'] = {
 
   'GNS': function (str, gns) {
     if (gns.length !== 14 && gns.length !== 15) {
-      throw new Error('Invalid GNS length: ' + str);
+      this.error(new Error('Invalid GNS length: ' + str))
     }
     return {
       'time': parseTime(gns[1]),
@@ -646,7 +647,7 @@ GPS['parsers'] = {
 
     // After talker removal, txt expected: ['TXT', total, index, id, payload, checksum]
     if (txt.length !== 6) {
-      throw new Error('Invalid TXT length: ' + str);
+      this.error(new Error('Invalid TXT length: ' + str))
     }
 
     var total = parseInt(txt[1], 10);
@@ -654,13 +655,13 @@ GPS['parsers'] = {
     var textId = parseInt(txt[3], 10);
     var rawPart = txt[4] || '';
 
-    if (!(total >= 1 && total <= 99)) throw new Error('Invalid TXT total: ' + txt[1]);
-    if (!(index >= 1 && index <= total)) throw new Error('Invalid TXT index: ' + txt[2]);
-    if (!(textId >= 0 && textId <= 99)) throw new Error('Invalid TXT id: ' + txt[3]);
-    if (rawPart.length > 61) throw new Error('Invalid TXT message length: ' + rawPart.length);
+    if (!(total >= 1 && total <= 99)) this.error(new Error('Invalid TXT total: ' + txt[1]));
+    if (!(index >= 1 && index <= total)) this.error(new Error('Invalid TXT index: ' + txt[2]));
+    if (!(textId >= 0 && textId <= 99)) this.error(new Error('Invalid TXT id: ' + txt[3]));
+    if (rawPart.length > 61) this.error(new Error('Invalid TXT message length: ' + rawPart.length));
 
     var part = escapeString(rawPart);
-    if (part === '') throw new Error('Invalid empty TXT message');
+    if (part === '') this.error(new Error('Invalid empty TXT message'));
 
     // For single-part messages, we can return a completed object right away.
     // Multi-part completion is handled in instance _assembleTXT (see below).
@@ -958,7 +959,7 @@ GPS.prototype = {
         // Keep buffer (don’t drop subsequent lines), but count the error
         this['state']['errors']++;
         // Re-throw for caller visibility
-        throw err;
+        this.error(err);
       }
     }
   },
@@ -1026,6 +1027,16 @@ GPS.prototype = {
     // Array of listeners
     for (let i = 0, L = cur.length; i < L; i++) {
       cur[i].call(this, data);
+    }
+  },
+
+  'error': function(error) {
+    const cur = this['events']['error'];
+    if(cur === undefined) {
+      throw error
+    }
+    else {
+      this['emit']('error', error);
     }
   }
 };
