@@ -3,7 +3,7 @@
     "title": "GPS.js",
     "version": "0.8.1",
     "description": "The RAW GPS NMEA parser library",
-    "homepage": "https://raw.org/article/using-gps-with-node-js-and-javascript/",
+    "homepage": "https://raw.org/software/libraries/gps-js/",
     "bugs": "https://github.com/rawify/GPS.js/issues",
     "keywords": [
         "nmea",
