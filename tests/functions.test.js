@@ -1,6 +1,7 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
 const GPS = require('gps');
-const assert = require('assert');
 
 describe('GPS functions', function () {
 

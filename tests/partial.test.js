@@ -1,6 +1,7 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
 const GPS = require('gps');
-const assert = require('assert');
 const gps = new GPS;
 
 const res = [{
@@ -29,29 +30,21 @@ const res = [{
 
 describe('partial updates', function () {
 
-  it('should work async with partial updates', function (done) {
+  it('should work with partial updates', function () {
 
     var K = 0;
 
     gps.on('data', function (data) {
 
-      try {
-        assert.deepEqual(data, res[K++]);
-      } catch (e) {
-        done(e);
-        return;
-      }
-
-      if (K === res.length) {
-        done();
-        return;
-      }
+      assert.deepEqual(data, res[K++]);
     });
 
     gps.updatePartial("6,,*0D\r\n$GPRMC,234919.000");
     gps.updatePartial(",A,4832.3914,N,00903.5500");
     gps.updatePartial(",E,2.28,2.93,260116,,*0D\r\n$GPVTG,2.");
     gps.updatePartial("93,T,,M,2.28,N,4.2,K*66\r\nfoo");
+
+    assert.equal(K, res.length);
 
   });
 });

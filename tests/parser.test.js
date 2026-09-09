@@ -1,3 +1,5 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
 function _(x) {
   return x < 10 ? "0" + x : x;
@@ -7,7 +9,6 @@ let today = new Date();
 today = today.getUTCFullYear() + '-' + _(today.getUTCMonth() + 1) + '-' + _(today.getUTCDate());
 
 const GPS = require('gps');
-const assert = require('assert');
 const gps = new GPS;
 const tests = {
   'foo': 'invalid',
@@ -24,7 +25,7 @@ const tests = {
       21
     ],
     'type': 'GSA',
-    "system": "unknown",
+    "system": "GPS",
     "systemId": null,
     'valid': true,
     'vdop': 1
@@ -170,7 +171,7 @@ const tests = {
     'mode': 'automatic',
     'pdop': 1.72,
     "systemId": null,
-    "system": "unknown",
+    "system": "GPS",
     'raw': '$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A',
     'satellites': [
       10,
@@ -274,7 +275,7 @@ const tests = {
       25,
       29
     ],
-    "system": "unknown",
+    "system": "GPS",
     'type': 'GSA',
     'valid': true,
     'vdop': 5.6
@@ -812,7 +813,7 @@ const tests = {
     "faa": "autonomous",
     "lat": 48.716838833333334,
     "lon": 2.463126,
-    "navStatus": "V",
+    "navStatus": "not valid",
     "raw": "$GNRMC,191029.00,A,4843.01033,N,00227.78756,E,0.024,,010319,,,A,V*1C",
     "speed": 0.044448,
     "status": "active",
@@ -974,7 +975,7 @@ const tests = {
     "lat": 48.71684883333333,
     "lon": 2.463144333333333,
     "mode": "ANNN",
-    "navStatus": "V",
+    "navStatus": "not valid",
     "satsUsed": 4,
     "sep": 46.3
   },
@@ -1044,7 +1045,7 @@ const tests = {
       "prn": 1,
       "snr": 37,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": null,
       "elevation": null,
@@ -1052,7 +1053,7 @@ const tests = {
       "prn": 2,
       "snr": 38,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": null,
       "elevation": null,
@@ -1060,7 +1061,7 @@ const tests = {
       "prn": 3,
       "snr": 39,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": null,
       "elevation": null,
@@ -1068,10 +1069,10 @@ const tests = {
       "prn": 5,
       "snr": 37,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }],
     "satsInView": 16,
-    "system": "BD",
+    "system": "BeiDou",
     "signalId": null,
     "type": "GSV",
     "valid": true
@@ -1087,7 +1088,7 @@ const tests = {
       "prn": 10,
       "snr": 31,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": 161,
       "elevation": 43,
@@ -1095,7 +1096,7 @@ const tests = {
       "prn": 8,
       "snr": null,
       "status": "in view",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": 217,
       "elevation": 40,
@@ -1103,11 +1104,11 @@ const tests = {
       "prn": 9,
       "snr": null,
       "status": "in view",
-      "system": "BD"
+      "system": "BeiDou"
     }],
     "satsInView": 3,
     "signalId": null,
-    "system": "BD",
+    "system": "BeiDou",
     "type": "GSV",
     "valid": true
   },
@@ -1122,7 +1123,7 @@ const tests = {
       "prn": 211,
       "snr": 36,
       "status": "tracking",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": 113,
       "elevation": 7,
@@ -1130,7 +1131,7 @@ const tests = {
       "prn": 205,
       "snr": null,
       "status": "in view",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": 29,
       "elevation": 4,
@@ -1138,7 +1139,7 @@ const tests = {
       "prn": 206,
       "snr": null,
       "status": "in view",
-      "system": "BD"
+      "system": "BeiDou"
     }, {
       "azimuth": 46,
       "elevation": 30,
@@ -1146,10 +1147,10 @@ const tests = {
       "prn": 209,
       "snr": null,
       "status": "in view",
-      "system": "BD"
+      "system": "BeiDou"
     }],
     "satsInView": 6,
-    "system": "BD",
+    "system": "BeiDou",
     "signalId": null,
     "type": "GSV",
     "valid": true
@@ -1297,6 +1298,37 @@ describe('NMEA protocol details', function () {
 
     assert.strictEqual(messages[1].completed, false);
     assert.strictEqual(messages[1].message, null);
+  });
+
+  it('decodes NMEA 4.10 navigation status codes', function () {
+    assert.equal(
+      GPS.Parse('$GNRMC,191029.00,A,4843.01033,N,00227.78756,E,0.024,,010319,,,A,V*1C').navStatus,
+      'not valid'
+    );
+    assert.equal(
+      GPS.Parse('$GNGNS,133216.00,4843.01093,N,00227.78866,E,ANNN,04,3.57,55.4,46.3,,,V*29').navStatus,
+      'not valid'
+    );
+  });
+
+  it('recognizes GSA systems from system IDs and legacy talkers', function () {
+    assert.equal(GPS.Parse('$GNGSA,A,3,25,29,31,26,16,21,,,,,,,1.55,0.84,1.30,5*04').system, 'QZSS');
+    assert.equal(GPS.Parse('$GNGSA,A,3,25,29,31,26,16,21,,,,,,,1.55,0.84,1.30,6*07').system, 'NavIC');
+    assert.equal(GPS.Parse('$GPGSA,A,3,29,26,31,21,,,,,,,,,2.0,1.7,1.0*39').system, 'GPS');
+  });
+
+  it('does not merge checksum-invalid sentences into receiver state', function () {
+    const receiver = new GPS();
+    const records = [];
+    receiver.on('data', data => records.push(data));
+
+    receiver.update('$GPGGA,224900.000,4832.3762,N,00903.5393,E,1,04,7.8,498.6,M,48.0,M,,0000*5E');
+    const trustedLatitude = receiver.state.lat;
+    receiver.update('$GPGGA,123519,4000.000,N,01000.000,E,1,08,0.9,100.0,M,46.9,M,,*00');
+
+    assert.equal(records.at(-1).valid, false);
+    assert.equal(receiver.state.lat, trustedLatitude);
+    assert.equal(receiver.state.errors, 1);
   });
 });
 /*

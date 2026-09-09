@@ -1,13 +1,15 @@
 {
     "name": "gps",
     "title": "GPS.js",
-    "version": "0.8.1",
-    "description": "The RAW GPS NMEA parser library",
+    "version": "0.9.0",
+    "type": "commonjs",
+    "description": "Parse NMEA 0183 GPS/GNSS sentences, streams, and navigation state in Node.js or browsers",
     "homepage": "https://raw.org/software/libraries/gps-js/",
     "bugs": "https://github.com/rawify/GPS.js/issues",
     "keywords": [
         "nmea",
         "gps",
+        "gnss",
         "glonass",
         "serial",
         "parser",
@@ -20,7 +22,7 @@
         "gll",
         "gsa",
         "vtg",
-        "gva",
+        "gsv",
         "hdt"
     ],
     "private": false,
@@ -28,39 +30,40 @@
     "module": "./dist/gps.mjs",
     "browser": "./dist/gps.min.js",
     "unpkg": "./dist/gps.min.js",
-    "types": "./gps.d.ts",
+    "types": "./dist/gps.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "exports": {
         ".": {
             "import": {
-                "types": "./gps.d.mts",
+                "types": "./dist/gps.d.mts",
                 "default": "./dist/gps.mjs"
             },
             "require": {
-                "types": "./gps.d.ts",
+                "types": "./dist/gps.d.ts",
                 "default": "./dist/gps.js"
             },
-            "browser": {
-                "types": "./gps.d.ts",
-                "default": "./dist/gps.min.js"
-            },
             "default": {
-                "types": "./gps.d.ts",
+                "types": "./dist/gps.d.ts",
                 "default": "./dist/gps.js"
             }
         },
+        "./browser": {
+            "import": {
+                "types": "./dist/gps.d.mts",
+                "default": "./dist/gps.min.mjs"
+            },
+            "default": "./dist/gps.min.js"
+        },
         "./package.json": "./package.json"
-    },
-    "typesVersions": {
-        "<4.7": {
-            "*": [
-                "gps.d.ts"
-            ]
-        }
     },
     "sideEffects": false,
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/rawify/GPS.js.git"
+        "url": "git+https://github.com/rawify/GPS.js.git"
     },
     "funding": {
         "type": "github",
@@ -73,27 +76,32 @@
     },
     "license": "MIT",
     "engines": {
-        "node": "*"
+        "node": ">=20"
     },
     "directories": {
         "example": "examples",
         "test": "tests"
     },
     "scripts": {
-        "build": "crude-build GPS",
-        "test": "mocha tests/*.js"
+        "clean": "node scripts/clean.mjs",
+        "typecheck": "tsc --noEmit",
+        "build:types": "tsc -p tsconfig.build.json",
+        "build:js": "node scripts/build.mjs",
+        "build": "npm run clean && npm run build:types && npm run build:js",
+        "test:types": "tsc -p tests/types/tsconfig.json",
+        "test:runtime": "node --test tests/*.test.js",
+        "test": "npm run build && npm run test:types && npm run test:runtime",
+        "prepublishOnly": "npm test"
     },
     "devDependencies": {
-        "angles": "^0.5.0",
+        "angles": "^0.5.1",
         "byline": "^5.0.0",
-        "crude-build": "^0.1.2",
-        "express": "^5.1.0",
+        "esbuild": "^0.25.12",
+        "express": "^5.2.1",
         "kalman": "0.0.2",
-        "mocha": "^11.7.1",
         "serialport": "^13.0.0",
-        "sylvester": "0.0.21"
-    },
-    "dependencies": {
-        "ws": "^8.18.3"
+        "sylvester": "0.0.21",
+        "typescript": "^5.9.3",
+        "ws": "^8.21.3"
     }
 }

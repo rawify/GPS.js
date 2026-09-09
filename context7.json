@@ -1,0 +1,6 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "GPS.js",
+  "description": "NMEA parser with sentence events, accumulated receiver state, distance calculations, and heading helpers.",
+  "excludeFolders": ["dist", "node_modules", "coverage", "_", "res"]
+}
